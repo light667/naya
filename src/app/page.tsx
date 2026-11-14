@@ -1,55 +1,136 @@
 import Link from "next/link";
-import { ButtonLink, Logo, VerifiedBadge } from "@/components/ui";
+import { ButtonLink, Logo } from "@/components/ui";
 import { HeroDemo } from "@/components/HeroDemo";
+import { Photo } from "@/components/Photo";
+
+const RIBBON = ["Réseaux sociaux", "Cuisine", "Garde d'enfants", "Artisanat", "Coiffure", "Vente en ligne", "Couture", "Soutien scolaire", "Organisation d'événements"];
+
+const TILES = [
+  { t: "Coudre", d: "Retouches, tenues sur mesure", src: "/images/coudre.jpg", cls: "sm:col-span-2" },
+  { t: "Coiffer", d: "Tresses, soins à domicile", src: "/images/coiffer.jpg", cls: "sm:row-span-2" },
+  { t: "Vendre", d: "Boutique, pagnes", src: "/images/vendre.jpg", cls: "" },
+  { t: "Cuisiner", d: "Marché, traiteur", src: "/images/cuisiner.jpg", cls: "sm:col-span-2" },
+  { t: "Créer", d: "Artisanat, produits locaux", src: "/images/artisanat.jpg", cls: "" },
+];
+
+const JOURNEYS = [
+  { label: "Service et accueil", src: "/images/parcours-service.jpg", skills: ["Sens du contact", "Travail en équipe", "Rapidité"], mission: "Serveuse en café partenaire" },
+  { label: "Organisation", src: "/images/parcours-organisation.jpg", skills: ["Saisie", "Organisation", "Communication"], mission: "Assistante administrative" },
+  { label: "Côté recruteur", src: "/images/parcours-recruteur.jpg", skills: ["Offre vérifiée", "Profils classés", "Contact sûr"], mission: "Vous publiez, NAYA vérifie" },
+];
 
 const STEPS = [
-  { t: "Racontez votre quotidien", d: "Cinq questions simples sur ce que vous faites déjà : aider en boutique, coudre, garder des enfants, animer une page." },
-  { t: "Découvrez vos compétences", d: "L'IA transforme vos réponses en compétences claires et propose des activités qui peuvent vous rapporter." },
-  { t: "Recevez des missions adaptées", d: "Les offres sont classées selon votre profil, avec la raison de chaque suggestion." },
-  { t: "Postulez avec l'assistante", d: "Elle rédige avec vous votre candidature et vous prépare au rendez-vous." },
+  { t: "Racontez votre quotidien", d: "Cinq questions simples, à l'écrit ou à voix haute : aider en boutique, coudre, garder des enfants, animer une page." },
+  { t: "Découvrez vos compétences", d: "L'IA transforme vos réponses en compétences claires et construit avec vous un portfolio à partager." },
+  { t: "Recevez des missions adaptées", d: "Chaque offre affiche votre score de compatibilité, calculé et expliqué critère par critère." },
+  { t: "Postulez avec l'assistante", d: "Elle rédige une candidature liée à la mission, sans rien inventer, et vous prépare au rendez-vous." },
+];
+
+const TRUST = [
+  ["Offre vérifiée avant publication", "Structure, rémunération et contact sont contrôlés."],
+  ["Signalement en un geste", "Une offre vous paraît suspecte ? Signalez-la, elle est réexaminée."],
+  ["Profil privé par défaut", "Un recruteur ne vous voit que si vous lui envoyez votre candidature."],
+  ["Jamais de frais à payer", "Une vraie mission ne vous demande jamais d'argent."],
 ];
 
 export default function Home() {
   return (
     <main className="overflow-x-clip">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
-        <Logo />
-        <nav className="flex items-center gap-1 sm:gap-2">
-          <Link href="/connexion" className="whitespace-nowrap rounded-full px-4 py-2.5 text-[15px] font-semibold text-plum hover:bg-plum-50">Se connecter</Link>
-          <span className="hidden sm:block"><ButtonLink href="/connexion?mode=inscription" variant="primary">Créer mon profil</ButtonLink></span>
-        </nav>
-      </header>
-
       {/* HERO */}
-      <section className="mx-auto grid max-w-6xl items-center gap-14 px-4 pb-24 pt-8 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:pt-16">
-        <div>
-          <h1 className="font-display text-[46px] text-plum sm:text-[64px] lg:text-[78px]">Vos compétences méritent d&apos;être vues.</h1>
-          <p className="mt-6 max-w-[33rem] text-lg leading-relaxed text-muted sm:text-xl">
-            NAYA aide les jeunes femmes de 18 à 30 ans à repérer ce qu&apos;elles savent faire, même appris hors de l&apos;école,
-            et à trouver des missions rémunérées vérifiées.
-          </p>
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <ButtonLink href="/connexion?mode=inscription" variant="accent" className="px-7 py-4 text-base">Créer mon profil</ButtonLink>
-            <ButtonLink href="/connexion?mode=inscription&role=recruteur" variant="secondary" className="px-7 py-4 text-base">Je propose une mission</ButtonLink>
+      <section className="bg-dots relative bg-night text-white">
+        <div aria-hidden className="pointer-events-none absolute right-[8%] top-24 h-64 w-64 rounded-full bg-sun/40 blur-[90px]" />
+        <div aria-hidden className="pointer-events-none absolute -left-20 bottom-0 h-72 w-72 rounded-full bg-coral/20 blur-[100px]" />
+        <header className="relative mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
+          <span className="rounded-2xl bg-white px-3 py-1.5"><Logo /></span>
+          <nav className="flex items-center gap-2">
+            <Link href="/connexion" className="whitespace-nowrap rounded-full px-4 py-2.5 text-[15px] font-semibold text-white ring-1 ring-inset ring-white/30 hover:bg-white/10">Se connecter</Link>
+            <span className="hidden sm:block"><ButtonLink href="/connexion?mode=inscription" variant="accent">Créer mon profil</ButtonLink></span>
+          </nav>
+        </header>
+
+        <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-4 pb-24 pt-8 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:pb-32 lg:pt-14">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-sm font-medium ring-1 ring-white/20">✦ Pour les jeunes femmes de 18 à 30 ans</span>
+            <h1 className="font-display mt-6 text-[48px] sm:text-[68px] lg:text-[80px]">
+              Vos compétences méritent <span className="text-glow">d&apos;être vues.</span>
+            </h1>
+            <p className="mt-6 max-w-[33rem] text-lg leading-relaxed text-white/75 sm:text-xl">
+              NAYA repère ce que vous savez faire, même appris hors de l&apos;école, et vous ouvre des missions rémunérées vérifiées.
+            </p>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <ButtonLink href="/connexion?mode=inscription" variant="accent" className="px-7 py-4 text-base">Créer mon profil</ButtonLink>
+              <Link href="/connexion?mode=inscription&role=recruteur" className="inline-flex items-center justify-center rounded-full px-7 py-4 text-base font-semibold text-white ring-1 ring-inset ring-white/30 transition-colors hover:bg-white/10">Je propose une mission</Link>
+            </div>
+            <p className="mt-6 text-sm text-white/55">Gratuit · Profil privé tant que vous ne postulez pas</p>
           </div>
-          <p className="mt-6 text-sm text-muted">Gratuit. Votre profil reste privé tant que vous ne postulez pas.</p>
+
+          <div className="relative mx-auto w-full max-w-[460px]">
+            <Photo src="/images/hero.jpg" alt="Jeune femme artisane dans son atelier" priority tone={1} className="aspect-[4/5] w-[74%] rounded-t-[999px] rounded-b-[36px] ring-1 ring-white/15" />
+            <div className="absolute -bottom-12 right-0 w-[70%]"><HeroDemo /></div>
+          </div>
         </div>
-        <HeroDemo />
       </section>
 
-      {/* PARCOURS */}
-      <section className="bg-white py-20 sm:py-28">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <h2 className="font-display max-w-xl text-[34px] text-plum sm:text-[48px]">De votre quotidien à votre première mission</h2>
-          <ol className="relative mt-14 grid gap-10 lg:grid-cols-4 lg:gap-8">
-            <span aria-hidden className="absolute left-[19px] top-2 h-[calc(100%-1rem)] w-px bg-plum/15 lg:left-0 lg:top-[19px] lg:h-px lg:w-full" />
+      {/* RUBAN */}
+      <div className="relative z-10 -mt-6 -rotate-2 bg-sun py-3.5 shadow-[0_18px_40px_-20px_rgba(242,154,0,0.8)]" aria-hidden>
+        <div className="animate-marquee flex w-max gap-8 whitespace-nowrap font-display text-[20px] text-night">
+          {[...RIBBON, ...RIBBON].map((r, i) => <span key={i} className="flex items-center gap-8">{r}<span className="text-night/50">✦</span></span>)}
+        </div>
+      </div>
+
+      {/* CE QUE VOUS FAITES DÉJÀ */}
+      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
+        <h2 className="font-display max-w-xl text-[36px] text-plum sm:text-[52px]">Ce que vous faites déjà <span className="text-glow">a de la valeur</span></h2>
+        <ul className="mt-12 grid auto-rows-[190px] grid-cols-2 gap-3 sm:auto-rows-[220px] sm:grid-cols-4 sm:gap-4">
+          {TILES.map((t, i) => (
+            <li key={t.t} className={`group relative overflow-hidden rounded-[26px] ${t.cls}`}>
+              <Photo src={t.src} alt={t.d} tone={i} className="absolute inset-0 transition-transform duration-700 group-hover:scale-105" />
+              <span className="absolute inset-0 bg-gradient-to-t from-night/85 via-night/20 to-transparent" />
+              <span className="absolute bottom-4 left-4 right-4 text-white">
+                <span className="font-display block text-[24px]">{t.t}</span>
+                <span className="text-sm text-white/80">{t.d}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* EXEMPLES DE PARCOURS */}
+      <section className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
+        <p className="text-[13px] font-bold uppercase tracking-[0.14em] text-coral-600">Exemples de parcours</p>
+        <h2 className="font-display mt-2 max-w-xl text-[34px] text-plum sm:text-[46px]">Du geste du quotidien à la compétence qui se voit</h2>
+        <ul className="mt-10 grid gap-5 md:grid-cols-3">
+          {JOURNEYS.map((j, i) => (
+            <li key={j.label} className="overflow-hidden rounded-[28px] bg-white shadow-[0_24px_50px_-30px_rgba(42,27,110,0.45)] ring-1 ring-line">
+              <div className="relative h-56">
+                <Photo src={j.src} alt={j.label} tone={i + 1} className="absolute inset-0" />
+                <span className="absolute inset-0 bg-gradient-to-t from-night/75 to-transparent" />
+                <span className="absolute left-4 top-4 rounded-full bg-night/70 px-2.5 py-1 text-[12px] font-semibold text-white">Exemple</span>
+                <span className="font-display absolute bottom-4 left-4 text-[24px] text-white">{j.label}</span>
+              </div>
+              <div className="p-5">
+                <div className="flex flex-wrap gap-2">{j.skills.map((s) => <span key={s} className="rounded-full bg-plum-50 px-3 py-1 text-[13px] font-medium text-plum">{s}</span>)}</div>
+                <div className="mt-4 flex items-center justify-between gap-3 border-t border-line pt-4 text-sm">
+                  <span className="text-muted">Mission possible</span>
+                  <span className="text-right font-semibold text-ink">{j.mission}</span>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* ÉTAPES */}
+      <section className="bg-dots relative overflow-hidden bg-night py-20 text-white sm:py-28">
+        <div aria-hidden className="pointer-events-none absolute -left-24 bottom-0 h-80 w-80 rounded-full bg-[#3b6cff]/25 blur-[110px]" />
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+          <h2 className="font-display max-w-xl text-[36px] sm:text-[52px]">De votre quotidien à votre première mission</h2>
+          <ol className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((s, i) => (
-              <li key={s.t} className="relative pl-14 lg:pl-0 lg:pt-14">
-                <span className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-full bg-plum text-[15px] font-bold text-white ring-8 ring-white">
-                  {i + 1}
-                </span>
-                <h3 className="text-lg font-bold text-ink">{s.t}</h3>
-                <p className="mt-2 leading-relaxed text-muted">{s.d}</p>
+              <li key={s.t} className="rounded-[26px] bg-white/[0.06] p-6 ring-1 ring-white/15 backdrop-blur-sm">
+                <span className="font-display text-glow text-[44px] leading-none">{i + 1}</span>
+                <h3 className="mt-4 text-lg font-bold">{s.t}</h3>
+                <p className="mt-2 text-[15px] leading-relaxed text-white/70">{s.d}</p>
               </li>
             ))}
           </ol>
@@ -57,54 +138,47 @@ export default function Home() {
       </section>
 
       {/* CONFIANCE */}
-      <section className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-2 lg:items-center">
+      <section className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+        <div className="relative">
+          <Photo src="/images/confiance.jpg" alt="Jeune femme consultant une offre sur son ordinateur" tone={2} className="aspect-[4/5] rounded-[32px] shadow-[0_40px_80px_-40px_rgba(42,27,110,0.6)]" />
+          <span className="absolute -bottom-4 right-6 inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-sage-700 shadow-lg ring-1 ring-line">✓ Vérifiée par NAYA</span>
+        </div>
         <div>
           <h2 className="font-display text-[34px] text-plum sm:text-[48px]">Des offres contrôlées, une décision qui reste la vôtre</h2>
-          <p className="mt-5 max-w-lg text-lg leading-relaxed text-muted">
-            Chaque mission est vérifiée par l&apos;équipe NAYA avant d&apos;être publiée. L&apos;IA vous conseille, mais elle ne promet pas
-            d&apos;emploi et ne choisit jamais à votre place.
-          </p>
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <VerifiedBadge />
-            <span className="text-sm text-muted">Ce badge l&apos;indique sur chaque offre.</span>
-          </div>
+          <ul className="mt-8 space-y-3">
+            {TRUST.map(([t, d]) => (
+              <li key={t} className="flex gap-4 rounded-[22px] bg-white p-5 ring-1 ring-line">
+                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sage-50 font-bold text-sage-700" aria-hidden>✓</span>
+                <div>
+                  <p className="font-semibold text-ink">{t}</p>
+                  <p className="text-muted">{d}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
-        <ul className="space-y-3">
-          {[
-            ["Offre vérifiée avant publication", "Structure, rémunération et contact sont contrôlés."],
-            ["Signalement en un geste", "Une offre vous paraît suspecte ? Signalez-la, elle est réexaminée."],
-            ["Profil privé par défaut", "Un recruteur ne vous voit que si vous lui envoyez votre candidature."],
-            ["Jamais de frais à payer", "Une vraie mission ne vous demande jamais d'argent. NAYA vous le rappelle."],
-          ].map(([t, d]) => (
-            <li key={t} className="flex gap-4 rounded-[22px] bg-white p-5 ring-1 ring-line">
-              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sage-50 font-bold text-sage-700" aria-hidden>✓</span>
-              <div>
-                <p className="font-semibold text-ink">{t}</p>
-                <p className="text-muted">{d}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
       </section>
 
-      {/* STRUCTURES */}
+      {/* MISSION À CONFIER */}
       <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 sm:pb-28">
-        <div className="grid gap-8 rounded-[32px] bg-plum px-6 py-12 text-white sm:px-12 lg:grid-cols-[1.4fr_1fr] lg:items-center">
-          <div>
-            <h2 className="font-display text-[32px] sm:text-[44px]">Vous avez une mission à confier&nbsp;?</h2>
-            <p className="mt-4 max-w-xl text-lg text-white/75">
-              Entreprises, associations, particuliers : publiez une offre, elle est vérifiée puis proposée aux profils qui correspondent.
-            </p>
-          </div>
-          <div className="flex lg:justify-end">
-            <ButtonLink href="/connexion?mode=inscription&role=recruteur" variant="secondary" className="px-7 py-4 ring-0">Publier une mission</ButtonLink>
+        <div className="relative overflow-hidden rounded-[34px] px-6 py-14 text-white sm:px-12">
+          <Photo src="/images/mission.jpg" alt="" tone={2} className="absolute inset-0" />
+          <span className="absolute inset-0 bg-gradient-to-r from-[#b7853d]/90 via-[#c0607a]/80 to-[#d0508e]/70" />
+          <div className="relative grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-center">
+            <div>
+              <h2 className="font-display text-[34px] sm:text-[46px]">Vous avez une mission à confier&nbsp;?</h2>
+              <p className="mt-4 max-w-xl text-lg text-white/85">Entreprises, associations, particuliers : publiez une offre, elle est vérifiée puis proposée aux profils qui correspondent.</p>
+            </div>
+            <div className="flex lg:justify-end">
+              <ButtonLink href="/connexion?mode=inscription&role=recruteur" variant="accent" className="px-7 py-4">Publier une mission</ButtonLink>
+            </div>
           </div>
         </div>
       </section>
 
-      <footer className="border-t border-line">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-8 text-sm text-muted sm:px-6">
-          <Logo />
+      <footer className="bg-night text-white/70">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-8 text-sm sm:px-6">
+          <span className="rounded-2xl bg-white px-3 py-1.5"><Logo /></span>
           <p>© {new Date().getFullYear()} NAYA. Révéler les compétences, ouvrir les opportunités.</p>
         </div>
       </footer>

@@ -36,21 +36,21 @@ export function HeroDemo() {
   }, [phase]);
 
   return (
-    <div className="relative mx-auto w-full max-w-[380px]">
-      <div className="relative rounded-[40px] bg-white p-3 shadow-[0_40px_80px_-30px_rgba(74,21,75,0.45)] ring-1 ring-plum/10">
-        <div className="rounded-[30px] bg-bg px-5 pb-6 pt-5">
+    <div className="relative w-full max-w-[340px]">
+      <div className="relative rounded-[26px] bg-white text-ink shadow-[0_40px_80px_-30px_rgba(10,4,40,0.8)] ring-1 ring-white/20">
+        <div className="px-4 pb-4 pt-4">
           <div className="flex items-center justify-between text-[13px] text-muted">
             <span className="font-semibold text-plum">Découverte</span>
             <span>Question 1 sur 5</span>
           </div>
-          <p className="font-display mt-4 text-[22px] text-plum">Que faites-vous pour aider votre entourage&nbsp;?</p>
+          <p className="font-display mt-3 text-[19px] text-plum">Que faites-vous pour aider votre entourage&nbsp;?</p>
 
-          <div className="mt-4 min-h-[86px] rounded-2xl bg-white p-4 text-[15px] leading-relaxed text-ink ring-1 ring-line">
+          <div className="mt-3 min-h-[70px] rounded-2xl bg-bg p-3 text-[14px] leading-relaxed text-ink ring-1 ring-line">
             {ANSWER.slice(0, typed)}
             {phase === 1 && <span className="ml-0.5 inline-block h-4 w-[2px] translate-y-0.5 animate-pulse bg-plum" />}
           </div>
 
-          <div className="mt-5 min-h-[92px]">
+          <div className="mt-3 min-h-[76px]">
             {phase >= 2 && <p className="mb-2 text-[13px] text-muted">Compétences repérées</p>}
             <div className="flex flex-wrap gap-2">
               {phase >= 2 &&
@@ -60,7 +60,7 @@ export function HeroDemo() {
                     initial={reduce ? false : { opacity: 0, scale: 0.4, y: 8 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     transition={{ type: "spring", stiffness: 520, damping: 22, delay: i * 0.18 }}
-                    className="rounded-full bg-plum px-3 py-1.5 text-[13px] font-medium text-white"
+                    className="rounded-full bg-plum px-2.5 py-1 text-[12px] font-medium text-white"
                   >
                     {s}
                   </motion.span>
@@ -72,7 +72,7 @@ export function HeroDemo() {
             initial={reduce ? false : { opacity: 0, y: 30 }}
             animate={phase >= 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ type: "spring", stiffness: 260, damping: 26 }}
-            className="mt-5 rounded-2xl bg-white p-4 ring-1 ring-line"
+            className="mt-3 rounded-2xl bg-white p-3 ring-1 ring-line"
           >
             <div className="flex items-center gap-3">
               {phase >= 3 && <ScoreRing value={92} size={48} />}

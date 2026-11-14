@@ -5,10 +5,11 @@ import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/Toast";
-import { Button, ButtonLink, Empty, Input, Select, Tabs, Textarea } from "@/components/ui";
-import { Icon } from "@/components/icons";
+import { Button, ButtonLink, Empty, Input, Select, Tabs } from "@/components/ui";
+import { PortfolioBuilder } from "@/components/portfolio/PortfolioBuilder";
+import { FieldWithMic } from "@/components/portfolio/StepPresentation";
 import { supabase } from "@/lib/supabase";
-import type { PortfolioItem, Profile, Skill } from "@/lib/types";
+import type { Profile, Skill } from "@/lib/types";
 
 type Tab = "profil" | "competences" | "portfolio";
 const LEVELS: NonNullable<Skill["level"]>[] = ["débutante", "intermédiaire", "confirmée"];
@@ -61,7 +62,12 @@ function ProfilInner() {
     <div>
       {/* Carte d'identité : ce que verra un recruteur */}
       <section className="flex flex-col gap-5 rounded-[30px] bg-white p-6 ring-1 ring-line sm:flex-row sm:items-center sm:p-8">
-        <span className="font-display flex h-20 w-20 shrink-0 items-center justify-center rounded-[26px] bg-plum text-[30px] text-white">{initials}</span>
+        {form.avatar_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={form.avatar_url} alt="" className="h-20 w-20 shrink-0 rounded-[26px] object-cover" />
+        ) : (
+          <span className="font-display flex h-20 w-20 shrink-0 items-center justify-center rounded-[26px] bg-plum text-[30px] text-white">{initials}</span>
+        )}
         <div className="min-w-0 flex-1">
           <h1 className="font-display text-[30px] text-plum sm:text-[38px]">{form.full_name || "Votre nom"}</h1>
           <p className="mt-1 text-[17px] text-ink">{form.headline || <span className="text-muted">Ajoutez un titre, par exemple « Couturière et créatrice en pagne »</span>}</p>
@@ -92,8 +98,8 @@ function ProfilInner() {
                 <option value="">Choisir</option>
                 {["À temps plein", "À temps partiel", "Les week-ends", "En soirée", "Ponctuellement (missions courtes)"].map((a) => <option key={a}>{a}</option>)}
               </Select>
-              <div className="sm:col-span-2"><Textarea label="Présentation" rows={3} placeholder="Quelques phrases sur vous et ce que vous aimez faire." value={form.bio} onChange={(e) => set("bio", e.target.value)} /></div>
-              <div className="sm:col-span-2"><Textarea label="Expériences, même informelles" rows={3} placeholder="Aide au commerce familial, garde d'enfants, association…" value={form.experiences} onChange={(e) => set("experiences", e.target.value)} /></div>
+              <div className="sm:col-span-2"><FieldWithMic label="Présentation" rows={3} placeholder="Quelques phrases sur vous et ce que vous aimez faire." value={form.bio} onChange={(v) => set("bio", v)} /></div>
+              <div className="sm:col-span-2"><FieldWithMic label="Expériences, même informelles" rows={3} placeholder="Aide au commerce familial, garde d'enfants, association…" value={form.experiences} onChange={(v) => set("experiences", v)} /></div>
               <div className="sm:col-span-2">
                 <Input label="Centres d'intérêt" hint="Séparés par des virgules" value={interestsText} onChange={(e) => { setInterestsText(e.target.value); set("interests", e.target.value.split(",").map((s) => s.trim()).filter(Boolean)); }} />
               </div>
@@ -145,7 +151,7 @@ function ProfilInner() {
             </div>
           )}
 
-          {tab === "portfolio" && <Portfolio />}
+          {tab === "portfolio" && <PortfolioBuilder />}
         </motion.div>
       </AnimatePresence>
 
@@ -157,96 +163,13 @@ function ProfilInner() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 80, opacity: 0 }}
             transition={{ type: "spring", stiffness: 380, damping: 32 }}
-            className="fixed inset-x-3 bottom-[92px] z-40 mx-auto flex max-w-xl items-center justify-between gap-3 rounded-full bg-white py-2 pl-5 pr-2 shadow-[0_16px_40px_-12px_rgba(74,21,75,0.45)] ring-1 ring-line lg:bottom-6"
+            className="fixed inset-x-3 bottom-[92px] z-40 mx-auto flex max-w-xl items-center justify-between gap-3 rounded-full bg-white py-2 pl-5 pr-2 shadow-[0_16px_40px_-12px_rgba(42,27,110,0.45)] ring-1 ring-line lg:bottom-6"
           >
             <span className="text-sm font-medium text-ink">Modifications non enregistrées</span>
             <Button variant="accent" loading={saving} onClick={save}>Enregistrer</Button>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
-  );
-}
-
-function Portfolio() {
-  const { profile } = useAuth();
-  const toast = useToast();
-  const [items, setItems] = useState<PortfolioItem[] | null>(null);
-  const [form, setForm] = useState({ title: "", description: "", link: "" });
-  const [adding, setAdding] = useState(false);
-  const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    if (!profile) return;
-    supabase.from("portfolio_items").select("*").eq("user_id", profile.id).order("created_at", { ascending: false }).then(({ data }) => setItems((data as PortfolioItem[]) ?? []));
-  }, [profile]);
-
-  async function add(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    const raw = form.link.trim();
-    const link = raw && !/^https?:\/\//.test(raw) ? `https://${raw}` : raw;
-    const { data, error } = await supabase.from("portfolio_items").insert({ ...form, link, user_id: profile!.id }).select().single();
-    setBusy(false);
-    if (error) return toast(error.message, "error");
-    setItems([data as PortfolioItem, ...(items ?? [])]);
-    setForm({ title: "", description: "", link: "" });
-    setAdding(false);
-    toast("Réalisation ajoutée");
-  }
-
-  async function remove(id: string) {
-    setItems((l) => l!.filter((i) => i.id !== id));
-    const { error } = await supabase.from("portfolio_items").delete().eq("id", id);
-    toast(error ? error.message : "Réalisation supprimée", error ? "error" : "success");
-  }
-
-  if (items === null) return <div className="h-40 animate-pulse rounded-[22px] bg-white ring-1 ring-line" />;
-
-  return (
-    <div>
-      <AnimatePresence initial={false}>
-        {adding ? (
-          <motion.form key="form" onSubmit={add} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-            <div className="mb-6 space-y-4 rounded-[22px] bg-white p-5 ring-1 ring-plum/30 sm:p-6">
-              <Input label="Titre" required placeholder="Robe de cérémonie en pagne wax" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} autoFocus />
-              <Textarea label="Description" rows={3} placeholder="Pour qui ? Qu'avez-vous fait ? Quel résultat ?" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-              <Input label="Lien vers une photo ou une vidéo" placeholder="Google Drive, Instagram, Facebook…" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} />
-              <div className="flex gap-2">
-                <Button type="submit" variant="accent" loading={busy}>Ajouter la réalisation</Button>
-                <Button type="button" variant="ghost" onClick={() => setAdding(false)}>Annuler</Button>
-              </div>
-            </div>
-          </motion.form>
-        ) : (
-          items.length > 0 && (
-            <motion.div key="btn" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6">
-              <Button variant="primary" onClick={() => setAdding(true)}>Ajouter une réalisation</Button>
-            </motion.div>
-          )
-        )}
-      </AnimatePresence>
-
-      {items.length === 0 && !adding ? (
-        <Empty icon="▣" title="Montrez votre travail" text="Une tenue cousue, un gâteau d'anniversaire, une affiche, un événement organisé : tout compte." action={<Button variant="accent" onClick={() => setAdding(true)}>Ajouter ma première réalisation</Button>} />
-      ) : (
-        <ul className="grid gap-3 sm:grid-cols-2">
-          <AnimatePresence initial={false}>
-            {items.map((i) => (
-              <motion.li key={i.id} layout initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }} className="flex flex-col rounded-[22px] bg-white p-5 ring-1 ring-line">
-                <p className="text-lg font-bold text-ink">{i.title}</p>
-                {i.description && <p className="mt-1 flex-1 text-muted">{i.description}</p>}
-                <div className="mt-4 flex items-center justify-between gap-2">
-                  {i.link ? (
-                    <a href={i.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-semibold text-plum hover:underline"><Icon.link /> Ouvrir le lien</a>
-                  ) : <span className="text-sm text-muted">Sans lien</span>}
-                  <button onClick={() => remove(i.id)} className="text-sm text-muted hover:text-red-700">Supprimer</button>
-                </div>
-              </motion.li>
-            ))}
-          </AnimatePresence>
-        </ul>
-      )}
     </div>
   );
 }

@@ -94,7 +94,7 @@ export default function PublierPage() {
               <Input label="Contact" required placeholder="E-mail ou téléphone" value={form.contact} onChange={(e) => set("contact", e.target.value)} />
               <div className="sm:col-span-2"><Input label="Compétences recherchées" hint="Séparées par des virgules" placeholder="Canva, rédaction, ponctualité" value={form.skills} onChange={(e) => set("skills", e.target.value)} /></div>
               <label className="flex items-center gap-3 text-[15px] font-medium sm:col-span-2">
-                <input type="checkbox" checked={form.remote} onChange={(e) => set("remote", e.target.checked)} className="h-5 w-5 accent-[#4A154B]" />
+                <input type="checkbox" checked={form.remote} onChange={(e) => set("remote", e.target.checked)} className="h-5 w-5 accent-[#2A1B6E]" />
                 La mission peut se faire à distance
               </label>
               <div className="sm:col-span-2"><Button type="submit" variant="accent" loading={busy} className="w-full py-4 sm:w-auto sm:px-8">Envoyer en vérification</Button></div>

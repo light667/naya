@@ -5,12 +5,12 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useId, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from "react";
 
 /* ---------- Boutons ---------- */
-// primary = prune (navigation, actions courantes) · accent = corail (action principale de l'écran, une seule)
+// primary = indigo (navigation, actions courantes) · accent = ambre (action principale de l'écran, une seule)
 type Variant = "primary" | "accent" | "secondary" | "ghost" | "danger";
 
 const VARIANTS: Record<Variant, string> = {
   primary: "bg-plum text-white hover:bg-plum-700",
-  accent: "bg-coral text-ink hover:bg-coral-600 shadow-[0_8px_20px_-10px_rgba(255,107,107,0.9)]",
+  accent: "bg-sun text-night hover:bg-sun-600 shadow-[0_10px_24px_-12px_rgba(242,154,0,0.95)]",
   secondary: "bg-white text-plum ring-1 ring-inset ring-plum/25 hover:ring-plum/60 hover:bg-plum-50",
   ghost: "text-plum hover:bg-plum-50",
   danger: "bg-white text-red-700 ring-1 ring-inset ring-red-200 hover:bg-red-50",
@@ -56,11 +56,11 @@ type Tone = "plum" | "coral" | "sage" | "neutral" | "red" | "amber";
 export function Badge({ children, tone = "plum", className = "" }: { children: ReactNode; tone?: Tone; className?: string }) {
   const tones: Record<Tone, string> = {
     plum: "bg-plum-50 text-plum",
-    coral: "bg-coral-50 text-[#a32f2f]",
+    coral: "bg-coral-50 text-coral-700",
     sage: "bg-sage-50 text-sage-700",
     neutral: "bg-neutral-100 text-neutral-700",
     red: "bg-red-50 text-red-800",
-    amber: "bg-amber-50 text-amber-900",
+    amber: "bg-sun-50 text-sun-900",
   };
   return <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[13px] font-medium ${tones[tone]} ${className}`}>{children}</span>;
 }
@@ -105,7 +105,7 @@ export function Select({ label, children, ...rest }: React.SelectHTMLAttributes<
   return (
     <label className="block">
       {label && <span className="mb-1.5 block text-sm font-semibold text-ink">{label}</span>}
-      <select {...rest} className={`${field} appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 12 12%22><path d=%22M2 4l4 4 4-4%22 fill=%22none%22 stroke=%22%234A154B%22 stroke-width=%221.6%22/></svg>')] bg-[length:12px] bg-[right_1rem_center] bg-no-repeat pr-10`}>
+      <select {...rest} className={`${field} appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 12 12%22><path d=%22M2 4l4 4 4-4%22 fill=%22none%22 stroke=%22%232A1B6E%22 stroke-width=%221.6%22/></svg>')] bg-[length:12px] bg-[right_1rem_center] bg-no-repeat pr-10`}>
         {children}
       </select>
     </label>
@@ -133,9 +133,9 @@ export function Logo({ className = "" }: { className?: string }) {
   return (
     <span className={`inline-flex items-center gap-2 text-plum ${className}`}>
       <svg viewBox="0 0 32 32" className="h-7 w-7" aria-hidden>
-        <rect width="32" height="32" rx="10" fill="#4A154B" />
-        <path d="M9 23V9.5h2.4l7.2 9V9.5H21V23h-2.3l-7.3-9.1V23z" fill="#FAFAFA" />
-        <circle cx="26" cy="6" r="3" fill="#FF6B6B" />
+        <rect width="32" height="32" rx="10" fill="#2A1B6E" />
+        <path d="M9 23V9.5h2.4l7.2 9V9.5H21V23h-2.3l-7.3-9.1V23z" fill="#FFFFFF" />
+        <circle cx="26" cy="6" r="3" fill="#FFB21E" />
       </svg>
       <span className="font-display text-[22px]">naya</span>
     </span>
@@ -144,9 +144,9 @@ export function Logo({ className = "" }: { className?: string }) {
 
 export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
   return (
-    <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+    <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div className="max-w-2xl">
-        <h1 className="font-display text-[34px] text-plum sm:text-[44px]">{title}</h1>
+        <h1 className="font-display text-[36px] text-plum sm:text-[48px]">{title}</h1>
         {subtitle && <p className="mt-2 text-[17px] text-muted">{subtitle}</p>}
       </div>
       {action}
@@ -175,11 +175,11 @@ export function ScoreRing({ value, size = 52, label = true }: { value: number; s
   const reduce = useReducedMotion();
   const r = (size - 8) / 2;
   const c = 2 * Math.PI * r;
-  const color = value >= 70 ? "#2A9D8F" : value >= 45 ? "#4A154B" : "#B4A9B6";
+  const color = value >= 70 ? "#1F9A8A" : value >= 45 ? "#2A1B6E" : "#FFB21E";
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }} role="img" aria-label={`${value} % compatible`}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#EEE6EE" strokeWidth={5} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#ECE8F7" strokeWidth={5} />
         <motion.circle
           cx={size / 2}
           cy={size / 2}
@@ -248,7 +248,7 @@ export function Sheet({ open, onClose, children, footer, title }: { open: boolea
             onClick={onClose}
           />
           <motion.div
-            className="relative flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[28px] bg-white shadow-[0_-20px_60px_-20px_rgba(74,21,75,0.35)] sm:rounded-[28px]"
+            className="relative flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[28px] bg-white shadow-[0_-20px_60px_-20px_rgba(42,27,110,0.35)] sm:rounded-[28px]"
             initial={{ y: "100%", opacity: 0.6 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
@@ -298,5 +298,30 @@ export function Stepper({ steps, current, failed }: { steps: string[]; current: 
         );
       })}
     </ol>
+  );
+}
+
+/* ---------- Choix segmenté (ton, langue, canal…) ---------- */
+export function Segmented<T extends string>({ label, options, value, onChange, size = "md" }: { label?: string; options: { id: T; label: string }[]; value: T; onChange: (v: T) => void; size?: "sm" | "md" }) {
+  return (
+    <div>
+      {label && <span className="mb-1.5 block text-sm font-semibold text-ink">{label}</span>}
+      <div role="radiogroup" aria-label={label} className="no-scrollbar flex max-w-full gap-1 overflow-x-auto rounded-2xl bg-bg p-1 ring-1 ring-line">
+        {options.map((o) => (
+          <button
+            key={o.id}
+            type="button"
+            role="radio"
+            aria-checked={value === o.id}
+            onClick={() => onChange(o.id)}
+            className={`flex-1 shrink-0 whitespace-nowrap rounded-xl font-semibold transition-colors ${size === "sm" ? "px-2.5 py-1.5 text-[13px]" : "px-3 py-2 text-sm"} ${
+              value === o.id ? "bg-white text-plum shadow-sm ring-1 ring-plum/15" : "text-muted hover:text-plum"
+            }`}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }

@@ -1,10 +1,10 @@
-// Moteur local de NAYA : utilisé quand l'IA Claude n'est pas configurée
+// Moteur local de NAYA : utilisé quand l'IA (Mistral) n'est pas configurée
 // (ou indisponible). Simple, déterministe, sans appel réseau.
-import type { Match, Opportunity, Profile, Skill, Suggestion, WriteMode } from "./types";
+import type { Skill, Suggestion } from "./types";
 
-type Rule = { keys: string[]; skill: Skill };
+export type Rule = { keys: string[]; skill: Skill };
 
-const RULES: Rule[] = [
+export const RULES: Rule[] = [
   { keys: ["cousu", "couture", "coudre", "pagne", "vêtement", "retouche", "tailleur"], skill: { name: "Couture", category: "Couture & mode" } },
   { keys: ["cuisine", "cuisiner", "plat", "pâtisserie", "gâteau", "traiteur", "repas"], skill: { name: "Cuisine", category: "Cuisine & traiteur" } },
   { keys: ["tresse", "coiffure", "coiffer", "cheveux", "natte"], skill: { name: "Coiffure & tresses", category: "Beauté & bien-être" } },
@@ -67,79 +67,3 @@ export function localExtractSkills(text: string): { skills: Skill[]; suggestions
   return { skills, suggestions, summary };
 }
 
-export function localMatch(profile: Pick<Profile, "skills" | "interests" | "city">, opps: Opportunity[]): Match[] {
-  const mySkills = profile.skills.map((s) => norm(s.name));
-  const myCats = profile.skills.map((s) => norm(s.category));
-  const interests = profile.interests.map(norm);
-  const city = norm(profile.city || "");
-  return opps
-    .map((o) => {
-      let score = 20;
-      const reasons: string[] = [];
-      const oSkills = o.skills.map(norm);
-      const hits = o.skills.filter((_, i) => mySkills.some((m) => m.includes(oSkills[i]) || oSkills[i].includes(m)));
-      score += Math.min(45, hits.length * 20);
-      if (hits.length) reasons.push(`vous maîtrisez ${hits.join(", ")}`);
-      if (myCats.includes(norm(o.category))) { score += 20; reasons.push(`correspond à votre domaine (${o.category})`); }
-      if (interests.some((i) => norm(o.category + " " + o.title + " " + o.description).includes(i))) { score += 10; reasons.push("rejoint vos centres d'intérêt"); }
-      if (o.remote) { score += 5; reasons.push("possible à distance"); }
-      else if (city && norm(o.location).includes(city)) { score += 5; reasons.push("près de chez vous"); }
-      return {
-        opportunityId: o.id,
-        score: Math.min(98, score),
-        reason: reasons.length ? capitalize(reasons.join(" · ")) : "Une occasion de découvrir un nouveau domaine.",
-      };
-    })
-    .sort((a, b) => b.score - a.score);
-}
-
-const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-
-export function localWrite(mode: WriteMode, profile: Profile, opp?: Opportunity | null, extra?: string): string {
-  const name = profile.full_name || "Je";
-  const skills = profile.skills.slice(0, 4).map((s) => s.name.toLowerCase());
-  const skillsTxt = skills.length ? skills.join(", ") : "ma motivation et ma capacité d'apprendre vite";
-  if (mode === "candidature") {
-    return `Objet : Candidature — ${opp?.title ?? "mission"}
-
-Bonjour${opp ? ` à l'équipe de ${opp.organization}` : ""},
-
-Je m'appelle ${name}${profile.city ? `, j'habite à ${profile.city}` : ""}, et je souhaite vous proposer ma candidature${opp ? ` pour la mission « ${opp.title} »` : ""}.
-
-Au fil de mes expériences${profile.experiences ? ` (${profile.experiences.slice(0, 140).trim()}${profile.experiences.length > 140 ? "…" : ""})` : ""}, j'ai développé des compétences en ${skillsTxt}. Je suis sérieuse, ponctuelle et j'aime le travail bien fait.
-${extra ? `\n${extra}\n` : ""}
-${profile.availability ? `Je suis disponible ${profile.availability.toLowerCase()}. ` : ""}Je serais heureuse d'échanger avec vous pour vous présenter mes réalisations.
-
-Merci pour votre attention,
-${profile.full_name}`;
-  }
-  if (mode === "presentation") {
-    return `✨ ${profile.full_name || "Mon activité"} — ${profile.headline || "Services sur mesure"}
-
-Qui suis-je ?
-${profile.bio || `Une jeune femme motivée${profile.city ? ` basée à ${profile.city}` : ""}, passionnée par ce qu'elle fait.`}
-
-Ce que je propose :
-${(profile.skills.length ? profile.skills : [{ name: "Services personnalisés" }]).slice(0, 5).map((s) => `• ${s.name}`).join("\n")}
-
-Pourquoi me faire confiance ?
-• Travail soigné et dans les délais
-• Écoute de vos besoins
-• Tarifs adaptés
-${extra ? `\n${extra}\n` : ""}
-📍 ${profile.city || "Ma ville"} ${profile.availability ? `· Disponible ${profile.availability.toLowerCase()}` : ""}
-Contactez-moi pour un devis gratuit !`;
-  }
-  return `Préparer votre échange${opp ? ` avec ${opp.organization}` : ""}
-
-1. Présentez-vous en 30 secondes : qui vous êtes, ce que vous savez faire (${skillsTxt}), pourquoi cette mission vous intéresse.
-2. Préparez 2 exemples concrets : une situation où vous avez réussi quelque chose, et une difficulté surmontée.
-3. Questions probables :
-   • « Parlez-moi de vous. »
-   • « Pourquoi cette mission ? »
-   • « Quelles sont vos disponibilités ? »
-   • « Quel est votre tarif ? » → ayez un chiffre en tête${opp?.pay ? ` (annoncé : ${opp.pay})` : ""}.
-4. Vos questions à poser : déroulé de la mission, délais, mode de paiement.
-5. Sécurité : rencontrez-vous dans un lieu public ou connu, prévenez un proche, ne payez jamais de « frais d'inscription ».
-${extra ? `\nNote : ${extra}` : ""}`;
-}

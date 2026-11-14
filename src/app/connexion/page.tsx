@@ -51,18 +51,18 @@ function AuthForm() {
 
   return (
     <div className="grid min-h-dvh lg:grid-cols-[1fr_1.1fr]">
-      <aside className="relative hidden flex-col justify-between overflow-hidden bg-plum-50 p-12 lg:flex">
-        <Link href="/"><Logo /></Link>
+      <aside className="bg-dots relative hidden flex-col justify-between overflow-hidden bg-night p-12 text-white lg:flex">
+        <Link href="/" className="self-start rounded-2xl bg-white px-3 py-1.5"><Logo /></Link>
         <div className="relative z-10 max-w-md">
-          <p className="font-display text-[52px] text-plum">Chaque compétence compte, la vôtre aussi.</p>
-          <p className="mt-5 text-lg text-muted">
+          <p className="font-display text-[56px]">Chaque compétence compte, <span className="text-glow">la vôtre aussi.</span></p>
+          <p className="mt-5 text-lg text-white/70">
             En cinq questions, NAYA vous aide à mettre des mots sur ce que vous savez déjà faire.
           </p>
         </div>
-        <p className="relative z-10 text-sm text-muted">Vos données ne sont jamais vendues ni partagées sans votre accord.</p>
+        <p className="relative z-10 text-sm text-white/55">Vos données ne sont jamais vendues ni partagées sans votre accord.</p>
         <motion.div
           aria-hidden
-          className="absolute -bottom-40 -right-40 h-[480px] w-[480px] rounded-full border-[56px] border-plum/[0.07]"
+          className="absolute -bottom-32 -right-24 h-[420px] w-[420px] rounded-full bg-sun/30 blur-[110px]"
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}

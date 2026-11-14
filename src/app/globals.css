@@ -3,51 +3,61 @@
 @theme inline {
   --font-sans: var(--font-bricolage), system-ui, sans-serif;
 
-  --color-bg: #fafafa;
+  /* Direction « nuit indigo » : indigo profond, ambre pour l'action, corail-rose en accent */
+  --color-bg: #f6f4fd;
   --color-surface: #ffffff;
-  --color-plum: #4a154b;
-  --color-plum-700: #370f38;
-  --color-plum-100: #eedfee;
-  --color-plum-50: #f7f0f7;
-  --color-coral: #ff6b6b;
-  --color-coral-600: #f45757;
-  --color-coral-50: #fff1ef;
-  --color-sage: #2a9d8f;
-  --color-sage-700: #1d7268;
-  --color-sage-50: #e7f4f2;
-  --color-ink: #24112a;
-  --color-muted: #6e6273;
-  --color-line: #ebe5ec;
+  --color-night: #150b3f;
+  --color-night-800: #1f1257;
+  --color-plum: #2a1b6e;      /* couleur principale (indigo) — nom conservé pour tout le code */
+  --color-plum-700: #1d1152;
+  --color-plum-100: #e5e0f8;
+  --color-plum-50: #f1eefc;
+  --color-sun: #ffb21e;       /* bouton d'action principal, texte nuit dessus */
+  --color-sun-600: #f29a00;
+  --color-sun-800: #8a5300;
+  --color-sun-900: #6b4000;
+  --color-sun-100: #ffe9b3;
+  --color-sun-50: #fff6dd;
+  --color-coral: #ff5e7e;
+  --color-coral-600: #f2456a;
+  --color-coral-700: #c42b52;
+  --color-coral-50: #ffeff3;
+  --color-sage: #1f9a8a;
+  --color-sage-700: #157066;
+  --color-sage-50: #e3f4f1;
+  --color-ink: #1a1238;
+  --color-muted: #686385;
+  --color-line: #e7e3f3;
 
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html {
-  background: #fafafa;
+  background: #f6f4fd;
 }
 
 body {
-  background: #fafafa;
-  color: #24112a;
+  background: #f6f4fd;
+  color: #1a1238;
   font-variation-settings: "opsz" 14;
 }
 
 /* Titres : Bricolage en grand corps optique, légèrement condensée */
 .font-display {
-  font-variation-settings: "opsz" 96, "wdth" 92;
-  font-weight: 700;
+  font-variation-settings: "opsz" 96, "wdth" 82;
+  font-weight: 800;
   letter-spacing: -0.025em;
   line-height: 1.02;
 }
 
 :focus-visible {
-  outline: 2px solid #4a154b;
+  outline: 2px solid #2a1b6e;
   outline-offset: 3px;
   border-radius: 10px;
 }
 
 ::selection {
-  background: #eedfee;
+  background: #ffe9b3;
 }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -58,4 +68,26 @@ body {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Texte en dégradé ambre → corail (titres de la page d'accueil) */
+.text-glow {
+  background: linear-gradient(90deg, #ffb21e 0%, #ff8a4c 45%, #ff5e7e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Trame de points discrète sur les fonds nuit */
+.bg-dots {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+@keyframes marquee { to { transform: translateX(-50%); } }
+.animate-marquee { animation: marquee 32s linear infinite; }
+
+@media print {
+  html, body { background: #fff !important; }
+  .print\:hidden { display: none !important; }
 }

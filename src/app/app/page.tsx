@@ -6,8 +6,8 @@ import { motion } from "motion/react";
 import { useAuth } from "@/components/AuthProvider";
 import { Badge, ButtonLink, ScoreRing, VerifiedBadge } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
-import { localMatch } from "@/lib/naya-local";
-import { STATUS_LABELS, type Application, type Opportunity, type Profile } from "@/lib/types";
+import { rankOpportunities } from "@/lib/matching";
+import { STATUS_LABELS, type Application, type Opportunity, type PortfolioItem, type Profile } from "@/lib/types";
 
 type Next = { title: string; text: string; href: string; cta: string };
 
@@ -23,7 +23,7 @@ function nextStep(p: Profile, apps: Application[], portfolio: number): Next {
   if (!p.bio || !p.city)
     return { title: "Complétez votre profil", text: "Une courte présentation et votre ville aident les recruteurs à vous faire confiance.", href: "/app/profil", cta: "Compléter mon profil" };
   if (portfolio === 0)
-    return { title: "Ajoutez une première réalisation", text: "Une photo de votre travail vaut mieux qu'un long discours.", href: "/app/profil?tab=portfolio", cta: "Ajouter une réalisation" };
+    return { title: "Créez votre portfolio", text: "Dictez votre parcours, importez vos photos : l'IA vous aide à présenter votre travail et vous obtenez un lien à partager.", href: "/app/profil?tab=portfolio", cta: "Créer mon portfolio" };
   return { title: "De nouvelles missions vous attendent", text: "Les offres sont classées selon vos compétences, avec la raison de chaque suggestion.", href: "/app/opportunites", cta: "Voir les missions" };
 }
 
@@ -31,14 +31,14 @@ export default function Dashboard() {
   const { profile } = useAuth();
   const [opps, setOpps] = useState<Opportunity[]>([]);
   const [apps, setApps] = useState<Application[]>([]);
-  const [portfolio, setPortfolio] = useState(0);
+  const [items, setItems] = useState<PortfolioItem[]>([]);
   const [myOffers, setMyOffers] = useState<Opportunity[]>([]);
 
   useEffect(() => {
     if (!profile) return;
     supabase.from("opportunities").select("*").eq("status", "verifiee").then(({ data }) => setOpps((data as Opportunity[]) ?? []));
     supabase.from("applications").select("*, opportunities(*)").eq("user_id", profile.id).order("updated_at", { ascending: false }).then(({ data }) => setApps((data as Application[]) ?? []));
-    supabase.from("portfolio_items").select("id", { count: "exact", head: true }).eq("user_id", profile.id).then(({ count }) => setPortfolio(count ?? 0));
+    supabase.from("portfolio_items").select("*").eq("user_id", profile.id).then(({ data }) => setItems((data as PortfolioItem[]) ?? []));
     if (profile.role !== "talent") supabase.from("opportunities").select("*").eq("created_by", profile.id).then(({ data }) => setMyOffers((data as Opportunity[]) ?? []));
   }, [profile]);
 
@@ -68,9 +68,10 @@ export default function Dashboard() {
     );
   }
 
+  const portfolio = items.length;
   const checks = [!!profile.city, !!profile.bio, profile.skills.length >= 3, !!profile.availability, portfolio > 0, !!profile.headline];
   const completion = Math.round((checks.filter(Boolean).length / checks.length) * 100);
-  const top = localMatch(profile, opps).slice(0, 6);
+  const top = rankOpportunities(profile, opps, items).filter((m) => m.complete).slice(0, 6);
   const byId = new Map(opps.map((o) => [o.id, o]));
 
   return (
@@ -101,7 +102,7 @@ export default function Dashboard() {
                 <Link
                   key={o.id}
                   href={`/app/opportunites?o=${o.id}`}
-                  className="flex w-[78%] shrink-0 snap-start flex-col rounded-[22px] bg-white p-5 ring-1 ring-line transition-shadow hover:shadow-[0_16px_40px_-20px_rgba(74,21,75,0.35)] sm:w-[46%] lg:w-auto"
+                  className="flex w-[78%] shrink-0 snap-start flex-col rounded-[22px] bg-white p-5 ring-1 ring-line transition-shadow hover:shadow-[0_16px_40px_-20px_rgba(42,27,110,0.35)] sm:w-[46%] lg:w-auto"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <p className="font-semibold leading-snug text-ink">{o.title}</p>
@@ -164,16 +165,16 @@ function NextCard({ next }: { next: Next }) {
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="relative mt-7 overflow-hidden rounded-[30px] bg-plum p-7 text-white sm:p-10"
+      className="bg-dots relative mt-7 overflow-hidden rounded-[30px] bg-night p-7 text-white sm:p-10"
     >
       <motion.span
         aria-hidden
-        className="absolute -right-24 -top-24 h-72 w-72 rounded-full border-[40px] border-white/[0.06]"
+        className="absolute -right-16 -top-20 h-64 w-64 rounded-full bg-sun/35 blur-[80px]"
         initial={{ scale: 0.6 }}
         animate={{ scale: 1 }}
         transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
       />
-      <p className="relative text-sm font-semibold text-white/70">Prochaine étape</p>
+      <p className="relative text-sm font-semibold text-sun">Prochaine étape</p>
       <h2 className="font-display relative mt-2 max-w-xl text-[28px] sm:text-[38px]">{next.title}</h2>
       <p className="relative mt-3 max-w-lg text-white/75">{next.text}</p>
       <ButtonLink href={next.href} variant="accent" className="relative mt-7 px-7 py-3.5">{next.cta}</ButtonLink>

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     "La plateforme qui aide les jeunes femmes à révéler leurs compétences et à trouver des missions rémunérées vérifiées.",
 };
 
-export const viewport: Viewport = { themeColor: "#FAFAFA", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#150B3F", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

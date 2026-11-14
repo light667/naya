@@ -107,7 +107,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* Navigation basse (mobile) */}
-      <nav className="fixed inset-x-3 bottom-3 z-30 flex rounded-[26px] bg-white/95 p-1.5 shadow-[0_16px_40px_-16px_rgba(74,21,75,0.4)] ring-1 ring-line backdrop-blur-md lg:hidden" aria-label="Navigation principale">
+      <nav className="fixed inset-x-3 bottom-3 z-30 flex rounded-[26px] bg-white/95 p-1.5 shadow-[0_16px_40px_-16px_rgba(42,27,110,0.4)] ring-1 ring-line backdrop-blur-md lg:hidden" aria-label="Navigation principale">
         {items.map((i) => {
           const active = isActive(i.href);
           return (

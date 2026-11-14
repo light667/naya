@@ -30,7 +30,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 12, scale: 0.96 }}
               transition={{ type: "spring", stiffness: 420, damping: 32 }}
-              className={`pointer-events-auto flex max-w-md items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-medium shadow-[0_12px_32px_-12px_rgba(74,21,75,0.45)] ${
+              className={`pointer-events-auto flex max-w-md items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-medium shadow-[0_12px_32px_-12px_rgba(42,27,110,0.45)] ${
                 t.tone === "error" ? "bg-white text-red-800 ring-1 ring-red-200" : "bg-plum text-white"
               }`}
             >

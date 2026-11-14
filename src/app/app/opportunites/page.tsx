@@ -10,8 +10,8 @@ import { AiBadge, Badge, Button, ButtonLink, Chip, Empty, PageHeader, ScoreRing,
 import { Icon } from "@/components/icons";
 import { supabase } from "@/lib/supabase";
 import { callAi } from "@/lib/ai-client";
-import { localMatch } from "@/lib/naya-local";
-import type { Application, Match, Opportunity } from "@/lib/types";
+import { rankOpportunities } from "@/lib/matching";
+import type { Application, Match, Opportunity, PortfolioItem } from "@/lib/types";
 
 const ORG_LABEL = { entreprise: "Entreprise", association: "Association", particulier: "Particulier" };
 
@@ -23,6 +23,7 @@ function OpportunitesInner() {
   const [opps, setOpps] = useState<Opportunity[] | null>(null);
   const [apps, setApps] = useState<Application[]>([]);
   const [matches, setMatches] = useState<Match[] | null>(null);
+  const [items, setItems] = useState<PortfolioItem[]>([]);
   const [source, setSource] = useState<"ia" | "local" | null>(null);
   const [ranking, setRanking] = useState(false);
   const [q, setQ] = useState("");
@@ -35,10 +36,19 @@ function OpportunitesInner() {
     supabase.from("opportunities").select("*").eq("status", "verifiee").order("created_at", { ascending: false }).then(({ data }) => {
       const list = (data as Opportunity[]) ?? [];
       setOpps(list);
-      setMatches(localMatch(profile, list));
     });
+    supabase.from("portfolio_items").select("*").eq("user_id", profile.id).then(({ data }) => setItems((data as PortfolioItem[]) ?? []));
     supabase.from("applications").select("*").eq("user_id", profile.id).then(({ data }) => setApps((data as Application[]) ?? []));
   }, [profile]);
+
+  // Score identique à celui de l'assistante (calcul pondéré, jamais généré par l'IA)
+  useEffect(() => {
+    if (profile && opps) setMatches((prev) => {
+      const fresh = rankOpportunities(profile, opps, items);
+      const reasons = new Map((prev ?? []).map((m) => [m.opportunityId, m.reason]));
+      return source === "ia" ? fresh.map((m) => ({ ...m, reason: reasons.get(m.opportunityId) ?? m.reason })) : fresh;
+    });
+  }, [profile, opps, items]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const scoreOf = useMemo(() => new Map((matches ?? []).map((m) => [m.opportunityId, m])), [matches]);
   const categories = [...new Set((opps ?? []).map((o) => o.category))].sort();
@@ -54,10 +64,14 @@ function OpportunitesInner() {
     if (!profile || !opps) return;
     setRanking(true);
     try {
-      const r = await callAi<{ matches: Match[] }>({ kind: "match", profile, opportunities: opps });
-      setMatches(r.matches);
-      setSource(r.source);
-      toast("Missions reclassées selon votre profil");
+      const r = await callAi<{ reasons: Record<string, string> }>({ kind: "match_reasons" });
+      if (r.source === "local" || !Object.keys(r.reasons).length) {
+        toast("L'IA n'est pas configurée : les explications restent celles du calcul.", "error");
+      } else {
+        setMatches((list) => (list ?? []).map((m) => ({ ...m, reason: r.reasons[m.opportunityId] ?? m.reason })));
+        setSource("ia");
+        toast("Explications personnalisées par l'IA");
+      }
     } catch (e) {
       toast((e as Error).message, "error");
     }
@@ -75,7 +89,7 @@ function OpportunitesInner() {
         action={isTalent && (
           <div className="flex items-center gap-2">
             <AiBadge source={source} />
-            <Button variant="primary" loading={ranking} onClick={rankWithAi} disabled={!opps?.length}>Affiner avec l&apos;IA</Button>
+            <Button variant="primary" loading={ranking} onClick={rankWithAi} disabled={!opps?.length}>Expliquer avec l&apos;IA</Button>
           </div>
         )}
       />
@@ -121,7 +135,7 @@ function OpportunitesInner() {
                   <motion.li key={o.id} layout initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ type: "spring", stiffness: 400, damping: 36 }}>
                     <button
                       onClick={() => open(o.id)}
-                      className="flex h-full w-full flex-col rounded-[22px] bg-white p-5 text-left ring-1 ring-line transition-shadow hover:shadow-[0_16px_40px_-20px_rgba(74,21,75,0.35)]"
+                      className="flex h-full w-full flex-col rounded-[22px] bg-white p-5 text-left ring-1 ring-line transition-shadow hover:shadow-[0_16px_40px_-20px_rgba(42,27,110,0.35)]"
                     >
                       <div className="flex items-start gap-4">
                         <div className="min-w-0 flex-1">
@@ -129,7 +143,7 @@ function OpportunitesInner() {
                           <h3 className="mt-1 text-lg font-bold leading-snug text-ink">{o.title}</h3>
                           <p className="mt-0.5 text-sm text-muted">{o.organization}</p>
                         </div>
-                        {isTalent && m && <ScoreRing value={m.score} />}
+                        {isTalent && m && (m.complete ? <ScoreRing value={m.score} /> : <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-sun-50 text-lg font-bold text-sun-800" title="Analyse incomplète">?</span>)}
                       </div>
                       {isTalent && m && <p className="mt-3 line-clamp-2 text-sm text-muted">{m.reason}</p>}
                       <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
@@ -217,7 +231,7 @@ function Detail({
           <h2 className="font-display mt-4 text-[30px] text-plum sm:text-[36px]">{opp.title}</h2>
           <p className="mt-1 text-muted">{opp.organization}, {ORG_LABEL[opp.org_type].toLowerCase()}</p>
 
-          {canApply && match && (
+          {canApply && match && match.complete && (
             <div className="mt-5 flex items-center gap-4 rounded-2xl bg-plum-50 p-4">
               <ScoreRing value={match.score} size={56} />
               <div>
@@ -227,6 +241,7 @@ function Detail({
             </div>
           )}
 
+          {canApply && match && !match.complete && <p className="mt-5 rounded-2xl bg-sun-50 p-4 text-sm text-sun-900">{match.reason}</p>}
           <dl className="mt-5 grid grid-cols-3 gap-3 text-sm">
             <div><dt className="text-muted">Lieu</dt><dd className="mt-0.5 font-semibold text-ink">{opp.remote ? "À distance" : opp.location || "À préciser"}</dd></div>
             <div><dt className="text-muted">Rémunération</dt><dd className="mt-0.5 font-semibold text-plum">{opp.pay || "À discuter"}</dd></div>
@@ -246,7 +261,7 @@ function Detail({
             </>
           )}
 
-          <div className="mt-8 rounded-2xl bg-amber-50 p-4 text-sm text-amber-950">
+          <div className="mt-8 rounded-2xl bg-sun-50 p-4 text-sm text-sun-900">
             <p><span className="font-semibold">Restez prudente.</span> Une vraie mission ne demande jamais de frais. Rencontrez le recruteur dans un lieu public et prévenez un proche.</p>
             <AnimatePresence initial={false} mode="wait">
               {reporting ? (
