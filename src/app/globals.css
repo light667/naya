@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-bricolage), system-ui, sans-serif;
+
+  --color-bg: #fafafa;
+  --color-surface: #ffffff;
+  --color-plum: #4a154b;
+  --color-plum-700: #370f38;
+  --color-plum-100: #eedfee;
+  --color-plum-50: #f7f0f7;
+  --color-coral: #ff6b6b;
+  --color-coral-600: #f45757;
+  --color-coral-50: #fff1ef;
+  --color-sage: #2a9d8f;
+  --color-sage-700: #1d7268;
+  --color-sage-50: #e7f4f2;
+  --color-ink: #24112a;
+  --color-muted: #6e6273;
+  --color-line: #ebe5ec;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html {
+  background: #fafafa;
+}
+
+body {
+  background: #fafafa;
+  color: #24112a;
+  font-variation-settings: "opsz" 14;
+}
+
+/* Titres : Bricolage en grand corps optique, légèrement condensée */
+.font-display {
+  font-variation-settings: "opsz" 96, "wdth" 92;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+}
+
+:focus-visible {
+  outline: 2px solid #4a154b;
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
+::selection {
+  background: #eedfee;
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

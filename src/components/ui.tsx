@@ -1,0 +1,302 @@
+"use client";
+
+import Link from "next/link";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useEffect, useId, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from "react";
+
+/* ---------- Boutons ---------- */
+// primary = prune (navigation, actions courantes) · accent = corail (action principale de l'écran, une seule)
+type Variant = "primary" | "accent" | "secondary" | "ghost" | "danger";
+
+const VARIANTS: Record<Variant, string> = {
+  primary: "bg-plum text-white hover:bg-plum-700",
+  accent: "bg-coral text-ink hover:bg-coral-600 shadow-[0_8px_20px_-10px_rgba(255,107,107,0.9)]",
+  secondary: "bg-white text-plum ring-1 ring-inset ring-plum/25 hover:ring-plum/60 hover:bg-plum-50",
+  ghost: "text-plum hover:bg-plum-50",
+  danger: "bg-white text-red-700 ring-1 ring-inset ring-red-200 hover:bg-red-50",
+};
+
+const BASE =
+  "relative inline-flex select-none items-center justify-center gap-2 rounded-full px-5 py-3 text-[15px] font-semibold transition-[background-color,box-shadow,transform] duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40";
+
+export function Button({
+  variant = "primary",
+  className = "",
+  loading,
+  children,
+  ...rest
+}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; loading?: boolean }) {
+  return (
+    <button {...rest} disabled={rest.disabled || loading} className={`${BASE} ${VARIANTS[variant]} ${className}`}>
+      {loading && <Spinner />}
+      {children}
+    </button>
+  );
+}
+
+export function ButtonLink({ href, variant = "primary", className = "", children }: { href: string; variant?: Variant; className?: string; children: ReactNode }) {
+  return (
+    <Link href={href} className={`${BASE} ${VARIANTS[variant]} ${className}`}>
+      {children}
+    </Link>
+  );
+}
+
+export function Spinner({ className = "" }: { className?: string }) {
+  return <span className={`h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent ${className}`} />;
+}
+
+/* ---------- Surfaces ---------- */
+export function Card({ children, className = "", as: Tag = "div" }: { children: ReactNode; className?: string; as?: "div" | "section" | "article" }) {
+  return <Tag className={`rounded-[22px] bg-white p-5 ring-1 ring-line sm:p-6 ${className}`}>{children}</Tag>;
+}
+
+type Tone = "plum" | "coral" | "sage" | "neutral" | "red" | "amber";
+
+export function Badge({ children, tone = "plum", className = "" }: { children: ReactNode; tone?: Tone; className?: string }) {
+  const tones: Record<Tone, string> = {
+    plum: "bg-plum-50 text-plum",
+    coral: "bg-coral-50 text-[#a32f2f]",
+    sage: "bg-sage-50 text-sage-700",
+    neutral: "bg-neutral-100 text-neutral-700",
+    red: "bg-red-50 text-red-800",
+    amber: "bg-amber-50 text-amber-900",
+  };
+  return <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[13px] font-medium ${tones[tone]} ${className}`}>{children}</span>;
+}
+
+export function VerifiedBadge({ className = "" }: { className?: string }) {
+  return (
+    <Badge tone="sage" className={className}>
+      <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" aria-hidden>
+        <path fill="currentColor" d="M8 0l1.9 1.5 2.4-.2.8 2.3 2.1 1.2-.6 2.3.9 2.2-1.9 1.5-.3 2.4-2.4.4L9.6 15 8 14l-1.6 1-1.3-1.9-2.4-.4-.3-2.4L.5 8.8l.9-2.2-.6-2.3L2.9 3l.8-2.3 2.4.2z" />
+        <path fill="#fff" d="M7 10.6L4.7 8.3l1-1L7 8.6l3.3-3.3 1 1z" />
+      </svg>
+      Vérifiée par NAYA
+    </Badge>
+  );
+}
+
+/* ---------- Champs ---------- */
+const field =
+  "w-full rounded-2xl border border-line bg-white px-4 py-3 text-[15px] text-ink placeholder:text-neutral-400 transition-[border-color,box-shadow] focus:border-plum focus:outline-none focus:ring-4 focus:ring-plum/10";
+
+export function Input({ label, hint, ...rest }: InputHTMLAttributes<HTMLInputElement> & { label?: string; hint?: string }) {
+  return (
+    <label className="block">
+      {label && <span className="mb-1.5 block text-sm font-semibold text-ink">{label}</span>}
+      <input {...rest} className={field} />
+      {hint && <span className="mt-1.5 block text-[13px] text-muted">{hint}</span>}
+    </label>
+  );
+}
+
+export function Textarea({ label, hint, className = "", ...rest }: TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: string; hint?: string }) {
+  return (
+    <label className="block">
+      {label && <span className="mb-1.5 block text-sm font-semibold text-ink">{label}</span>}
+      <textarea rows={4} {...rest} className={`${field} resize-none leading-relaxed ${className}`} />
+      {hint && <span className="mt-1.5 block text-[13px] text-muted">{hint}</span>}
+    </label>
+  );
+}
+
+export function Select({ label, children, ...rest }: React.SelectHTMLAttributes<HTMLSelectElement> & { label?: string }) {
+  return (
+    <label className="block">
+      {label && <span className="mb-1.5 block text-sm font-semibold text-ink">{label}</span>}
+      <select {...rest} className={`${field} appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 12 12%22><path d=%22M2 4l4 4 4-4%22 fill=%22none%22 stroke=%22%234A154B%22 stroke-width=%221.6%22/></svg>')] bg-[length:12px] bg-[right_1rem_center] bg-no-repeat pr-10`}>
+        {children}
+      </select>
+    </label>
+  );
+}
+
+/** Puce sélectionnable (filtres, réponses rapides). */
+export function Chip({ active, onClick, children }: { active?: boolean; onClick?: () => void; children: ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+        active ? "bg-plum text-white" : "bg-white text-ink ring-1 ring-inset ring-line hover:ring-plum/40"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+/* ---------- Identité ---------- */
+export function Logo({ className = "" }: { className?: string }) {
+  return (
+    <span className={`inline-flex items-center gap-2 text-plum ${className}`}>
+      <svg viewBox="0 0 32 32" className="h-7 w-7" aria-hidden>
+        <rect width="32" height="32" rx="10" fill="#4A154B" />
+        <path d="M9 23V9.5h2.4l7.2 9V9.5H21V23h-2.3l-7.3-9.1V23z" fill="#FAFAFA" />
+        <circle cx="26" cy="6" r="3" fill="#FF6B6B" />
+      </svg>
+      <span className="font-display text-[22px]">naya</span>
+    </span>
+  );
+}
+
+export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
+  return (
+    <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+      <div className="max-w-2xl">
+        <h1 className="font-display text-[34px] text-plum sm:text-[44px]">{title}</h1>
+        {subtitle && <p className="mt-2 text-[17px] text-muted">{subtitle}</p>}
+      </div>
+      {action}
+    </div>
+  );
+}
+
+export function AiBadge({ source }: { source?: "ia" | "local" | null }) {
+  if (!source) return null;
+  return source === "ia" ? <Badge tone="plum">Proposé par l&apos;IA</Badge> : <Badge tone="neutral">Suggestion hors ligne</Badge>;
+}
+
+export function Empty({ title, text, action, icon }: { title: string; text: string; action?: ReactNode; icon?: ReactNode }) {
+  return (
+    <div className="flex flex-col items-center rounded-[22px] border border-dashed border-plum/20 bg-white/60 px-6 py-12 text-center">
+      {icon && <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-plum-50 text-2xl text-plum">{icon}</div>}
+      <p className="font-display text-2xl text-plum">{title}</p>
+      <p className="mt-2 max-w-sm text-muted">{text}</p>
+      {action && <div className="mt-6">{action}</div>}
+    </div>
+  );
+}
+
+/* ---------- Score de compatibilité ---------- */
+export function ScoreRing({ value, size = 52, label = true }: { value: number; size?: number; label?: boolean }) {
+  const reduce = useReducedMotion();
+  const r = (size - 8) / 2;
+  const c = 2 * Math.PI * r;
+  const color = value >= 70 ? "#2A9D8F" : value >= 45 ? "#4A154B" : "#B4A9B6";
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }} role="img" aria-label={`${value} % compatible`}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#EEE6EE" strokeWidth={5} />
+        <motion.circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth={5}
+          strokeLinecap="round"
+          strokeDasharray={c}
+          initial={{ strokeDashoffset: reduce ? c * (1 - value / 100) : c }}
+          animate={{ strokeDashoffset: c * (1 - value / 100) }}
+          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+        />
+      </svg>
+      {label && <span className="absolute inset-0 flex items-center justify-center text-[13px] font-bold text-ink">{value}</span>}
+    </div>
+  );
+}
+
+/* ---------- Onglets avec indicateur animé ---------- */
+export function Tabs<T extends string>({ tabs, value, onChange }: { tabs: { id: T; label: string }[]; value: T; onChange: (v: T) => void }) {
+  const id = useId();
+  return (
+    <div role="tablist" className="no-scrollbar inline-flex max-w-full gap-1 overflow-x-auto rounded-full bg-white p-1 ring-1 ring-line">
+      {tabs.map((t) => (
+        <button
+          key={t.id}
+          role="tab"
+          aria-selected={value === t.id}
+          onClick={() => onChange(t.id)}
+          className={`relative shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${value === t.id ? "text-white" : "text-muted hover:text-plum"}`}
+        >
+          {value === t.id && (
+            <motion.span layoutId={`tab-${id}`} className="absolute inset-0 rounded-full bg-plum" transition={{ type: "spring", stiffness: 500, damping: 38 }} />
+          )}
+          <span className="relative">{t.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- Panneau : feuille du bas sur mobile, fenêtre sur ordinateur ---------- */
+export function Sheet({ open, onClose, children, footer, title }: { open: boolean; onClose: () => void; children: ReactNode; footer?: ReactNode; title?: string }) {
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [open, onClose]);
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={title}>
+          <motion.div
+            className="absolute inset-0 bg-plum/30 backdrop-blur-[2px]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+          />
+          <motion.div
+            className="relative flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[28px] bg-white shadow-[0_-20px_60px_-20px_rgba(74,21,75,0.35)] sm:rounded-[28px]"
+            initial={{ y: "100%", opacity: 0.6 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: "100%", opacity: 0 }}
+            transition={{ type: "spring", stiffness: 380, damping: 38 }}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.6 }}
+            onDragEnd={(_, info) => info.offset.y > 120 && onClose()}
+          >
+            <div className="flex justify-center pt-3 sm:hidden" aria-hidden>
+              <span className="h-1.5 w-10 rounded-full bg-neutral-200" />
+            </div>
+            <button
+              onClick={onClose}
+              aria-label="Fermer"
+              className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-neutral-100 text-lg text-ink hover:bg-plum-50"
+            >
+              ×
+            </button>
+            <div className="overflow-y-auto overscroll-contain px-6 pb-6 pt-4 sm:pt-7">{children}</div>
+            {footer && <div className="border-t border-line bg-white px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">{footer}</div>}
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ---------- Frise d'étapes (suivi de candidature) ---------- */
+export function Stepper({ steps, current, failed }: { steps: string[]; current: number; failed?: boolean }) {
+  return (
+    <ol className="flex items-center gap-1.5" aria-label="Avancement">
+      {steps.map((s, i) => {
+        const done = i <= current;
+        return (
+          <li key={s} className="flex flex-1 flex-col gap-1.5">
+            <span className="h-1.5 overflow-hidden rounded-full bg-neutral-100">
+              <motion.span
+                className={`block h-full rounded-full ${failed && i === current ? "bg-red-400" : i === current && i === steps.length - 1 ? "bg-sage" : "bg-plum"}`}
+                initial={false}
+                animate={{ width: done ? "100%" : "0%" }}
+                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: i * 0.06 }}
+              />
+            </span>
+            <span className={`hidden text-[12px] sm:block ${i === current ? "font-semibold text-ink" : "text-muted"}`}>{s}</span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
