@@ -13,8 +13,8 @@ const TONES = [
  * Photo avec repli élégant : si le fichier n'existe pas encore dans /public/images,
  * un dégradé de la charte s'affiche à la place (aucune image cassée).
  */
-export function Photo({ src, alt, className = "", tone = 0, priority }: { src: string; alt: string; className?: string; tone?: number; priority?: boolean }) {
-  const [ok, setOk] = useState(true);
+export function Photo({ src, alt, className = "", imgClassName = "", tone = 0, priority }: { src: string; alt: string; className?: string; imgClassName?: string; tone?: number; priority?: boolean }) {
+  const [ok, setOk] = useState(!!src);
   const ref = useRef<HTMLImageElement>(null);
   // L'erreur peut survenir avant l'hydratation : on vérifie l'état de l'image au montage.
   useEffect(() => {
@@ -25,7 +25,7 @@ export function Photo({ src, alt, className = "", tone = 0, priority }: { src: s
     <div className={`${className.split(" ").includes("absolute") ? "" : "relative"} overflow-hidden bg-gradient-to-br ${TONES[tone % TONES.length]} ${className}`}>
       {ok && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img ref={ref} src={src} alt={alt} loading={priority ? "eager" : "lazy"} decoding="async" onError={() => setOk(false)} className="absolute inset-0 h-full w-full object-cover text-transparent" />
+        <img ref={ref} src={src} alt={alt} loading={priority ? "eager" : "lazy"} decoding="async" onError={() => setOk(false)} fetchPriority={priority ? "high" : undefined} className={`absolute inset-0 h-full w-full object-cover text-transparent ${imgClassName}`} />
       )}
       {!ok && <span aria-hidden className="bg-dots absolute inset-0 opacity-60" />}
     </div>

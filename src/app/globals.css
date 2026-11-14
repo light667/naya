@@ -76,7 +76,14 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
+
+/* Halos lumineux : dégradés radiaux plutôt que filter: blur (qui s'affiche en noir sur iPhone) */
+.glow-sun { background: radial-gradient(circle, rgba(255, 178, 30, 0.42) 0%, rgba(255, 178, 30, 0.12) 40%, transparent 70%); }
+.glow-coral { background: radial-gradient(circle, rgba(255, 94, 126, 0.28) 0%, rgba(255, 94, 126, 0.08) 40%, transparent 70%); }
+.glow-blue { background: radial-gradient(circle, rgba(59, 108, 255, 0.3) 0%, rgba(59, 108, 255, 0.08) 40%, transparent 70%); }
 
 /* Trame de points discrète sur les fonds nuit */
 .bg-dots {

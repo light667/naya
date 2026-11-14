@@ -15,10 +15,17 @@ async function load(slug: string): Promise<PortfolioData | null> {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const d = await load(slug);
-  if (!d) return { title: "Portfolio — NAYA", robots: { index: false } };
+  if (!d) return { title: "Portfolio", robots: { index: false, follow: false } };
   const title = `${d.profile.full_name}${d.profile.headline ? ` — ${d.profile.headline}` : ""}`;
   const description = (d.profile.settings?.intro || d.profile.bio || "Portfolio professionnel sur NAYA").slice(0, 160);
-  return { title, description, openGraph: { title, description, images: d.profile.avatar_url ? [d.profile.avatar_url] : undefined } };
+  const images = d.profile.avatar_url ? [d.profile.avatar_url] : undefined;
+  return {
+    title,
+    description,
+    alternates: { canonical: `/p/${slug}` },
+    openGraph: { type: "profile", url: `/p/${slug}`, title, description, images },
+    twitter: { card: images ? "summary_large_image" : "summary", title, description, images },
+  };
 }
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {

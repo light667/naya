@@ -1,20 +1,13 @@
 # Photos de la page d'accueil
 
-Déposez ici les photos (JPG, ~1600 px de large max, < 300 Ko idéalement).
-Tant qu'un fichier manque, un dégradé aux couleurs NAYA s'affiche à sa place.
+JPG optimisés (1400 px max). Pour remplacer une photo, gardez le même nom de fichier.
 
 | Fichier | Utilisation |
 |---|---|
-| hero.jpg | Arche du hero (portrait vertical) |
-| coudre.jpg | Tuile « Coudre » |
-| vendre.jpg | Tuile « Vendre » |
-| cuisiner.jpg | Tuile « Cuisiner » |
-| coiffer.jpg | Tuile « Coiffer » (verticale) |
-| artisanat.jpg | Tuile « Créer » |
-| parcours-service.jpg | Exemple de parcours « Service et accueil » |
-| parcours-organisation.jpg | Exemple de parcours « Organisation » |
-| parcours-recruteur.jpg | Exemple « Côté recruteur » |
+| hero.jpg | Arche du hero |
+| vendre.jpg, cuisiner.jpg, artisanat.jpg, marche.jpg | Tuiles « Ce que vous faites déjà a de la valeur » |
+| parcours-service.jpg, parcours-organisation.jpg | Exemples de parcours |
 | confiance.jpg | Section « Des offres contrôlées » |
-| mission.jpg | Bandeau « Vous avez une mission à confier ? » |
 
-Utilisez uniquement des photos dont vous avez les droits (vos propres photos ou banques libres de droits).
+La carte « Côté recruteur » et le bandeau « Vous avez une mission à confier ? » utilisent un dégradé de la charte.
+Utilisez uniquement des photos dont vous avez les droits.

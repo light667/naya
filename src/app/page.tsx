@@ -2,21 +2,30 @@ import Link from "next/link";
 import { ButtonLink, Logo } from "@/components/ui";
 import { HeroDemo } from "@/components/HeroDemo";
 import { Photo } from "@/components/Photo";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
+
+// Données structurées pour Google : organisation + site web
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "Organization", "@id": `${SITE_URL}/#org`, name: SITE_NAME, url: SITE_URL, logo: `${SITE_URL}/icon-512.png`, description: SITE_DESCRIPTION, areaServed: "TG" },
+    { "@type": "WebSite", "@id": `${SITE_URL}/#site`, url: SITE_URL, name: SITE_NAME, inLanguage: "fr", publisher: { "@id": `${SITE_URL}/#org` } },
+  ],
+};
 
 const RIBBON = ["Réseaux sociaux", "Cuisine", "Garde d'enfants", "Artisanat", "Coiffure", "Vente en ligne", "Couture", "Soutien scolaire", "Organisation d'événements"];
 
 const TILES = [
-  { t: "Coudre", d: "Retouches, tenues sur mesure", src: "/images/coudre.jpg", cls: "sm:col-span-2" },
-  { t: "Coiffer", d: "Tresses, soins à domicile", src: "/images/coiffer.jpg", cls: "sm:row-span-2" },
-  { t: "Vendre", d: "Boutique, pagnes", src: "/images/vendre.jpg", cls: "" },
-  { t: "Cuisiner", d: "Marché, traiteur", src: "/images/cuisiner.jpg", cls: "sm:col-span-2" },
-  { t: "Créer", d: "Artisanat, produits locaux", src: "/images/artisanat.jpg", cls: "" },
+  { t: "Vendre", d: "Boutique, pagnes, vente en ligne", src: "/images/vendre.jpg", alt: "Jeune femme rangeant des pagnes wax dans sa boutique", cls: "col-span-2", pos: "object-[50%_40%]" },
+  { t: "Cuisiner", d: "Transformation, traiteur", src: "/images/cuisiner.jpg", alt: "Femme présentant une bassine de farine au marché", cls: "row-span-2", pos: "object-top" },
+  { t: "Créer", d: "Artisanat, objets d'art", src: "/images/artisanat.jpg", alt: "Artisane devant ses sculptures sur un stand", cls: "row-span-2", pos: "object-top" },
+  { t: "Commercer", d: "Marché, relation client", src: "/images/marche.jpg", alt: "Commerçante montrant ses ignames au marché", cls: "col-span-2", pos: "object-[50%_35%]" },
 ];
 
 const JOURNEYS = [
-  { label: "Service et accueil", src: "/images/parcours-service.jpg", skills: ["Sens du contact", "Travail en équipe", "Rapidité"], mission: "Serveuse en café partenaire" },
-  { label: "Organisation", src: "/images/parcours-organisation.jpg", skills: ["Saisie", "Organisation", "Communication"], mission: "Assistante administrative" },
-  { label: "Côté recruteur", src: "/images/parcours-recruteur.jpg", skills: ["Offre vérifiée", "Profils classés", "Contact sûr"], mission: "Vous publiez, NAYA vérifie" },
+  { label: "Service et accueil", src: "/images/parcours-service.jpg", alt: "Jeune serveuse souriante devant un café", skills: ["Sens du contact", "Travail en équipe", "Rapidité"], mission: "Serveuse en café partenaire" },
+  { label: "Organisation", src: "/images/parcours-organisation.jpg", alt: "Jeune femme travaillant sur son ordinateur dans un café", skills: ["Saisie", "Organisation", "Communication"], mission: "Assistante administrative" },
+  { label: "Côté recruteur", src: "", alt: "", skills: ["Offre vérifiée", "Profils classés", "Contact sûr"], mission: "Vous publiez, NAYA vérifie" },
 ];
 
 const STEPS = [
@@ -36,10 +45,11 @@ const TRUST = [
 export default function Home() {
   return (
     <main className="overflow-x-clip">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
       {/* HERO */}
       <section className="bg-dots relative bg-night text-white">
-        <div aria-hidden className="pointer-events-none absolute right-[8%] top-24 h-64 w-64 rounded-full bg-sun/40 blur-[90px]" />
-        <div aria-hidden className="pointer-events-none absolute -left-20 bottom-0 h-72 w-72 rounded-full bg-coral/20 blur-[100px]" />
+        <div aria-hidden className="pointer-events-none absolute right-0 top-16 h-[420px] w-[420px] max-w-full rounded-full glow-sun" />
+        <div aria-hidden className="pointer-events-none absolute -left-32 bottom-0 h-[420px] w-[420px] rounded-full glow-coral" />
         <header className="relative mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
           <span className="rounded-2xl bg-white px-3 py-1.5"><Logo /></span>
           <nav className="flex items-center gap-2">
@@ -65,7 +75,7 @@ export default function Home() {
           </div>
 
           <div className="relative mx-auto w-full max-w-[460px]">
-            <Photo src="/images/hero.jpg" alt="Jeune femme artisane dans son atelier" priority tone={1} className="aspect-[4/5] w-[74%] rounded-t-[999px] rounded-b-[36px] ring-1 ring-white/15" />
+            <Photo src="/images/hero.jpg" alt="Jeune créatrice souriante derrière son stand de savons artisanaux" priority tone={1} imgClassName="object-[50%_30%]" className="aspect-[4/5] w-[74%] rounded-t-[999px] rounded-b-[36px] ring-1 ring-white/15" />
             <div className="absolute -bottom-12 right-0 w-[70%]"><HeroDemo /></div>
           </div>
         </div>
@@ -81,10 +91,10 @@ export default function Home() {
       {/* CE QUE VOUS FAITES DÉJÀ */}
       <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
         <h2 className="font-display max-w-xl text-[36px] text-plum sm:text-[52px]">Ce que vous faites déjà <span className="text-glow">a de la valeur</span></h2>
-        <ul className="mt-12 grid auto-rows-[190px] grid-cols-2 gap-3 sm:auto-rows-[220px] sm:grid-cols-4 sm:gap-4">
+        <ul className="mt-12 grid auto-rows-[170px] grid-cols-2 gap-3 sm:auto-rows-[240px] sm:grid-cols-4 sm:gap-4">
           {TILES.map((t, i) => (
             <li key={t.t} className={`group relative overflow-hidden rounded-[26px] ${t.cls}`}>
-              <Photo src={t.src} alt={t.d} tone={i} className="absolute inset-0 transition-transform duration-700 group-hover:scale-105" />
+              <Photo src={t.src} alt={t.alt} tone={i} imgClassName={t.pos} className="absolute inset-0 transition-transform duration-700 group-hover:scale-105" />
               <span className="absolute inset-0 bg-gradient-to-t from-night/85 via-night/20 to-transparent" />
               <span className="absolute bottom-4 left-4 right-4 text-white">
                 <span className="font-display block text-[24px]">{t.t}</span>
@@ -103,7 +113,7 @@ export default function Home() {
           {JOURNEYS.map((j, i) => (
             <li key={j.label} className="overflow-hidden rounded-[28px] bg-white shadow-[0_24px_50px_-30px_rgba(42,27,110,0.45)] ring-1 ring-line">
               <div className="relative h-56">
-                <Photo src={j.src} alt={j.label} tone={i + 1} className="absolute inset-0" />
+                <Photo src={j.src} alt={j.alt} tone={i + 1} imgClassName="object-[50%_25%]" className="absolute inset-0" />
                 <span className="absolute inset-0 bg-gradient-to-t from-night/75 to-transparent" />
                 <span className="absolute left-4 top-4 rounded-full bg-night/70 px-2.5 py-1 text-[12px] font-semibold text-white">Exemple</span>
                 <span className="font-display absolute bottom-4 left-4 text-[24px] text-white">{j.label}</span>
@@ -122,7 +132,7 @@ export default function Home() {
 
       {/* ÉTAPES */}
       <section className="bg-dots relative overflow-hidden bg-night py-20 text-white sm:py-28">
-        <div aria-hidden className="pointer-events-none absolute -left-24 bottom-0 h-80 w-80 rounded-full bg-[#3b6cff]/25 blur-[110px]" />
+        <div aria-hidden className="pointer-events-none absolute -left-32 bottom-0 h-[460px] w-[460px] rounded-full glow-blue" />
         <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
           <h2 className="font-display max-w-xl text-[36px] sm:text-[52px]">De votre quotidien à votre première mission</h2>
           <ol className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -140,7 +150,7 @@ export default function Home() {
       {/* CONFIANCE */}
       <section className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div className="relative">
-          <Photo src="/images/confiance.jpg" alt="Jeune femme consultant une offre sur son ordinateur" tone={2} className="aspect-[4/5] rounded-[32px] shadow-[0_40px_80px_-40px_rgba(42,27,110,0.6)]" />
+          <Photo src="/images/confiance.jpg" alt="Deux jeunes femmes travaillant sur leurs ordinateurs" tone={2} className="aspect-[4/5] rounded-[32px] shadow-[0_40px_80px_-40px_rgba(42,27,110,0.6)]" />
           <span className="absolute -bottom-4 right-6 inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-sage-700 shadow-lg ring-1 ring-line">✓ Vérifiée par NAYA</span>
         </div>
         <div>
@@ -162,7 +172,7 @@ export default function Home() {
       {/* MISSION À CONFIER */}
       <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 sm:pb-28">
         <div className="relative overflow-hidden rounded-[34px] px-6 py-14 text-white sm:px-12">
-          <Photo src="/images/mission.jpg" alt="" tone={2} className="absolute inset-0" />
+          <span className="absolute inset-0 bg-gradient-to-br from-[#2a1b6e] via-[#8a3a8f] to-[#ffb21e]" />
           <span className="absolute inset-0 bg-gradient-to-r from-[#b7853d]/90 via-[#c0607a]/80 to-[#d0508e]/70" />
           <div className="relative grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-center">
             <div>

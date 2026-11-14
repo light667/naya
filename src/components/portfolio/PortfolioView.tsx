@@ -48,8 +48,8 @@ export function PortfolioView({ data }: { data: PortfolioData }) {
   const render: Record<PortfolioSectionId, React.ReactNode> = {
     presentation: (
       <section key="presentation" className="relative overflow-hidden rounded-[32px] bg-night px-6 py-10 text-white sm:px-10 sm:py-14 print:bg-white print:text-ink">
-        <div aria-hidden className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-sun/30 blur-3xl print:hidden" />
-        <div aria-hidden className="absolute -bottom-24 left-10 h-64 w-64 rounded-full bg-coral/25 blur-3xl print:hidden" />
+        <div aria-hidden className="absolute -right-20 -top-24 h-96 w-96 rounded-full glow-sun print:hidden" />
+        <div aria-hidden className="absolute -bottom-24 left-10 h-80 w-80 rounded-full glow-coral print:hidden" />
         <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center">
           {p.avatar_url ? (
             // eslint-disable-next-line @next/next/no-img-element

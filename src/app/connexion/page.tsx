@@ -62,7 +62,7 @@ function AuthForm() {
         <p className="relative z-10 text-sm text-white/55">Vos données ne sont jamais vendues ni partagées sans votre accord.</p>
         <motion.div
           aria-hidden
-          className="absolute -bottom-32 -right-24 h-[420px] w-[420px] rounded-full bg-sun/30 blur-[110px]"
+          className="absolute -bottom-32 -right-24 h-[520px] w-[520px] rounded-full glow-sun"
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}

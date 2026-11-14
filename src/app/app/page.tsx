@@ -169,7 +169,7 @@ function NextCard({ next }: { next: Next }) {
     >
       <motion.span
         aria-hidden
-        className="absolute -right-16 -top-20 h-64 w-64 rounded-full bg-sun/35 blur-[80px]"
+        className="absolute -right-16 -top-20 h-80 w-80 rounded-full glow-sun"
         initial={{ scale: 0.6 }}
         animate={{ scale: 1 }}
         transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
