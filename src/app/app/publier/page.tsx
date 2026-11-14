@@ -6,6 +6,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/Toast";
 import { Badge, Button, Empty, Input, PageHeader, Select, Tabs, Textarea, VerifiedBadge } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
+import { DeleteAccount } from "@/components/DeleteAccount";
 import { STATUS_LABELS, type Application, type Opportunity, type Profile } from "@/lib/types";
 
 const EMPTY = { title: "", description: "", organization: "", org_type: "entreprise", category: "", skills: "", location: "", remote: false, pay: "", contact: "" };
@@ -151,6 +152,7 @@ export default function PublierPage() {
           )}
         </motion.div>
       </AnimatePresence>
+      {profile?.role === "recruteur" && <DeleteAccount />}
     </div>
   );
 }

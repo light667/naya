@@ -7,6 +7,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/Toast";
 import { Button, ButtonLink, Empty, Input, Select, Tabs } from "@/components/ui";
 import { PortfolioBuilder } from "@/components/portfolio/PortfolioBuilder";
+import { DeleteAccount } from "@/components/DeleteAccount";
 import { FieldWithMic } from "@/components/portfolio/StepPresentation";
 import { supabase } from "@/lib/supabase";
 import type { Profile, Skill } from "@/lib/types";
@@ -105,6 +106,7 @@ function ProfilInner() {
               </div>
             </div>
           )}
+          {tab === "profil" && <DeleteAccount />}
 
           {tab === "competences" && (
             <div className="space-y-6">
