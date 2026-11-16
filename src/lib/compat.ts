@@ -184,7 +184,7 @@ export function compatReason(c: Compatibility): string {
   const dom = c.criteria.find((x) => x.id === "domain");
   if (dom?.earned) parts.push("dans votre domaine");
   const loc = c.criteria.find((x) => x.id === "location");
-  if (loc?.earned === loc?.weight) parts.push(loc!.detail);
+  if (loc && loc.earned === loc.weight) parts.push(loc.detail);
   if (c.missingSkills.length) parts.push(`à renforcer : ${c.missingSkills.slice(0, 2).join(", ")}`);
   const s = parts.join(" · ") || "peu d'éléments en commun avec votre profil";
   return s.charAt(0).toUpperCase() + s.slice(1);
