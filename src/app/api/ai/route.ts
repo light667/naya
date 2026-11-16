@@ -162,11 +162,13 @@ export async function POST(req: Request) {
       const facts = profileFacts(profile, items);
       const extraAll = [extra, ...answers.map((a) => `${a.question} → ${a.answer}`)].filter(Boolean).join("\n");
 
-      if (!ai) {
+      const local = () => {
         const r = localCandidature(profile, opp, analysis, { format, channel, lang, extra: extraAll, organization: spont.organization });
         return NextResponse.json({ source: "local", ...r, advice: analysis?.tips ?? [], analysis, checks: null });
-      }
+      };
+      if (!ai) return local();
 
+      try {
       const shape = {
         court: channel === "whatsapp" ? "un message WhatsApp de candidature de 90 à 140 mots, aéré, sans objet" : "un e-mail de candidature court de 130 à 200 mots",
         lettre: "une lettre de motivation détaillée de 280 à 400 mots, structurée en paragraphes (accroche, adéquation avec la mission, valeur ajoutée, motivation, disponibilités et conclusion)",
@@ -202,6 +204,10 @@ export async function POST(req: Request) {
       );
       const checks = await verify({ ...facts, precisions: extraAll || undefined }, out.text, analysis?.missingSkills);
       return NextResponse.json({ source: "ia", subject: out.subject ?? "", text: out.text, advice: out.advice ?? [], analysis, checks });
+      } catch (e) {
+        console.error("[naya-ai] candidature → repli local", e);
+        return local();
+      }
     }
 
     /* ---------- Onglet Mes services ---------- */
@@ -219,7 +225,9 @@ export async function POST(req: Request) {
       };
       if (!o.service.trim()) return NextResponse.json({ error: "Indiquez le service à proposer." }, { status: 400 });
       const facts = profileFacts(profile, items);
-      if (!ai) return NextResponse.json({ source: "local", ...localServices(profile, o), suggestions: [], checks: null });
+      const local = () => NextResponse.json({ source: "local", ...localServices(profile, o), suggestions: [], checks: null });
+      if (!ai) return local();
+      try {
       const shape = {
         whatsapp: "un message WhatsApp de prospection de 80 à 140 mots, aéré, avec 2 ou 3 emojis sobres au maximum",
         proposition: "une proposition commerciale structurée (220 à 350 mots) : contexte et besoin du client, service proposé, déroulé, avantages concrets pour le client, pourquoi moi, prochaine étape",
@@ -246,6 +254,10 @@ export async function POST(req: Request) {
       );
       const checks = await verify({ ...facts, infos: o.extra || undefined }, out.text);
       return NextResponse.json({ source: "ia", text: out.text, suggestions: out.suggestions ?? [], checks });
+      } catch (e) {
+        console.error("[naya-ai] services → repli local", e);
+        return local();
+      }
     }
 
     /* ---------- Onglet Rendez-vous ---------- */
@@ -270,7 +282,9 @@ export async function POST(req: Request) {
       }
       if (!o.organization && opp) o.organization = opp.organization;
       const facts = profileFacts(profile, items);
-      if (!ai) return NextResponse.json({ source: "local", ...localRendezvous(profile, o), checks: null });
+      const local = () => NextResponse.json({ source: "local", ...localRendezvous(profile, o), checks: null });
+      if (!ai) return local();
+      try {
 
       const SITUATIONS: Record<MeetingSituation, string> = {
         rdv_pro: "une demande de rendez-vous professionnel",
@@ -304,6 +318,10 @@ export async function POST(req: Request) {
       );
       const checks = isPrep ? null : await verify({ ...facts, contexte: o }, out.text);
       return NextResponse.json({ source: "ia", subject: out.subject ?? "", text: out.text, checks });
+      } catch (e) {
+        console.error("[naya-ai] rendezvous → repli local", e);
+        return local();
+      }
     }
 
     /* ---------- Portfolio : organiser une présentation dictée ou écrite ---------- */
