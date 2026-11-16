@@ -64,9 +64,9 @@ function OpportunitesInner() {
     if (!profile || !opps) return;
     setRanking(true);
     try {
-      const r = await callAi<{ reasons: Record<string, string> }>({ kind: "match_reasons" });
+      const r = await callAi<{ reasons: Record<string, string>; busy?: boolean }>({ kind: "match_reasons" });
       if (r.source === "local" || !Object.keys(r.reasons).length) {
-        toast("L'IA n'est pas configurée : les explications restent celles du calcul.", "error");
+        toast(r.busy ? "L'IA est très sollicitée : les explications restent celles du calcul. Réessayez dans quelques minutes." : "L'IA n'est pas disponible : les explications restent celles du calcul.", "error");
       } else {
         setMatches((list) => (list ?? []).map((m) => ({ ...m, reason: r.reasons[m.opportunityId] ?? m.reason })));
         setSource("ia");

@@ -17,6 +17,16 @@ const refused = new Set<string>();
 
 export const hasMistral = () => !!process.env.MISTRAL_API_KEY;
 
+/** Levée quand Mistral refuse pour quota / débit (429) même après une nouvelle tentative. */
+export class MistralRateLimitError extends Error {}
+
+/** Coupe-circuit : après un 429 persistant, on n'appelle plus Mistral pendant un moment (évite ~5 s perdues par requête). */
+const COOLDOWN_MS = 60_000;
+let pausedUntil = 0;
+
+/** L'IA est configurée ET n'est pas en pause suite à un dépassement de quota. */
+export const aiAvailable = () => hasMistral() && Date.now() >= pausedUntil;
+
 type Part = { type: "text"; text: string } | { type: "image_url"; image_url: string };
 export type ChatMessage = { role: "system" | "user" | "assistant"; content: string | Part[] };
 
@@ -26,10 +36,11 @@ export async function chat(
   messages: ChatMessage[],
   opts: { model?: string; json?: boolean; temperature?: number; maxTokens?: number } = {},
 ): Promise<string> {
+  if (Date.now() < pausedUntil) throw new MistralRateLimitError("Mistral en pause (quota dépassé récemment)");
   let model = opts.model ?? MODELS.text;
   if (refused.has(model)) model = FALLBACK_MODEL;
 
-  // Jusqu'à 2 attentes sur 429 (offre gratuite : débit très limité) et 1 bascule de modèle sur 403.
+  // 1 attente sur 429 (pic ponctuel) et 1 bascule de modèle sur 403.
   for (let attempt = 0, waits = 0; ; attempt++) {
     const res = await fetch(`${API}/chat/completions`, {
       method: "POST",
@@ -58,11 +69,15 @@ export async function chat(
       model = FALLBACK_MODEL;
       continue;
     }
-    if (res.status === 429 && waits < 2) {
-      const retryAfter = Number(res.headers.get("retry-after"));
-      await sleep(Number.isFinite(retryAfter) && retryAfter > 0 ? Math.min(retryAfter * 1000, 5000) : 1500 * (waits + 1));
-      waits++;
-      continue;
+    if (res.status === 429) {
+      if (waits < 1) {
+        const retryAfter = Number(res.headers.get("retry-after"));
+        await sleep(Number.isFinite(retryAfter) && retryAfter > 0 ? Math.min(retryAfter * 1000, 3000) : 1500);
+        waits++;
+        continue;
+      }
+      pausedUntil = Date.now() + COOLDOWN_MS;
+      throw new MistralRateLimitError(`Mistral 429 (${model}, essai ${attempt + 1}), pause ${COOLDOWN_MS / 1000} s : ${body}`);
     }
     throw new Error(`Mistral ${res.status} (${model}, essai ${attempt + 1}): ${body}`);
   }

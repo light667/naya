@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import { chat, chatJson, hasMistral, MODELS } from "@/lib/mistral";
+import { aiAvailable, chat, chatJson, hasMistral, MistralRateLimitError, MODELS } from "@/lib/mistral";
 import { localExtractSkills } from "@/lib/naya-local";
 import { computeCompatibility } from "@/lib/compat";
 import { localCandidature, localRendezvous, localServices } from "@/lib/local-writer";
@@ -58,6 +58,13 @@ function profileFacts(p: Profile, items: PortfolioItem[]) {
   };
 }
 
+/** Réponse quand l'IA est indisponible pour une tâche sans repli local. */
+const noAi = () =>
+  NextResponse.json(
+    { error: hasMistral() ? "L'IA est très sollicitée en ce moment. Réessayez dans quelques minutes, ou remplissez les champs vous-même." : "L'IA n'est pas configurée (clé MISTRAL_API_KEY manquante)." },
+    { status: 503 },
+  );
+
 const langLine = (lang: Lang) => (lang === "en" ? "Rédige le texte final en ANGLAIS." : "Rédige le texte final en français.");
 
 /** Étape 9 : vérification de cohérence. Un second modèle relit le texte et signale toute affirmation absente des faits. */
@@ -94,7 +101,7 @@ export async function POST(req: Request) {
 
   const body = await req.json();
   const kind = String(body.kind ?? "");
-  const ai = hasMistral();
+  const ai = aiAvailable();
   const { profile, items } = ctx;
 
   try {
@@ -328,7 +335,7 @@ export async function POST(req: Request) {
     if (kind === "portfolio_profile") {
       const raw = String(body.text ?? "").slice(0, 8000);
       if (!raw.trim()) return NextResponse.json({ error: "Dites ou écrivez d'abord quelques phrases sur vous." }, { status: 400 });
-      if (!ai) return NextResponse.json({ error: "L'IA n'est pas configurée (clé MISTRAL_API_KEY manquante)." }, { status: 503 });
+      if (!ai) return noAi();
       const out = await chatJson<Record<string, unknown>>([
         { role: "system", content: SYSTEM },
         {
@@ -352,7 +359,7 @@ export async function POST(req: Request) {
       const notes = String(body.notes ?? "").slice(0, 4000);
       const item = body.item ?? {};
       const captions = (Array.isArray(body.mediaCaptions) ? body.mediaCaptions : []).slice(0, 8);
-      if (!ai) return NextResponse.json({ error: "L'IA n'est pas configurée (clé MISTRAL_API_KEY manquante)." }, { status: 503 });
+      if (!ai) return noAi();
       const out = await chatJson<Record<string, unknown>>([
         { role: "system", content: SYSTEM },
         {
@@ -375,7 +382,7 @@ export async function POST(req: Request) {
       const userContext = String(body.context ?? "").slice(0, 1000);
       if (!/^(https:\/\/|data:image\/(jpeg|png|webp);base64,)/.test(image) || image.length > 6_000_000)
         return NextResponse.json({ error: "Image non prise en charge." }, { status: 400 });
-      if (!ai) return NextResponse.json({ error: "L'IA n'est pas configurée (clé MISTRAL_API_KEY manquante)." }, { status: 503 });
+      if (!ai) return noAi();
       const out = await chatJson<Record<string, unknown>>(
         [
           { role: "system", content: SYSTEM },
@@ -415,8 +422,15 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ error: "Requête inconnue" }, { status: 400 });
   } catch (e) {
-    console.error("[naya-ai]", kind, e);
+    const busy = e instanceof MistralRateLimitError;
+    if (busy) console.warn("[naya-ai]", kind, (e as Error).message);
+    else console.error("[naya-ai]", kind, e);
+    // Replis sans IA quand c'est possible.
     if (kind === "skills") return NextResponse.json({ source: "local", ...localExtractSkills(String(body.text ?? "")) });
+    if (kind === "match_reasons") return NextResponse.json({ source: "local", reasons: {}, busy });
+    if (kind === "clean_transcript") return NextResponse.json({ source: "local", text: String(body.text ?? "") });
+    if (busy)
+      return NextResponse.json({ error: "L'IA est très sollicitée en ce moment. Réessayez dans quelques minutes, ou remplissez les champs vous-même." }, { status: 503 });
     return NextResponse.json({ error: "L'assistante n'a pas pu répondre. Réessayez dans un instant." }, { status: 502 });
   }
 }
