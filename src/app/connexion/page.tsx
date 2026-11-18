@@ -28,8 +28,9 @@ function AuthFormContent() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
-  // Redirection automatique sur le home page si déjà connecté
+  // Redirection automatique sur l'accueil si déjà connecté
   useEffect(() => {
     if (!authLoading && session) {
       router.replace("/");
@@ -39,16 +40,21 @@ function AuthFormContent() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setNotice(null);
     setLoading(true);
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password;
+    const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
+    const roleMapping = role === "entreprise" ? "recruteur" : "talent";
 
     try {
       if (mode === "inscription") {
-        const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
-        const roleMapping = role === "entreprise" ? "recruteur" : "talent";
+        console.log("[Auth] Tentative d'inscription:", cleanEmail);
 
         const { data, error: signUpError } = await supabase.auth.signUp({
-          email: email.trim(),
-          password,
+          email: cleanEmail,
+          password: cleanPassword,
           options: {
             data: {
               full_name: fullName,
@@ -60,49 +66,103 @@ function AuthFormContent() {
           },
         });
 
+        console.log("[Auth] Résultat signUp:", { data, error: signUpError });
+
         if (signUpError) {
-          setError(signUpError.message);
+          if (/already registered/i.test(signUpError.message)) {
+            setError("Un compte existe déjà avec cet email. Connecte-toi ci-dessous.");
+            setMode("connexion");
+          } else if (/password/i.test(signUpError.message)) {
+            setError("Le mot de passe doit contenir au moins 6 caractères.");
+          } else {
+            setError(signUpError.message);
+          }
           setLoading(false);
           return;
         }
 
-        // Si la session est créée directement (pas de confirmation email demandée par Supabase)
-        if (data.session) {
+        // Cas 1 : Session retournée immédiatement (email confirmation désactivée dans Supabase)
+        if (data.session && data.user) {
+          console.log("[Auth] Inscription validée avec session immédiate !");
+          // Création ou mise à jour directe dans public.profiles pour garantir l'enregistrement
+          try {
+            await supabase.from("profiles").upsert({
+              id: data.user.id,
+              full_name: fullName,
+              role: roleMapping,
+              city: city.trim(),
+            });
+          } catch (profileErr) {
+            console.warn("[Auth] Erreur upsert profil:", profileErr);
+          }
+
+          // Redirection vers l'accueil avec session active
           window.location.href = "/";
           return;
         }
 
-        // Sinon, tentative de connexion immédiate par mot de passe
+        // Cas 2 : data.session est null. Tentative immédiate de connexion avec identifiants
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
+          email: cleanEmail,
+          password: cleanPassword,
         });
 
-        if (!signInError && signInData.session) {
+        if (!signInError && signInData.session && signInData.user) {
+          console.log("[Auth] Connexion immédiate réussie après inscription !");
+          try {
+            await supabase.from("profiles").upsert({
+              id: signInData.user.id,
+              full_name: fullName,
+              role: roleMapping,
+              city: city.trim(),
+            });
+          } catch (profileErr) {
+            console.warn("[Auth] Erreur upsert profil:", profileErr);
+          }
+
           window.location.href = "/";
           return;
         }
 
-        // Si Supabase requiert encore la confirmation email dans le tableau de bord
-        if (signInError && signInError.message.includes("Email not confirmed")) {
-          setError(
-            "Inscription validée ! (Supabase attend la confirmation par email : vous pouvez désactiver l'option 'Confirm email' dans Authentication > Providers > Email de Supabase pour une connexion 100% instantanée)."
+        // Cas 3 : Supabase bloque la session car "Confirm email" est activé dans le tableau de bord Supabase
+        if (signInError && /email not confirmed/i.test(signInError.message)) {
+          setNotice(
+            "Compte créé dans Supabase ! Pour supprimer la vérification par email et connecter les utilisateurs immédiatement : désactivez 'Confirm email' dans votre tableau de bord Supabase (Authentication > Providers > Email)."
           );
           setLoading(false);
           return;
         }
 
-        // Par défaut, redirection sur le home page
-        window.location.href = "/";
+        // Autre erreur lors de la connexion
+        if (signInError) {
+          setError(signInError.message);
+          setLoading(false);
+          return;
+        }
+
+        // Si tout s'est bien passé
+        setNotice("Compte créé avec succès ! Connecte-toi avec tes identifiants.");
+        setMode("connexion");
+        setLoading(false);
+
       } else {
-        const { data, error: signInError } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
+        // MODE CONNEXION
+        console.log("[Auth] Tentative de connexion:", cleanEmail);
+
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: cleanEmail,
+          password: cleanPassword,
         });
 
+        console.log("[Auth] Résultat signIn:", { signInData, error: signInError });
+
         if (signInError) {
-          if (signInError.message.includes("Invalid login credentials")) {
-            setError("Identifiants incorrects. Vérifie ton email et mot de passe.");
+          if (/invalid login/i.test(signInError.message)) {
+            setError("Email ou mot de passe incorrect.");
+          } else if (/email not confirmed/i.test(signInError.message)) {
+            setError(
+              "Email non confirmé par Supabase. Désactivez 'Confirm email' dans Supabase (Authentication > Providers > Email) pour autoriser la connexion directe."
+            );
           } else {
             setError(signInError.message);
           }
@@ -110,12 +170,16 @@ function AuthFormContent() {
           return;
         }
 
-        if (data.session) {
+        if (signInData.session) {
           window.location.href = "/";
+        } else {
+          setError("Impossible d'établir la session.");
+          setLoading(false);
         }
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Erreur inattendue.");
+      console.error("[Auth] Exception:", err);
+      setError(err instanceof Error ? err.message : "Erreur inattendue de connexion.");
       setLoading(false);
     }
   }
@@ -143,10 +207,10 @@ function AuthFormContent() {
       </header>
 
       {/* CONTAINER SIMPLE ET ÉPURÉ */}
-      <main className="flex-1 max-w-[1100px] w-full mx-auto p-4 sm:p-8 grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-6 items-center my-auto">
+      <main className="flex-1 max-w-[1100px] w-full mx-auto p-4 sm:p-8 grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6 items-center my-auto">
         
         {/* COLONNE GAUCHE : PHOTO ÉPURÉE */}
-        <div className="relative rounded-3xl overflow-hidden shadow-sm h-[220px] lg:h-[580px] p-6 lg:p-8 flex flex-col justify-end">
+        <div className="relative rounded-3xl overflow-hidden shadow-sm h-[220px] lg:h-[560px] p-6 lg:p-8 flex flex-col justify-end">
           <Image
             src="/img/accueil.jpg"
             alt="Talent PHAR"
@@ -165,16 +229,17 @@ function AuthFormContent() {
           </div>
         </div>
 
-        {/* COLONNE DROITE : FORMULAIRE ÉPURÉ SANS TEXTES LOURDS */}
+        {/* COLONNE DROITE : FORMULAIRE ÉPURÉ */}
         <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-[#E2ECF2]">
           
           {/* SWITCH CONNEXION / INSCRIPTION */}
-          <div className="flex bg-[#EFFAFB] p-1 rounded-xl mb-6 max-w-sm">
+          <div className="flex bg-[#EFFAFB] p-1 rounded-xl mb-6 max-w-xs">
             <button
               type="button"
               onClick={() => {
                 setMode("connexion");
                 setError(null);
+                setNotice(null);
               }}
               className={`flex-1 py-2 text-xs font-extrabold rounded-lg transition-all ${
                 mode === "connexion" ? "bg-white text-[#0A2A5C] shadow-xs" : "text-[#536B88]"
@@ -187,6 +252,7 @@ function AuthFormContent() {
               onClick={() => {
                 setMode("inscription");
                 setError(null);
+                setNotice(null);
               }}
               className={`flex-1 py-2 text-xs font-extrabold rounded-lg transition-all ${
                 mode === "inscription" ? "bg-white text-[#0A2A5C] shadow-xs" : "text-[#536B88]"
@@ -197,18 +263,25 @@ function AuthFormContent() {
           </div>
 
           <h1 className="font-display text-2xl font-extrabold text-[#0A2A5C] mb-1">
-            {mode === "inscription" ? "Rejoindre PHAR" : "Bon retour parmi nous"}
+            {mode === "inscription" ? "Rejoindre PHAR" : "Connexion"}
           </h1>
           <p className="text-xs text-[#536B88] mb-6">
             {mode === "inscription"
-              ? "Crée ton profil en 30 secondes."
-              : "Accède directement à ton espace."}
+              ? "Crée ton profil en quelques secondes."
+              : "Saisis tes identifiants pour accéder à ton espace."}
           </p>
 
-          {/* ERREUR */}
+          {/* MESSAGE D'ERREUR */}
           {error && (
-            <div className="mb-5 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
+            <div className="mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
               {error}
+            </div>
+          )}
+
+          {/* MESSAGE D'INFORMATION */}
+          {notice && (
+            <div className="mb-5 p-3.5 rounded-xl bg-[#EFFAFB] border border-[#22C3C9] text-[#0A2A5C] text-xs font-semibold">
+              {notice}
             </div>
           )}
 
@@ -270,7 +343,7 @@ function AuthFormContent() {
                       required
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="Ton prénom"
+                      placeholder="Prénom"
                       className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2ECF2] text-xs text-[#0A2A5C] outline-none focus:border-[#22C3C9]"
                     />
                   </div>
@@ -281,7 +354,7 @@ function AuthFormContent() {
                       required
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Ton nom"
+                      placeholder="Nom"
                       className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2ECF2] text-xs text-[#0A2A5C] outline-none focus:border-[#22C3C9]"
                     />
                   </div>
@@ -293,7 +366,7 @@ function AuthFormContent() {
                     type="text"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    placeholder="Ex: Cotonou, Dakar, Abidjan..."
+                    placeholder="Ex: Cotonou, Dakar..."
                     className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2ECF2] text-xs text-[#0A2A5C] outline-none focus:border-[#22C3C9]"
                   />
                 </div>
@@ -317,6 +390,7 @@ function AuthFormContent() {
               <input
                 type="password"
                 required
+                minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimum 6 caractères"
@@ -330,7 +404,7 @@ function AuthFormContent() {
               className="w-full bg-[#FFB81C] hover:bg-[#ffc138] text-[#0A2A5C] font-extrabold text-sm py-3 rounded-xl transition-all shadow-xs mt-2 disabled:opacity-50"
             >
               {loading
-                ? "Connexion..."
+                ? "Traitement..."
                 : mode === "inscription"
                 ? "Créer mon compte"
                 : "Se connecter"}
