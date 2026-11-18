@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Connexion ou inscription",
-  description: "Créez votre profil NAYA gratuitement ou connectez-vous pour retrouver vos missions, votre portfolio et votre assistante.",
+  description: "Créez votre profil PHAR gratuitement ou connectez-vous pour retrouver vos opportunités, vos formations et votre espace personnel.",
   alternates: { canonical: "/connexion" },
 };
 

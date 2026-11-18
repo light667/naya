@@ -1,1 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="10" fill="#2A1B6E"/><path d="M9 23V9.5h2.4l7.2 9V9.5H21V23h-2.3l-7.3-9.1V23z" fill="#fff"/><circle cx="26" cy="6" r="3" fill="#FFB21E"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- PHAR Lighthouse Icon Favicon -->
+  <rect width="64" height="64" rx="16" fill="#0A2A5C"/>
+  <!-- Faisceau lumineux jaune -->
+  <path d="M32 20 L58 8 L54 36 Z" fill="#FFB81C" fill-opacity="0.35"/>
+  <!-- Vagues turquoise -->
+  <path d="M10 52 C16 48 24 54 32 50 C40 46 48 52 54 48" stroke="#22C3C9" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M14 57 C20 54 28 58 35 55 C42 52 48 56 52 54" stroke="#22C3C9" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.6"/>
+  <!-- Phare -->
+  <!-- Base -->
+  <path d="M22 48 L42 48 L39 42 L25 42 Z" fill="#FFFFFF"/>
+  <!-- Corps rayé -->
+  <path d="M25 42 L39 42 L38 35 L26 35 Z" fill="#0A2A5C" stroke="#FFFFFF" stroke-width="1"/>
+  <path d="M26 35 L38 35 L37 28 L27 28 Z" fill="#FFFFFF"/>
+  <path d="M27 28 L37 28 L36 21 L28 21 Z" fill="#0A2A5C" stroke="#FFFFFF" stroke-width="1"/>
+  <!-- Lanterne & Fanal -->
+  <rect x="27" y="15" width="10" height="6" rx="1" fill="#FFB81C"/>
+  <circle cx="32" cy="18" r="2.5" fill="#FFFFFF"/>
+  <!-- Dôme du phare -->
+  <path d="M26 15 C26 10 38 10 38 15 Z" fill="#0A2A5C" stroke="#FFB81C" stroke-width="1"/>
+  <circle cx="32" cy="9.5" r="1.5" fill="#FFB81C"/>
+</svg>

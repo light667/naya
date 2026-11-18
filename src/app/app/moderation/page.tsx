@@ -45,7 +45,7 @@ export default function ModerationPage() {
     if (error) load();
   }
 
-  if (profile?.role !== "admin") return <Empty title="Accès réservé" text="Cette page est réservée à l'équipe de modération NAYA." />;
+  if (profile?.role !== "admin") return <Empty title="Accès réservé" text="Cette page est réservée à l'équipe de modération PHAR." />;
 
   const list = tab === "attente" ? pending : reported;
 

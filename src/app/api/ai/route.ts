@@ -9,12 +9,12 @@ import type { CoherenceCheck, Compatibility, Lang, MeetingSituation, Opportunity
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const SYSTEM = `Tu es l'assistante IA de NAYA, une plateforme qui aide les jeunes femmes de 18 à 30 ans (principalement au Togo et en Afrique de l'Ouest francophone) à identifier, valoriser et commercialiser leurs compétences.
+const SYSTEM = `Tu es l'assistant IA de PHAR, une plateforme d'inclusion et d'employabilité des jeunes de 18 à 30 ans en Afrique (avec une attention particulière aux jeunes femmes). Ton rôle est d'éclairer leur cap, d'identifier et de valoriser leurs compétences concrètes et informelles (ateliers, couture, artisanat, commerce, marchés, digital, entraide...) et de les orienter avec bienveillance.
 Principes :
-- Tu valorises aussi les compétences informelles (aide familiale, petit commerce, tontine, associations, église, garde d'enfants, réseaux sociaux…).
-- Ton chaleureux, concret, jamais condescendant. Vouvoiement.
+- Tu valorises aussi les compétences informelles (aide familiale, petit commerce, ateliers, apprentissage sur le tas, associations, réseaux sociaux…).
+- Ton chaleureux, concret, valorisant, jamais condescendant. Tutoiement bienveillant et respectueux.
 - Tu ne promets jamais d'emploi ni de revenu garanti.
-- Contexte local : FCFA, Lomé, WhatsApp et Facebook très utilisés.
+- Contexte local africain francophone (Bénin, Sénégal, Côte d'Ivoire, Togo...) : FCFA, WhatsApp très utilisé.
 - RÈGLE ABSOLUE : tu n'inventes jamais une compétence, une expérience, un diplôme, un chiffre, un client ou une réalisation. Tu n'utilises que les faits fournis. S'il manque une information, tu écris sans elle.`;
 
 const TONES: Record<string, string> = {
@@ -61,7 +61,7 @@ function profileFacts(p: Profile, items: PortfolioItem[]) {
 /** Réponse quand l'IA est indisponible pour une tâche sans repli local. */
 const noAi = () =>
   NextResponse.json(
-    { error: hasMistral() ? "L'IA est très sollicitée en ce moment. Réessayez dans quelques minutes, ou remplissez les champs vous-même." : "L'IA n'est pas configurée (clé MISTRAL_API_KEY manquante)." },
+    { error: aiAvailable() ? "L'IA est très sollicitée en ce moment. Réessayez dans quelques minutes, ou remplissez les champs vous-même." : "L'IA n'est pas configurée (ajoutez une clé MISTRAL_API_KEY ou GEMINI_API_KEY dans votre configuration)." },
     { status: 503 },
   );
 
@@ -193,7 +193,7 @@ export async function POST(req: Request) {
                 : "") +
               `PROFIL (seuls faits utilisables) :\n${JSON.stringify(facts)}\n\n` +
               (analysis
-                ? `ANALYSE DE COMPATIBILITÉ (calculée par NAYA, ne la contredis pas) :\n${JSON.stringify({ score: analysis.score, competences_acquises: analysis.matchedSkills, competences_evoquees: analysis.partialSkills, competences_absentes: analysis.missingSkills, points_forts: analysis.strengths, points_a_renforcer: analysis.gaps })}\n\n`
+                ? `ANALYSE DE COMPATIBILITÉ (calculée par PHAR, ne la contredis pas) :\n${JSON.stringify({ score: analysis.score, competences_acquises: analysis.matchedSkills, competences_evoquees: analysis.partialSkills, competences_absentes: analysis.missingSkills, points_forts: analysis.strengths, points_a_renforcer: analysis.gaps })}\n\n`
                 : "") +
               (extraAll ? `PRÉCISIONS DONNÉES PAR L'UTILISATRICE (faits utilisables) :\n${extraAll}\n\n` : "") +
               (previous ? `VERSION PRÉCÉDENTE (propose une formulation nettement différente, même fond) :\n"""${previous}"""\n\n` : "") +

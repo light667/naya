@@ -34,7 +34,7 @@ export function PublicPortfolio({ slug, initial }: { slug: string; initial: Full
         <Logo />
         <h1 className="font-display text-[32px] text-plum">Portfolio indisponible</h1>
         <p className="max-w-sm text-muted">Ce portfolio n&apos;existe pas ou son partage est désactivé pour le moment.</p>
-        <Link href="/" className="font-semibold text-plum underline">Découvrir NAYA</Link>
+        <Link href="/" className="font-semibold text-plum underline">Découvrir PHAR</Link>
       </main>
     );
   }
@@ -50,7 +50,7 @@ export function PublicPortfolio({ slug, initial }: { slug: string; initial: Full
         <PortfolioView data={data} />
         <footer className="mt-16 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6 text-sm text-muted print:hidden">
           <Link href="/"><Logo /></Link>
-          <span>Portfolio créé avec NAYA</span>
+          <span>Portfolio créé avec PHAR</span>
           <button onClick={() => window.print()} className="font-semibold text-plum hover:underline">Télécharger en PDF</button>
         </footer>
       </div>

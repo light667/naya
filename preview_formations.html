@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cap Formation — Formations Pratiques &amp; Certifiantes | PHAR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0A2A5C;
+      --turquoise: #22C3C9;
+      --turquoise-dark: #129aa0;
+      --yellow: #FFB81C;
+      --pale-turquoise: #EFFAFB;
+      --white: #FFFFFF;
+      --text-muted: #536B88;
+      --border-color: #E2ECF2;
+      --radius-sm: 14px;
+      --radius-md: 22px;
+      --radius-lg: 30px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #F8FCFD;
+      color: var(--navy);
+      line-height: 1.5;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 14px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-logo img {
+      height: 48px;
+      width: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--navy);
+      font-weight: 600;
+      font-size: 15px;
+      position: relative;
+      padding-bottom: 4px;
+    }
+
+    .nav-links a.active {
+      color: var(--navy);
+      font-weight: 800;
+    }
+
+    .nav-links a.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--yellow);
+      border-radius: 2px;
+    }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-pill img {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--turquoise);
+    }
+
+    /* HEADER BANNER */
+    .formations-hero {
+      background: linear-gradient(180deg, #FFFFFF 0%, var(--pale-turquoise) 100%);
+      padding: 50px 48px 40px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .hero-container {
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      color: var(--navy);
+      background: rgba(255, 184, 28, 0.2);
+      font-weight: 800;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    .hero-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 38px;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 12px;
+    }
+
+    .hero-subtitle {
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 760px;
+      margin-bottom: 30px;
+    }
+
+    /* EN-COURS SECTION */
+    .in-progress-section {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: 24px 28px;
+      border: 1.5px solid var(--border-color);
+      box-shadow: 0 8px 24px rgba(10, 42, 92, 0.05);
+      display: grid;
+      grid-template-columns: 180px 1fr auto;
+      gap: 28px;
+      align-items: center;
+      margin-bottom: 36px;
+    }
+
+    .in-progress-img {
+      width: 180px;
+      height: 120px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+    }
+
+    .in-progress-tag {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--turquoise-dark);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .in-progress-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .in-progress-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .progress-track {
+      height: 8px;
+      background: #EAF3F5;
+      border-radius: 999px;
+      overflow: hidden;
+      max-width: 440px;
+      margin-bottom: 6px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--turquoise) 0%, var(--yellow) 100%);
+      width: 65%;
+      border-radius: 999px;
+    }
+
+    .btn-resume {
+      background: var(--navy);
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 14px 24px;
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+
+    .btn-resume:hover {
+      background: #0f3975;
+    }
+
+    /* FILTRES CATÉGORIES */
+    .filter-pills {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+
+    .filter-pill {
+      background: var(--white);
+      border: 1.5px solid var(--border-color);
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--navy);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .filter-pill.active {
+      background: var(--navy);
+      color: var(--white);
+      border-color: var(--navy);
+    }
+
+    .filter-pill:hover:not(.active) {
+      border-color: var(--turquoise);
+      background: #F4FBFC;
+    }
+
+    /* CATALOGUE GRILLE */
+    .content-container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 48px 80px;
+    }
+
+    .formations-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    .formation-card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 8px 24px rgba(10, 42, 92, 0.05);
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .formation-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 36px rgba(10, 42, 92, 0.12);
+      border-color: var(--turquoise);
+    }
+
+    .card-photo-box {
+      height: 190px;
+      position: relative;
+    }
+
+    .card-photo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .badge-level {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-certif {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: var(--yellow);
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .card-body {
+      padding: 22px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card-cat {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--turquoise-dark);
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    .card-meta-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-color);
+      font-size: 12px;
+      color: var(--navy);
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .btn-enroll {
+      width: 100%;
+      text-align: center;
+      background: var(--pale-turquoise);
+      color: var(--navy);
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+
+    .formation-card:hover .btn-enroll {
+      background: var(--yellow);
+      color: var(--navy);
+    }
+
+    /* FOOTER */
+    .catalog-footer {
+      text-align: center;
+      padding: 30px;
+      color: #7A91AB;
+      font-size: 12px;
+      font-style: italic;
+    }
+
+    @media (max-width: 992px) {
+      .navbar {
+        padding: 12px 20px;
+      }
+      .nav-links {
+        display: none;
+      }
+      .formations-hero {
+        padding: 30px 20px;
+      }
+      .in-progress-section {
+        grid-template-columns: 1fr;
+        padding: 20px;
+      }
+      .in-progress-img {
+        width: 100%;
+        height: 160px;
+      }
+      .content-container {
+        padding: 0 20px 40px;
+      }
+      .formations-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a href="preview_homepage.html" class="brand-logo">
+      <img src="public/img/logo_phar_trimmed.png" alt="PHAR">
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="preview_homepage.html">Accueil</a></li>
+      <li><a href="preview_opportunites.html">Opportunités</a></li>
+      <li><a href="#" class="active">Formations</a></li>
+      <li><a href="preview_assistant_ia.html">Assistant IA</a></li>
+      <li><a href="preview_dashboard.html">Mon Cap</a></li>
+    </ul>
+
+    <div class="user-pill">
+      <img src="public/img/accueil.jpg" alt="Aminata">
+      <span style="font-weight: 800; font-size: 13px;">Aminata D.</span>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="formations-hero">
+    <div class="hero-container">
+      <span class="hero-badge">Cap Formation</span>
+      <h1 class="hero-title">DÉVELOPPER TES COMPÉTENCES DE TERRAIN</h1>
+      <p class="hero-subtitle">
+        Des parcours courts, concrets et certifiés, co-construits avec des maîtres artisans, directeurs d'ateliers et recruteurs partenaires.
+      </p>
+
+      <!-- FORMATION EN COURS MISE EN VALEUR -->
+      <div class="in-progress-section">
+        <img src="public/img/couture.jpg" alt="Formation en cours" class="in-progress-img">
+        <div>
+          <div class="in-progress-tag">En cours de suivi • Module 4/6</div>
+          <h2 class="in-progress-title">Finitions Haute Couture, Assemblage &amp; Modélisme</h2>
+          <div class="in-progress-meta">
+            <span>⏱ 4 semaines restantes • Format hybride atelier &amp; mobile • Certificat officiel PHAR</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill"></div>
+          </div>
+          <div style="font-size: 12px; font-weight: 700; color: var(--navy);">65% complété</div>
+        </div>
+        <div>
+          <a href="#" class="btn-resume">Reprendre le cours →</a>
+        </div>
+      </div>
+
+      <!-- FILTRES DE CATÉGORIES -->
+      <div class="filter-pills">
+        <a href="#" class="filter-pill active">Toutes les formations</a>
+        <a href="#" class="filter-pill">Confection &amp; Textile</a>
+        <a href="#" class="filter-pill">Commerce &amp; Vente</a>
+        <a href="#" class="filter-pill">Artisanat &amp; Maroquinerie</a>
+        <a href="#" class="filter-pill">Agro-transformation</a>
+        <a href="#" class="filter-pill">Outils Numériques</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- GRILLE CATALOGUE -->
+  <main class="content-container">
+
+    <div class="formations-grid">
+
+      <!-- Carte 1 -->
+      <div class="formation-card">
+        <div class="card-photo-box">
+          <img src="public/img/tissus.jpg" alt="Design & Tissus">
+          <span class="badge-level">Pratique</span>
+          <span class="badge-certif">★ Certifiante</span>
+        </div>
+        <div class="card-body">
+          <div>
+            <div class="card-cat">Confection &amp; Textile</div>
+            <h3 class="card-title">Techniques Avancées du Patronage &amp; Coupe Wax</h3>
+            <p class="card-desc">Apprenez à concevoir des patrons impeccables sans chutes inutiles et maîtrisez l'alignement des motifs wax.</p>
+          </div>
+          <div>
+            <div class="card-meta-bar">
+              <span>⏱ 6 semaines</span>
+              <span>📍 Atelier &amp; Vidéo</span>
+            </div>
+            <a href="#" class="btn-enroll">Explorer le programme</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte 2 -->
+      <div class="formation-card">
+        <div class="card-photo-box">
+          <img src="public/img/vendeuse.jpg" alt="Commerce & Négociation">
+          <span class="badge-level">Intensif</span>
+          <span class="badge-certif">★ Certifiante</span>
+        </div>
+        <div class="card-body">
+          <div>
+            <div class="card-cat">Commerce &amp; Vente</div>
+            <h3 class="card-title">Gestion de Caisse, Stocks &amp; Vente Directe</h3>
+            <p class="card-desc">De la négociation de prix avec les fournisseurs jusqu'à la tenue quotidienne d'un registre de commerce informel ou formel.</p>
+          </div>
+          <div>
+            <div class="card-meta-bar">
+              <span>⏱ 4 semaines</span>
+              <span>📍 100% Mobile</span>
+            </div>
+            <a href="#" class="btn-enroll">Explorer le programme</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte 3 -->
+      <div class="formation-card">
+        <div class="card-photo-box">
+          <img src="public/img/artisane.jpg" alt="Maroquinerie Artisanale">
+          <span class="badge-level">Atelier</span>
+          <span class="badge-certif">★ Certifiante</span>
+        </div>
+        <div class="card-body">
+          <div>
+            <div class="card-cat">Artisanat d'Art</div>
+            <h3 class="card-title">Travail du Cuir Local &amp; Assemblage Durable</h3>
+            <p class="card-desc">Techniques manuelles de découpe, couture sellier et finitions haut de gamme pour accessoires de mode et maroquinerie.</p>
+          </div>
+          <div>
+            <div class="card-meta-bar">
+              <span>⏱ 8 semaines</span>
+              <span>📍 Atelier Maître</span>
+            </div>
+            <a href="#" class="btn-enroll">Explorer le programme</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte 4 -->
+      <div class="formation-card">
+        <div class="card-photo-box">
+          <img src="public/img/bureau.jpg" alt="Compétences Digitales">
+          <span class="badge-level">Essentiel</span>
+          <span class="badge-certif">★ Certifiante</span>
+        </div>
+        <div class="card-body">
+          <div>
+            <div class="card-cat">Numérique &amp; Tech</div>
+            <h3 class="card-title">Visibilité Digitale &amp; Vente par WhatsApp Business</h3>
+            <p class="card-desc">Photographiez vos produits avec votre smartphone, créez votre catalogue WhatsApp et fidélisez vos clients en ligne.</p>
+          </div>
+          <div>
+            <div class="card-meta-bar">
+              <span>⏱ 3 semaines</span>
+              <span>📍 Mobile &amp; Audio</span>
+            </div>
+            <a href="#" class="btn-enroll">Explorer le programme</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte 5 -->
+      <div class="formation-card">
+        <div class="card-photo-box">
+          <img src="public/img/farine.jpg" alt="Agro-transformation">
+          <span class="badge-level">Pratique</span>
+          <span class="badge-certif">★ Certifiante</span>
+        </div>
+        <div class="card-body">
+          <div>
+            <div class="card-cat">Agro-transformation</div>
+            <h3 class="card-title">Normes d'Hygiène, Séchage &amp; Conditionnement</h3>
+            <p class="card-desc">Valorisation des céréales et tubercules locaux, conservation sans conservateurs chimiques et packaging attractif.</p>
+          </div>
+          <div>
+            <div class="card-meta-bar">
+              <span>⏱ 5 semaines</span>
+              <span>📍 Coopérative</span>
+            </div>
+            <a href="#" class="btn-enroll">Explorer le programme</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte 6 -->
+      <div class="formation-card">
+        <div class="card-photo-box">
+          <img src="public/img/cafe.jpg" alt="Entrepreneuriat">
+          <span class="badge-level">Accompagné</span>
+          <span class="badge-certif">★ Certifiante</span>
+        </div>
+        <div class="card-body">
+          <div>
+            <div class="card-cat">Leadership &amp; Mentorat</div>
+            <h3 class="card-title">Pitcher son Projet &amp; Négocier avec un Partenaire</h3>
+            <p class="card-desc">Apprenez à présenter avec confiance vos compétences ou votre micro-entreprise face aux banques et investisseurs.</p>
+          </div>
+          <div>
+            <div class="card-meta-bar">
+              <span>⏱ 4 semaines</span>
+              <span>📍 Mentorat 1:1</span>
+            </div>
+            <a href="#" class="btn-enroll">Explorer le programme</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="catalog-footer">
+    Maquette : données fictives de démonstration — PHAR 2026
+  </footer>
+
+</body>
+</html>

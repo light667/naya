@@ -1,197 +1,368 @@
 import Link from "next/link";
-import { ButtonLink, Logo } from "@/components/ui";
-import { HeroDemo } from "@/components/HeroDemo";
-import { Photo } from "@/components/Photo";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
-
-// Données structurées pour Google : organisation + site web
-const JSON_LD = {
-  "@context": "https://schema.org",
-  "@graph": [
-    { "@type": "Organization", "@id": `${SITE_URL}/#org`, name: SITE_NAME, url: SITE_URL, logo: `${SITE_URL}/icon-512.png`, description: SITE_DESCRIPTION, areaServed: "TG" },
-    { "@type": "WebSite", "@id": `${SITE_URL}/#site`, url: SITE_URL, name: SITE_NAME, inLanguage: "fr", publisher: { "@id": `${SITE_URL}/#org` } },
-  ],
-};
-
-const RIBBON = ["Réseaux sociaux", "Cuisine", "Garde d'enfants", "Artisanat", "Coiffure", "Vente en ligne", "Couture", "Soutien scolaire", "Organisation d'événements"];
-
-const TILES = [
-  { t: "Vendre", d: "Boutique, pagnes, vente en ligne", src: "/images/vendre.jpg", alt: "Jeune femme rangeant des pagnes wax dans sa boutique", cls: "col-span-2", pos: "object-[50%_40%]" },
-  { t: "Cuisiner", d: "Transformation, traiteur", src: "/images/cuisiner.jpg", alt: "Femme présentant une bassine de farine au marché", cls: "row-span-2", pos: "object-top" },
-  { t: "Créer", d: "Artisanat, objets d'art", src: "/images/artisanat.jpg", alt: "Artisane devant ses sculptures sur un stand", cls: "row-span-2", pos: "object-top" },
-  { t: "Commercer", d: "Marché, relation client", src: "/images/marche.jpg", alt: "Commerçante montrant ses ignames au marché", cls: "col-span-2", pos: "object-[50%_35%]" },
-];
-
-const JOURNEYS = [
-  { label: "Service et accueil", src: "/images/parcours-service.jpg", alt: "Jeune serveuse souriante devant un café", skills: ["Sens du contact", "Travail en équipe", "Rapidité"], mission: "Serveuse en café partenaire" },
-  { label: "Organisation", src: "/images/parcours-organisation.jpg", alt: "Jeune femme travaillant sur son ordinateur dans un café", skills: ["Saisie", "Organisation", "Communication"], mission: "Assistante administrative" },
-  { label: "Côté recruteur", src: "", alt: "", skills: ["Offre vérifiée", "Profils classés", "Contact sûr"], mission: "Vous publiez, NAYA vérifie" },
-];
-
-const STEPS = [
-  { t: "Racontez votre quotidien", d: "Cinq questions simples, à l'écrit ou à voix haute : aider en boutique, coudre, garder des enfants, animer une page." },
-  { t: "Découvrez vos compétences", d: "L'IA transforme vos réponses en compétences claires et construit avec vous un portfolio à partager." },
-  { t: "Recevez des missions adaptées", d: "Chaque offre affiche votre score de compatibilité, calculé et expliqué critère par critère." },
-  { t: "Postulez avec l'assistante", d: "Elle rédige une candidature liée à la mission, sans rien inventer, et vous prépare au rendez-vous." },
-];
-
-const TRUST = [
-  ["Offre vérifiée avant publication", "Structure, rémunération et contact sont contrôlés."],
-  ["Signalement en un geste", "Une offre vous paraît suspecte ? Signalez-la, elle est réexaminée."],
-  ["Profil privé par défaut", "Un recruteur ne vous voit que si vous lui envoyez votre candidature."],
-  ["Jamais de frais à payer", "Une vraie mission ne vous demande jamais d'argent."],
-];
+import Image from "next/image";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 
 export default function Home() {
   return (
-    <main className="overflow-x-clip">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
-      {/* HERO */}
-      <section className="bg-dots relative bg-night text-white">
-        <div aria-hidden className="pointer-events-none absolute right-0 top-16 h-[420px] w-[420px] max-w-full rounded-full glow-sun" />
-        <div aria-hidden className="pointer-events-none absolute -left-32 bottom-0 h-[420px] w-[420px] rounded-full glow-coral" />
-        <header className="relative mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
-          <span className="rounded-2xl bg-white px-3 py-1.5"><Logo /></span>
-          <nav className="flex items-center gap-2">
-            <Link href="/connexion" className="whitespace-nowrap rounded-full px-4 py-2.5 text-[15px] font-semibold text-white ring-1 ring-inset ring-white/30 hover:bg-white/10">Se connecter</Link>
-            <span className="hidden sm:block"><ButtonLink href="/connexion?mode=inscription" variant="accent">Créer mon profil</ButtonLink></span>
-          </nav>
-        </header>
+    <div className="relative min-h-screen bg-white text-[#0A2A5C]">
+      {/* FAISCEAU LUMINEUX DU PHARE (Balayage animé doux) */}
+      <div className="lighthouse-beam" aria-hidden />
 
-        <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-4 pb-24 pt-8 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:pb-32 lg:pt-14">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-sm font-medium ring-1 ring-white/20">✦ Pour les jeunes femmes de 18 à 30 ans</span>
-            <h1 className="font-display mt-6 text-[48px] sm:text-[68px] lg:text-[80px]">
-              Vos compétences méritent <span className="text-glow">d&apos;être vues.</span>
-            </h1>
-            <p className="mt-6 max-w-[33rem] text-lg leading-relaxed text-white/75 sm:text-xl">
-              NAYA repère ce que vous savez faire, même appris hors de l&apos;école, et vous ouvre des missions rémunérées vérifiées.
-            </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <ButtonLink href="/connexion?mode=inscription" variant="accent" className="px-7 py-4 text-base">Créer mon profil</ButtonLink>
-              <Link href="/connexion?mode=inscription&role=recruteur" className="inline-flex items-center justify-center rounded-full px-7 py-4 text-base font-semibold text-white ring-1 ring-inset ring-white/30 transition-colors hover:bg-white/10">Je propose une mission</Link>
+      {/* 1. NAVBAR ÉLÉGANTE */}
+      <Navbar />
+
+      {/* 2. HERO PLEIN ÉCRAN */}
+      <section className="relative min-h-[85vh] flex items-center overflow-hidden bg-[#F7FBFC]">
+        {/* Photo de fond marché à droite */}
+        <div className="absolute top-0 right-0 w-full lg:w-[58%] h-full z-0">
+          <Image
+            src="/img/hero.jpg"
+            alt="Marché local et talents en activité"
+            fill
+            className="object-cover object-center"
+            priority
+          />
+        </div>
+
+        {/* Voile blanc dégradé de gauche à droite pour lisibilité parfaite */}
+        <div className="absolute inset-0 z-10 bg-gradient-to-r from-white via-white/95 lg:via-white/90 lg:to-transparent" />
+
+        <div className="relative z-20 max-w-[1320px] mx-auto px-6 lg:px-12 py-20 w-full">
+          <div className="max-w-[680px]">
+            {/* Tag cap */}
+            <div className="inline-flex items-center gap-2.5 bg-[#22C3C9]/15 text-[#0A2A5C] px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-widest mb-6">
+              <span className="w-2 h-2 rounded-full bg-[#22C3C9] ring-2 ring-[#22C3C9]/40" />
+              Plateforme d'Inclusion &amp; Employabilité
             </div>
-            <p className="mt-6 text-sm text-white/55">Gratuit · Profil privé tant que vous ne postulez pas</p>
-          </div>
 
-          <div className="relative mx-auto w-full max-w-[460px]">
-            <Photo src="/images/hero.jpg" alt="Jeune créatrice souriante derrière son stand de savons artisanaux" priority tone={1} imgClassName="object-[50%_30%]" className="aspect-[4/5] w-[74%] rounded-t-[999px] rounded-b-[36px] ring-1 ring-white/15" />
-            <div className="absolute -bottom-12 right-0 w-[70%]"><HeroDemo /></div>
+            {/* Slogan officiel en très grande typographie */}
+            <h1 className="font-display text-[44px] sm:text-[62px] lg:text-[72px] leading-[1.06] text-[#0A2A5C] uppercase mb-6">
+              TON AVENIR A UN{" "}
+              <span className="relative inline-block text-[#0A2A5C] px-1 z-10 after:absolute after:bottom-2 after:left-0 after:-z-10 after:h-2/5 after:w-full after:bg-[#FFB81C] after:rounded-md">
+                CAP
+              </span>
+              .<br />
+              <span className="text-[#22C3C9]">PHAR L'ÉCLAIRE.</span>
+            </h1>
+
+            {/* Sous-titre */}
+            <p className="text-lg sm:text-xl text-[#536B88] font-medium leading-relaxed mb-10 max-w-[560px]">
+              Révèle tes talents, développe tes compétences et rejoins les opportunités qui t'attendent à l'horizon.
+            </p>
+
+            {/* 2 Boutons principaux */}
+            <div className="flex flex-wrap items-center gap-4 mb-10">
+              <Link
+                href="/connexion?mode=inscription"
+                className="inline-flex items-center gap-2.5 bg-[#0A2A5C] text-white font-bold text-base px-8 py-4 rounded-2xl shadow-[0_4px_16px_rgba(10,42,92,0.2)] hover:bg-[#0d3470] hover:-translate-y-0.5 transition-all"
+              >
+                Trouver mon cap
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </Link>
+              <Link
+                href="/opportunites"
+                className="inline-flex items-center gap-2 bg-transparent text-[#0A2A5C] font-bold text-base px-8 py-4 rounded-2xl border-2 border-[#0A2A5C] hover:bg-[#0A2A5C]/5 hover:-translate-y-0.5 transition-all"
+              >
+                Explorer les opportunités
+              </Link>
+            </div>
+
+            {/* Meta de lancement (sans faux chiffres) */}
+            <div className="flex items-center gap-4 pt-6 border-t border-[#0A2A5C]/10">
+              <div className="flex -space-x-2.5">
+                <Image src="/img/accueil.jpg" alt="Talent" width={38} height={38} className="w-9 h-9 rounded-full object-cover ring-2 ring-white" />
+                <Image src="/img/artisane.jpg" alt="Talent" width={38} height={38} className="w-9 h-9 rounded-full object-cover ring-2 ring-white" />
+                <Image src="/img/bureau.jpg" alt="Talent" width={38} height={38} className="w-9 h-9 rounded-full object-cover ring-2 ring-white" />
+                <Image src="/img/vendeuse.jpg" alt="Talent" width={38} height={38} className="w-9 h-9 rounded-full object-cover ring-2 ring-white" />
+              </div>
+              <p className="text-sm font-semibold text-[#0A2A5C]">
+                <strong className="text-[#22C3C9]">Rejoins les premiers talents</strong> qui prennent le cap vers l'horizon
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* RUBAN */}
-      <div className="relative z-10 -mt-6 -rotate-2 bg-sun py-3.5 shadow-[0_18px_40px_-20px_rgba(242,154,0,0.8)]" aria-hidden>
-        <div className="animate-marquee flex w-max gap-8 whitespace-nowrap font-display text-[20px] text-night">
-          {[...RIBBON, ...RIBBON].map((r, i) => <span key={i} className="flex items-center gap-8">{r}<span className="text-night/50">✦</span></span>)}
-        </div>
+      {/* 3. VAGUE TURQUOISE PÂLE & BANDEAU DE 5 PHOTOS */}
+      <div className="w-full overflow-hidden leading-none bg-[#F7FBFC]">
+        <svg viewBox="0 0 1440 64" fill="none" preserveAspectRatio="none" className="w-full h-16 block">
+          <path d="M0,24 C320,60 520,0 840,32 C1120,60 1320,12 1440,28 L1440,64 L0,64 Z" fill="#EFFAFB" />
+        </svg>
       </div>
 
-      {/* CE QUE VOUS FAITES DÉJÀ */}
-      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
-        <h2 className="font-display max-w-xl text-[36px] text-plum sm:text-[52px]">Ce que vous faites déjà <span className="text-glow">a de la valeur</span></h2>
-        <ul className="mt-12 grid auto-rows-[170px] grid-cols-2 gap-3 sm:auto-rows-[240px] sm:grid-cols-4 sm:gap-4">
-          {TILES.map((t, i) => (
-            <li key={t.t} className={`group relative overflow-hidden rounded-[26px] ${t.cls}`}>
-              <Photo src={t.src} alt={t.alt} tone={i} imgClassName={t.pos} className="absolute inset-0 transition-transform duration-700 group-hover:scale-105" />
-              <span className="absolute inset-0 bg-gradient-to-t from-night/85 via-night/20 to-transparent" />
-              <span className="absolute bottom-4 left-4 right-4 text-white">
-                <span className="font-display block text-[24px]">{t.t}</span>
-                <span className="text-sm text-white/80">{t.d}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <section className="bg-[#EFFAFB] px-6 lg:px-12 py-8 pb-14">
+        <div className="max-w-[1360px] mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          
+          <div className="relative h-64 rounded-2xl overflow-hidden shadow-sm group">
+            <Image src="/img/couture.jpg" alt="Couture" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+            <div className="absolute inset-x-3 bottom-3 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-xl text-xs font-bold text-[#0A2A5C] flex items-center justify-between">
+              <span>Confection &amp; Mode</span>
+              <span className="bg-[#FFB81C] text-[#0A2A5C] px-2 py-0.5 rounded-md font-extrabold text-[10px]">Ouvert</span>
+            </div>
+          </div>
 
-      {/* EXEMPLES DE PARCOURS */}
-      <section className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
-        <p className="text-[13px] font-bold uppercase tracking-[0.14em] text-coral-600">Exemples de parcours</p>
-        <h2 className="font-display mt-2 max-w-xl text-[34px] text-plum sm:text-[46px]">Du geste du quotidien à la compétence qui se voit</h2>
-        <ul className="mt-10 grid gap-5 md:grid-cols-3">
-          {JOURNEYS.map((j, i) => (
-            <li key={j.label} className="overflow-hidden rounded-[28px] bg-white shadow-[0_24px_50px_-30px_rgba(42,27,110,0.45)] ring-1 ring-line">
-              <div className="relative h-56">
-                <Photo src={j.src} alt={j.alt} tone={i + 1} imgClassName="object-[50%_25%]" className="absolute inset-0" />
-                <span className="absolute inset-0 bg-gradient-to-t from-night/75 to-transparent" />
-                <span className="absolute left-4 top-4 rounded-full bg-night/70 px-2.5 py-1 text-[12px] font-semibold text-white">Exemple</span>
-                <span className="font-display absolute bottom-4 left-4 text-[24px] text-white">{j.label}</span>
-              </div>
-              <div className="p-5">
-                <div className="flex flex-wrap gap-2">{j.skills.map((s) => <span key={s} className="rounded-full bg-plum-50 px-3 py-1 text-[13px] font-medium text-plum">{s}</span>)}</div>
-                <div className="mt-4 flex items-center justify-between gap-3 border-t border-line pt-4 text-sm">
-                  <span className="text-muted">Mission possible</span>
-                  <span className="text-right font-semibold text-ink">{j.mission}</span>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
+          <div className="relative h-64 rounded-2xl overflow-hidden shadow-sm group">
+            <Image src="/img/tissus.jpg" alt="Tissus Wax" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+            <div className="absolute inset-x-3 bottom-3 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-xl text-xs font-bold text-[#0A2A5C] flex items-center justify-between">
+              <span>Design Textile</span>
+              <span className="bg-[#FFB81C] text-[#0A2A5C] px-2 py-0.5 rounded-md font-extrabold text-[10px]">Ouvert</span>
+            </div>
+          </div>
 
-      {/* ÉTAPES */}
-      <section className="bg-dots relative overflow-hidden bg-night py-20 text-white sm:py-28">
-        <div aria-hidden className="pointer-events-none absolute -left-32 bottom-0 h-[460px] w-[460px] rounded-full glow-blue" />
-        <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
-          <h2 className="font-display max-w-xl text-[36px] sm:text-[52px]">De votre quotidien à votre première mission</h2>
-          <ol className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {STEPS.map((s, i) => (
-              <li key={s.t} className="rounded-[26px] bg-white/[0.06] p-6 ring-1 ring-white/15 backdrop-blur-sm">
-                <span className="font-display text-glow text-[44px] leading-none">{i + 1}</span>
-                <h3 className="mt-4 text-lg font-bold">{s.t}</h3>
-                <p className="mt-2 text-[15px] leading-relaxed text-white/70">{s.d}</p>
-              </li>
-            ))}
-          </ol>
+          <div className="relative h-64 rounded-2xl overflow-hidden shadow-sm group">
+            <Image src="/img/marche.jpg" alt="Marché" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+            <div className="absolute inset-x-3 bottom-3 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-xl text-xs font-bold text-[#0A2A5C] flex items-center justify-between">
+              <span>Commerce &amp; Vente</span>
+              <span className="bg-[#FFB81C] text-[#0A2A5C] px-2 py-0.5 rounded-md font-extrabold text-[10px]">Ouvert</span>
+            </div>
+          </div>
+
+          <div className="relative h-64 rounded-2xl overflow-hidden shadow-sm group">
+            <Image src="/img/artisane.jpg" alt="Artisanat" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+            <div className="absolute inset-x-3 bottom-3 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-xl text-xs font-bold text-[#0A2A5C] flex items-center justify-between">
+              <span>Artisanat Local</span>
+              <span className="bg-[#FFB81C] text-[#0A2A5C] px-2 py-0.5 rounded-md font-extrabold text-[10px]">Ouvert</span>
+            </div>
+          </div>
+
+          <div className="relative h-64 rounded-2xl overflow-hidden shadow-sm group col-span-2 sm:col-span-1">
+            <Image src="/img/farine.jpg" alt="Agro-transformation" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+            <div className="absolute inset-x-3 bottom-3 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-xl text-xs font-bold text-[#0A2A5C] flex items-center justify-between">
+              <span>Agro-transformation</span>
+              <span className="bg-[#FFB81C] text-[#0A2A5C] px-2 py-0.5 rounded-md font-extrabold text-[10px]">Ouvert</span>
+            </div>
+          </div>
+
         </div>
       </section>
 
-      {/* CONFIANCE */}
-      <section className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-        <div className="relative">
-          <Photo src="/images/confiance.jpg" alt="Deux jeunes femmes travaillant sur leurs ordinateurs" tone={2} className="aspect-[4/5] rounded-[32px] shadow-[0_40px_80px_-40px_rgba(42,27,110,0.6)]" />
-          <span className="absolute -bottom-4 right-6 inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-sage-700 shadow-lg ring-1 ring-line">✓ Vérifiée par NAYA</span>
+      {/* 4. LES UNIVERS DE PHAR (Composition asymétrique des 4 univers) */}
+      <section className="max-w-[1320px] mx-auto px-6 lg:px-12 py-24 bg-white">
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <span className="text-xs font-extrabold uppercase tracking-widest text-[#22C3C9] mb-3 block">
+            Parcours &amp; Écosystème
+          </span>
+          <h2 className="font-display text-3xl sm:text-4xl text-[#0A2A5C] mb-4">
+            LES QUATRE UNIVERS DE PHAR
+          </h2>
+          <p className="text-[#536B88] text-base sm:text-lg">
+            Un itinéraire complet et guidé pour passer de la révélation de tes compétences jusqu'au travail épanouissant.
+          </p>
         </div>
-        <div>
-          <h2 className="font-display text-[34px] text-plum sm:text-[48px]">Des offres contrôlées, une décision qui reste la vôtre</h2>
-          <ul className="mt-8 space-y-3">
-            {TRUST.map(([t, d]) => (
-              <li key={t} className="flex gap-4 rounded-[22px] bg-white p-5 ring-1 ring-line">
-                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sage-50 font-bold text-sage-700" aria-hidden>✓</span>
+
+        {/* Grille asymétrique : grande carte verticale + 3 cartes */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-6">
+          
+          {/* CARTE 1 : BOUSSOLE (Grande carte verticale, voile turquoise) */}
+          <Link
+            href="/app"
+            className="group relative h-[480px] lg:h-full min-h-[460px] rounded-[32px] overflow-hidden shadow-md flex flex-col justify-end transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+          >
+            <Image
+              src="/img/accueil.jpg"
+              alt="Boussole PHAR"
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+            {/* Voile turquoise réglementaire */}
+            <div className="relative z-10 p-8 sm:p-10 bg-gradient-to-t from-[#1ab1b7] via-[#22C3C9]/90 to-transparent text-white flex items-end justify-between">
+              <div>
+                <h3 className="font-display text-2xl sm:text-3xl font-extrabold mb-2">Boussole</h3>
+                <p className="text-sm sm:text-base opacity-95 max-w-md">
+                  Diagnostic intelligent de tes talents réels, savoir-faire pratiques et aspirations d'avenir.
+                </p>
+              </div>
+              <div className="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-xl shrink-0 group-hover:translate-x-1.5 transition-transform">
+                →
+              </div>
+            </div>
+          </Link>
+
+          {/* COLONNE DE 3 CARTES */}
+          <div className="flex flex-col gap-6">
+
+            {/* CARTE 2 : CAP FORMATION (Voile jaune, texte marine) */}
+            <Link
+              href="/formations"
+              className="group relative h-48 sm:h-52 rounded-[28px] overflow-hidden shadow-md flex flex-col justify-end transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+            >
+              <Image
+                src="/img/cafe.jpg"
+                alt="Cap Formation"
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="relative z-10 px-8 py-5 bg-gradient-to-t from-[#f5ad0f] via-[#FFB81C]/95 to-transparent text-[#0A2A5C] flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-ink">{t}</p>
-                  <p className="text-muted">{d}</p>
+                  <h3 className="font-display text-xl font-extrabold mb-1">Cap Formation</h3>
+                  <p className="text-xs sm:text-sm font-medium opacity-90 max-w-sm">
+                    Formations certifiantes courtes et pratiques adaptées aux besoins du marché local.
+                  </p>
                 </div>
-              </li>
-            ))}
-          </ul>
+                <div className="w-10 h-10 rounded-full bg-[#0A2A5C]/10 flex items-center justify-center text-lg shrink-0 group-hover:translate-x-1.5 transition-transform">
+                  →
+                </div>
+              </div>
+            </Link>
+
+            {/* CARTE 3 : HORIZON EMPLOI (Voile marine, texte blanc) */}
+            <Link
+              href="/opportunites"
+              className="group relative h-48 sm:h-52 rounded-[28px] overflow-hidden shadow-md flex flex-col justify-end transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+            >
+              <Image
+                src="/img/bureau.jpg"
+                alt="Horizon Emploi"
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="relative z-10 px-8 py-5 bg-gradient-to-t from-[#082148] via-[#0A2A5C]/90 to-transparent text-white flex items-center justify-between">
+                <div>
+                  <h3 className="font-display text-xl font-extrabold mb-1">Horizon Emploi</h3>
+                  <p className="text-xs sm:text-sm opacity-90 max-w-sm">
+                    Offres vérifiées, stages tremplins et missions auprès de nos entreprises partenaires.
+                  </p>
+                </div>
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-lg shrink-0 group-hover:translate-x-1.5 transition-transform">
+                  →
+                </div>
+              </div>
+            </Link>
+
+            {/* CARTE 4 : ÉQUIPAGE (Voile blanc, texte marine) */}
+            <Link
+              href="/communaute"
+              className="group relative h-48 sm:h-52 rounded-[28px] overflow-hidden shadow-md flex flex-col justify-end transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+            >
+              <Image
+                src="/img/recruteur.jpg"
+                alt="Équipage Communauté"
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="relative z-10 px-8 py-5 bg-gradient-to-t from-white via-white/95 to-transparent text-[#0A2A5C] flex items-center justify-between">
+                <div>
+                  <h3 className="font-display text-xl font-extrabold mb-1">Équipage</h3>
+                  <p className="text-xs sm:text-sm text-[#536B88] max-w-sm">
+                    Communauté bienveillante, mentorat par des pairs et réseau de professionnels engagés.
+                  </p>
+                </div>
+                <div className="w-10 h-10 rounded-full bg-[#0A2A5C]/10 flex items-center justify-center text-lg shrink-0 group-hover:translate-x-1.5 transition-transform">
+                  →
+                </div>
+              </div>
+            </Link>
+
+          </div>
+
         </div>
       </section>
 
-      {/* MISSION À CONFIER */}
-      <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 sm:pb-28">
-        <div className="relative overflow-hidden rounded-[34px] px-6 py-14 text-white sm:px-12">
-          <span className="absolute inset-0 bg-gradient-to-br from-[#2a1b6e] via-[#8a3a8f] to-[#ffb21e]" />
-          <span className="absolute inset-0 bg-gradient-to-r from-[#b7853d]/90 via-[#c0607a]/80 to-[#d0508e]/70" />
-          <div className="relative grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-center">
-            <div>
-              <h2 className="font-display text-[34px] sm:text-[46px]">Vous avez une mission à confier&nbsp;?</h2>
-              <p className="mt-4 max-w-xl text-lg text-white/85">Entreprises, associations, particuliers : publiez une offre, elle est vérifiée puis proposée aux profils qui correspondent.</p>
+      {/* TRANSITION VERS SECTION IA */}
+      <div className="w-full overflow-hidden leading-none bg-white">
+        <svg viewBox="0 0 1440 48" fill="none" preserveAspectRatio="none" className="w-full h-12 block">
+          <path d="M0,16 C320,48 640,0 960,32 C1200,48 1360,16 1440,24 L1440,48 L0,48 Z" fill="#FAFEFF" />
+        </svg>
+      </div>
+
+      {/* 5. SECTION IA (PHAR IA) */}
+      <section className="bg-[#FAFEFF] py-24 px-6 lg:px-12">
+        <div className="max-w-[1320px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          
+          <div>
+            <div className="inline-flex items-center gap-2 bg-[#22C3C9]/15 text-[#129aa0] px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-widest mb-6">
+              Technologie Bienveillante
             </div>
-            <div className="flex lg:justify-end">
-              <ButtonLink href="/connexion?mode=inscription&role=recruteur" variant="accent" className="px-7 py-4">Publier une mission</ButtonLink>
+
+            <h2 className="font-display text-3xl sm:text-4xl text-[#0A2A5C] leading-tight mb-6">
+              PHAR IA : L'INTELLIGENCE QUI ÉCOUTE TON HISTOIRE
+            </h2>
+
+            <p className="text-base sm:text-lg text-[#536B88] mb-10 leading-relaxed">
+              Pas de questionnaire froid. PHAR IA échange simplement avec toi pour comprendre ce que tu sais faire, même ce que l'école n'a jamais mesuré.
+            </p>
+
+            <div className="space-y-6">
+              <div className="flex gap-5 items-start">
+                <div className="w-11 h-11 rounded-xl bg-[#EFFAFB] text-[#22C3C9] border-2 border-[#22C3C9] flex items-center justify-center text-lg font-extrabold shrink-0">
+                  1
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-[#0A2A5C] mb-1">Écoute et orientation humaine</h4>
+                  <p className="text-sm text-[#536B88] leading-relaxed">
+                    Dialogue naturel en français et adapté aux contextes locaux, par message écrit ou notes vocales sans formalisme intimidant.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-5 items-start">
+                <div className="w-11 h-11 rounded-xl bg-[#EFFAFB] text-[#22C3C9] border-2 border-[#22C3C9] flex items-center justify-center text-lg font-extrabold shrink-0">
+                  2
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-[#0A2A5C] mb-1">Repérage des compétences non scolaires</h4>
+                  <p className="text-sm text-[#536B88] leading-relaxed">
+                    Gestion d'un étal de marché, négociation, confection, organisation d'ateliers : chaque expérience vécue est traduite en compétences professionnelles reconnues.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-5 items-start">
+                <div className="w-11 h-11 rounded-xl bg-[#EFFAFB] text-[#22C3C9] border-2 border-[#22C3C9] flex items-center justify-center text-lg font-extrabold shrink-0">
+                  3
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-[#0A2A5C] mb-1">Recommandation personnalisée d'opportunités</h4>
+                  <p className="text-sm text-[#536B88] leading-relaxed">
+                    Connexion instantanée avec les formations et les recruteurs qui recherchent exactement tes forces et ton potentiel.
+                  </p>
+                </div>
+              </div>
             </div>
+          </div>
+
+          <div className="relative h-[480px] lg:h-[540px] rounded-[32px] overflow-hidden shadow-lg">
+            <Image
+              src="/img/mentor.jpg"
+              alt="Orientation bienveillante"
+              fill
+              className="object-cover"
+            />
+          </div>
+
+        </div>
+      </section>
+
+      {/* 6. APPEL À L'ACTION FINAL (CTA) */}
+      <section className="max-w-[1320px] mx-auto px-6 lg:px-12 my-12">
+        <div className="relative rounded-[32px] overflow-hidden shadow-xl">
+          <div className="absolute inset-0 z-0">
+            <Image src="/img/equipe.jpg" alt="Équipe" fill className="object-cover" />
+          </div>
+          <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#FFB81C]/90 to-[#22C3C9]/90" />
+          
+          <div className="relative z-20 px-8 py-20 text-center max-w-3xl mx-auto">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl text-[#0A2A5C] leading-tight mb-8">
+              « TON AVENIR NE DOIT PAS DÉPENDRE DES OPPORTUNITÉS QUE TU N'AS JAMAIS EUES. »
+            </h2>
+            <Link
+              href="/connexion?mode=inscription"
+              className="inline-flex items-center gap-3 bg-[#0A2A5C] text-white font-extrabold text-base sm:text-lg px-10 py-5 rounded-2xl shadow-[0_10px_30px_rgba(10,42,92,0.3)] hover:bg-[#0d3470] hover:-translate-y-0.5 transition-all"
+            >
+              Commencer mon parcours
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </Link>
           </div>
         </div>
       </section>
 
-      <footer className="bg-night text-white/70">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-8 text-sm sm:px-6">
-          <span className="rounded-2xl bg-white px-3 py-1.5"><Logo /></span>
-          <p>© {new Date().getFullYear()} NAYA. Révéler les compétences, ouvrir les opportunités.</p>
-        </div>
-      </footer>
-    </main>
+      {/* 7. FOOTER */}
+      <Footer />
+    </div>
   );
 }

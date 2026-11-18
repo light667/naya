@@ -72,7 +72,7 @@ export function VerifiedBadge({ className = "" }: { className?: string }) {
         <path fill="currentColor" d="M8 0l1.9 1.5 2.4-.2.8 2.3 2.1 1.2-.6 2.3.9 2.2-1.9 1.5-.3 2.4-2.4.4L9.6 15 8 14l-1.6 1-1.3-1.9-2.4-.4-.3-2.4L.5 8.8l.9-2.2-.6-2.3L2.9 3l.8-2.3 2.4.2z" />
         <path fill="#fff" d="M7 10.6L4.7 8.3l1-1L7 8.6l3.3-3.3 1 1z" />
       </svg>
-      Vérifiée par NAYA
+      Vérifiée par PHAR
     </Badge>
   );
 }
@@ -137,7 +137,7 @@ export function Logo({ className = "" }: { className?: string }) {
         <path d="M9 23V9.5h2.4l7.2 9V9.5H21V23h-2.3l-7.3-9.1V23z" fill="#FFFFFF" />
         <circle cx="26" cy="6" r="3" fill="#FFB21E" />
       </svg>
-      <span className="font-display text-[22px]">naya</span>
+      <span className="font-display text-[22px] font-extrabold text-[#0A2A5C]">PHAR</span>
     </span>
   );
 }

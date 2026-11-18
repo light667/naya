@@ -1,100 +1,93 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap");
 
 @theme inline {
-  --font-sans: var(--font-bricolage), system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Syne", "Plus Jakarta Sans", system-ui, sans-serif;
 
-  /* Direction « nuit indigo » : indigo profond, ambre pour l'action, corail-rose en accent */
-  --color-bg: #f6f4fd;
-  --color-surface: #ffffff;
-  --color-night: #150b3f;
-  --color-night-800: #1f1257;
-  --color-plum: #2a1b6e;      /* couleur principale (indigo) — nom conservé pour tout le code */
-  --color-plum-700: #1d1152;
-  --color-plum-100: #e5e0f8;
-  --color-plum-50: #f1eefc;
-  --color-sun: #ffb21e;       /* bouton d'action principal, texte nuit dessus */
-  --color-sun-600: #f29a00;
-  --color-sun-800: #8a5300;
-  --color-sun-900: #6b4000;
-  --color-sun-100: #ffe9b3;
-  --color-sun-50: #fff6dd;
-  --color-coral: #ff5e7e;
-  --color-coral-600: #f2456a;
-  --color-coral-700: #c42b52;
-  --color-coral-50: #ffeff3;
-  --color-sage: #1f9a8a;
-  --color-sage-700: #157066;
-  --color-sage-50: #e3f4f1;
-  --color-ink: #1a1238;
-  --color-muted: #686385;
-  --color-line: #e7e3f3;
+  /* Charte PHAR : 100% clair et lumineux */
+  --color-navy: #0A2A5C;
+  --color-navy-800: #0d3470;
+  --color-navy-900: #061938;
 
-  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --color-turquoise: #22C3C9;
+  --color-turquoise-dark: #129aa0;
+  --color-turquoise-50: #EFFAFB;
+
+  --color-yellow: #FFB81C;
+  --color-yellow-hover: #ffc138;
+  --color-yellow-light: #FFF8E6;
+
+  --color-bg-light: #F8FDFE;
+  --color-border-soft: #E2F2F5;
+  --color-muted: #536B88;
 }
 
 html {
-  background: #f6f4fd;
+  background: #ffffff;
+  color: #0A2A5C;
 }
 
 body {
-  background: #f6f4fd;
-  color: #1a1238;
-  font-variation-settings: "opsz" 14;
+  background: #ffffff;
+  color: #0A2A5C;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
 }
 
-/* Titres : Bricolage en grand corps optique, légèrement condensée */
-.font-display {
-  font-variation-settings: "opsz" 96, "wdth" 82;
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
   font-weight: 800;
-  letter-spacing: -0.025em;
-  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+/* Faisceau lumineux doux balayant le haut de page */
+.lighthouse-beam {
+  position: absolute;
+  top: -120px;
+  left: 10%;
+  width: 700px;
+  height: 900px;
+  background: radial-gradient(ellipse at 20% 0%, rgba(255, 184, 28, 0.22) 0%, rgba(34, 195, 201, 0.08) 45%, rgba(255, 255, 255, 0) 75%);
+  pointer-events: none;
+  filter: blur(40px);
+  transform-origin: top left;
+  animation: sweepBeam 14s ease-in-out infinite alternate;
+  z-index: 2;
+}
+
+@keyframes sweepBeam {
+  0% {
+    transform: rotate(-12deg) scale(0.95);
+    opacity: 0.7;
+  }
+  50% {
+    transform: rotate(16deg) scale(1.1);
+    opacity: 0.95;
+  }
+  100% {
+    transform: rotate(-4deg) scale(1.0);
+    opacity: 0.8;
+  }
 }
 
 :focus-visible {
-  outline: 2px solid #2a1b6e;
+  outline: 2px solid #22C3C9;
   outline-offset: 3px;
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 ::selection {
-  background: #ffe9b3;
+  background: #FFB81C;
+  color: #0A2A5C;
 }
-
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { scrollbar-width: none; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-/* Texte en dégradé ambre → corail (titres de la page d'accueil) */
-.text-glow {
-  background: linear-gradient(90deg, #ffb21e 0%, #ff8a4c 45%, #ff5e7e 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-}
-
-/* Halos lumineux : dégradés radiaux plutôt que filter: blur (qui s'affiche en noir sur iPhone) */
-.glow-sun { background: radial-gradient(circle, rgba(255, 178, 30, 0.42) 0%, rgba(255, 178, 30, 0.12) 40%, transparent 70%); }
-.glow-coral { background: radial-gradient(circle, rgba(255, 94, 126, 0.28) 0%, rgba(255, 94, 126, 0.08) 40%, transparent 70%); }
-.glow-blue { background: radial-gradient(circle, rgba(59, 108, 255, 0.3) 0%, rgba(59, 108, 255, 0.08) 40%, transparent 70%); }
-
-/* Trame de points discrète sur les fonds nuit */
-.bg-dots {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-  background-size: 22px 22px;
-}
-
-@keyframes marquee { to { transform: translateX(-50%); } }
-.animate-marquee { animation: marquee 32s linear infinite; }
-
-@media print {
-  html, body { background: #fff !important; }
-  .print\:hidden { display: none !important; }
+  .lighthouse-beam {
+    animation: none;
+  }
 }

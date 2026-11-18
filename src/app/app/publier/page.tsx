@@ -63,7 +63,7 @@ export default function PublierPage() {
 
   return (
     <div>
-      <PageHeader title="Mes offres" subtitle="Proposez des missions. Chacune est vérifiée par l'équipe NAYA avant d'être visible." />
+      <PageHeader title="Mes offres" subtitle="Proposez des missions. Chacune est vérifiée par l'équipe PHAR avant d'être visible." />
       <Tabs
         tabs={[
           { id: "publier", label: "Publier" },

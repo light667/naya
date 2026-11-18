@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PHAR IA — Ton Assistant d'Orientation &amp; Talents | PHAR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0A2A5C;
+      --turquoise: #22C3C9;
+      --turquoise-dark: #129aa0;
+      --yellow: #FFB81C;
+      --pale-turquoise: #EFFAFB;
+      --white: #FFFFFF;
+      --text-muted: #536B88;
+      --border-color: #E2ECF2;
+      --radius-sm: 14px;
+      --radius-md: 22px;
+      --radius-lg: 30px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #F8FCFD;
+      color: var(--navy);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      background: rgba(255, 255, 255, 0.98);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      z-index: 50;
+    }
+
+    .brand-logo img {
+      height: 46px;
+      width: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--navy);
+      font-weight: 600;
+      font-size: 15px;
+      position: relative;
+      padding-bottom: 4px;
+    }
+
+    .nav-links a.active {
+      color: var(--navy);
+      font-weight: 800;
+    }
+
+    .nav-links a.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--yellow);
+      border-radius: 2px;
+    }
+
+    .ia-status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(34, 195, 201, 0.12);
+      color: var(--turquoise-dark);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 999px;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--turquoise);
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px rgba(34, 195, 201, 0.3);
+    }
+
+    /* MAIN APP LAYOUT (SPLIT SCREEN) */
+    .ia-layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      height: calc(100vh - 72px);
+      overflow: hidden;
+    }
+
+    /* CHAT CONTAINER */
+    .chat-section {
+      display: flex;
+      flex-direction: column;
+      background: var(--white);
+      border-right: 1px solid var(--border-color);
+      height: 100%;
+      position: relative;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 36px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* MESSAGE BUBBLES */
+    .msg-row {
+      display: flex;
+      gap: 16px;
+      max-width: 820px;
+    }
+
+    .msg-row.user-row {
+      margin-left: auto;
+      flex-direction: row-reverse;
+    }
+
+    .msg-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      object-fit: cover;
+    }
+
+    .ia-beacon-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(10, 42, 92, 0.15);
+    }
+
+    .ia-beacon-avatar img {
+      width: 26px;
+      height: auto;
+    }
+
+    .msg-bubble {
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .ia-bubble {
+      background: #F7FBFC;
+      border: 1px solid var(--border-color);
+      color: var(--navy);
+      border-top-left-radius: 4px;
+    }
+
+    .user-bubble {
+      background: var(--navy);
+      color: var(--white);
+      border-top-right-radius: 4px;
+    }
+
+    /* CARD INSIDE IA BUBBLE */
+    .ia-recommendation-box {
+      margin-top: 16px;
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border-color);
+      padding: 16px 20px;
+      box-shadow: 0 4px 14px rgba(10, 42, 92, 0.05);
+    }
+
+    .rec-tag {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--turquoise-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    .rec-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+
+    .rec-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .rec-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--navy);
+      background: var(--yellow);
+      padding: 8px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+
+    /* QUICK SUGGESTIONS */
+    .quick-chips-box {
+      padding: 12px 48px;
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      border-top: 1px solid var(--border-color);
+      background: #FAFEFF;
+    }
+
+    .chip-btn {
+      background: var(--white);
+      border: 1px solid var(--border-color);
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy);
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chip-btn:hover {
+      border-color: var(--turquoise);
+      background: var(--pale-turquoise);
+    }
+
+    /* CHAT INPUT AREA */
+    .chat-input-bar {
+      padding: 18px 48px 24px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: var(--white);
+    }
+
+    .input-field-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: #F8FCFD;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 6px 14px;
+    }
+
+    .input-field-wrapper:focus-within {
+      border-color: var(--turquoise);
+      box-shadow: 0 0 0 3px rgba(34, 195, 201, 0.15);
+      background: var(--white);
+    }
+
+    .chat-input-field {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--navy);
+      padding: 8px 4px;
+    }
+
+    .btn-voice {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--turquoise-dark);
+      padding: 6px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      transition: background 0.2s;
+    }
+
+    .btn-voice:hover {
+      background: rgba(34, 195, 201, 0.15);
+    }
+
+    .btn-send-message {
+      background: var(--yellow);
+      color: var(--navy);
+      border: none;
+      padding: 14px 22px;
+      border-radius: var(--radius-sm);
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(255, 184, 28, 0.35);
+      transition: transform 0.2s;
+    }
+
+    .btn-send-message:hover {
+      transform: translateY(-2px);
+    }
+
+    /* RIGHT SIDEBAR : CAP & BOUSSOLE EN DIRECT */
+    .ia-sidebar {
+      background: #F9FDFE;
+      padding: 32px 28px;
+      overflow-y: auto;
+      border-left: 1px solid var(--border-color);
+    }
+
+    .sidebar-widget-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .sidebar-widget-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    /* BOUSSOLE CARD */
+    .boussole-status-card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 16px rgba(10, 42, 92, 0.04);
+      margin-bottom: 24px;
+    }
+
+    .cap-detected-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(34, 195, 201, 0.15);
+      color: var(--turquoise-dark);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+
+    .cap-target-name {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .cap-target-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 16px;
+    }
+
+    .detected-skills-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .detected-skill-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--pale-turquoise);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .skill-check {
+      color: var(--turquoise-dark);
+      font-weight: 800;
+    }
+
+    /* MENTOR SUGGÉRÉ */
+    .mentor-match-box {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .mentor-match-box img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    @media (max-width: 992px) {
+      .navbar {
+        padding: 12px 20px;
+      }
+      .nav-links {
+        display: none;
+      }
+      .ia-layout {
+        grid-template-columns: 1fr;
+      }
+      .ia-sidebar {
+        display: none;
+      }
+      .chat-messages {
+        padding: 20px;
+      }
+      .chat-input-bar {
+        padding: 14px 20px;
+      }
+      .quick-chips-box {
+        padding: 10px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a href="preview_homepage.html" class="brand-logo">
+      <img src="public/img/logo_phar_trimmed.png" alt="PHAR">
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="preview_homepage.html">Accueil</a></li>
+      <li><a href="preview_opportunites.html">Opportunités</a></li>
+      <li><a href="preview_formations.html">Formations</a></li>
+      <li><a href="#" class="active">Assistant IA</a></li>
+      <li><a href="preview_dashboard.html">Mon Cap</a></li>
+    </ul>
+
+    <div class="ia-status-badge">
+      <span class="pulse-dot"></span>
+      PHAR IA Actif &amp; Bienveillant
+    </div>
+  </header>
+
+  <!-- ASSISTANT PLEINE PAGE -->
+  <div class="ia-layout">
+
+    <!-- ZONE DE CHAT CENTRALE -->
+    <div class="chat-section">
+
+      <div class="chat-messages">
+
+        <!-- 1. MESSAGE D'ACCUEIL PHAR IA -->
+        <div class="msg-row">
+          <div class="ia-beacon-avatar">
+            <span style="font-size: 20px;">🧭</span>
+          </div>
+          <div class="msg-bubble ia-bubble">
+            <strong>Bonjour Aminata !</strong> Je suis ton guide PHAR. 
+            <p style="margin-top: 6px;">
+              Ici, pas de questions pièges ni de jargon administratif. Raconte-moi simplement ce que tu sais faire de tes mains, tes expériences dans un atelier, sur un marché ou tes projets personnels. Ensemble, nous allons éclairer ton cap professionnel.
+            </p>
+          </div>
+        </div>
+
+        <!-- 2. MESSAGE UTILISATEUR -->
+        <div class="msg-row user-row">
+          <img src="public/img/accueil.jpg" alt="Aminata" class="msg-avatar">
+          <div class="msg-bubble user-bubble">
+            J'ai passé 2 ans à aider ma tante dans son atelier de couture et à vendre nos créations au marché Dantokpa. Je n'ai pas de diplôme d'État en modélisme, est-ce que ça compte pour trouver un vrai stage rémunéré ?
+          </div>
+        </div>
+
+        <!-- 3. RÉPONSE D'ORIENTATION DE PHAR IA -->
+        <div class="msg-row">
+          <div class="ia-beacon-avatar">
+            <span style="font-size: 20px;">🧭</span>
+          </div>
+          <div class="msg-bubble ia-bubble">
+            Absolument, Aminata ! C'est exactement ce que nos entreprises partenaires recherchent. Ton expérience de 2 ans en atelier et sur le marché t'a permis d'acquérir trois compétences très recherchées :
+            
+            <ul style="margin: 10px 0 14px 20px; font-size: 14px;">
+              <li><strong>Le patronage &amp; la coupe précise</strong> de tissus délicats comme le wax.</li>
+              <li><strong>La négociation directe &amp; l'accueil client</strong> sur un marché à forte affluence.</li>
+              <li><strong>La gestion des stocks et de caisse</strong> au quotidien.</li>
+            </ul>
+
+            J'ai immédiatement détecté une opportunité chez un créateur partenaire qui recherche précisément ce profil à Cotonou :
+
+            <!-- CARTE RECOMMANDATION DIRECTE -->
+            <div class="ia-recommendation-box">
+              <div class="rec-tag">Opportunité Partenaire Détectée • 95% de compatibilité</div>
+              <h4 class="rec-title">Maison Ahouefa Design — Assistante Modéliste &amp; Coupe Wax</h4>
+              <p class="rec-desc">Atelier réputé à Cotonou • Stage tremplin rémunéré avec embauche possible en fin de parcours.</p>
+              <a href="preview_opportunites.html" class="rec-btn">Consulter la fiche &amp; postuler avec mon profil →</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SUGGESTIONS RAPIDES -->
+      <div class="quick-chips-box">
+        <button class="chip-btn">🧭 Compléter mon diagnostic Boussole</button>
+        <button class="chip-btn">📜 Découvrir les formations certifiantes</button>
+        <button class="chip-btn">🤝 Prendre rendez-vous avec mon mentor</button>
+        <button class="chip-btn">💡 Comment présenter mon stand de marché ?</button>
+      </div>
+
+      <!-- BARRE DE SAISIE -->
+      <div class="chat-input-bar">
+        <div class="input-field-wrapper">
+          <input type="text" placeholder="Écris ton message ou pose une question sur ton avenir..." class="chat-input-field">
+          <button class="btn-voice" title="Enregistrer une note vocale">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+          </button>
+        </div>
+
+        <button class="btn-send-message">
+          Envoyer
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- VOLET DROIT : ANALYSE DES TALENTS EN DIRECT -->
+    <aside class="ia-sidebar">
+      <h3 class="sidebar-widget-title">Boussole en Direct</h3>
+      <p class="sidebar-widget-sub">Savoir-faire reconnus au fil de notre échange</p>
+
+      <div class="boussole-status-card">
+        <span class="cap-detected-badge">Cap Éclairé</span>
+        <div class="cap-target-name">Styliste &amp; Modéliste Wax</div>
+        <p class="cap-target-desc">Filière Confection Textile &amp; Entrepreneuriat local</p>
+
+        <div class="detected-skills-list">
+          <div class="detected-skill-row">
+            <span>Patronage sur mesure</span>
+            <span class="skill-check">✓ Validé</span>
+          </div>
+          <div class="detected-skill-row">
+            <span>Coupe textile sans déchet</span>
+            <span class="skill-check">✓ Validé</span>
+          </div>
+          <div class="detected-skill-row">
+            <span>Négociation clientèle</span>
+            <span class="skill-check">✓ Validé</span>
+          </div>
+          <div class="detected-skill-row">
+            <span>Tenue de registre d'étal</span>
+            <span class="skill-check">✓ Validé</span>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="sidebar-widget-title" style="margin-top: 24px;">Mentor Recommandé</h3>
+      <p class="sidebar-widget-sub">Pour t'aider à franchir la prochaine étape</p>
+
+      <div class="mentor-match-box">
+        <img src="public/img/mentor.jpg" alt="Babacar Samb">
+        <div>
+          <div style="font-size: 14px; font-weight: 800; color: var(--navy);">Babacar Samb</div>
+          <div style="font-size: 12px; color: var(--turquoise-dark); font-weight: 700;">Directeur d'Atelier</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">98% d'affinité métier</div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+</body>
+</html>

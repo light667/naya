@@ -85,7 +85,7 @@ function OpportunitesInner() {
     <div>
       <PageHeader
         title="Missions"
-        subtitle={isTalent ? "Toutes vérifiées, classées selon vos compétences." : "Les missions actuellement en ligne sur NAYA."}
+        subtitle={isTalent ? "Toutes vérifiées, classées selon vos compétences." : "Les missions actuellement en ligne sur PHAR."}
         action={isTalent && (
           <div className="flex items-center gap-2">
             <AiBadge source={source} />
@@ -203,7 +203,7 @@ function Detail({
     setBusy(false);
     setReporting(false);
     if (error) toast(error.code === "23505" ? "Vous avez déjà signalé cette offre." : error.message, "error");
-    else toast("Signalement envoyé. L'équipe NAYA va réexaminer l'offre.");
+    else toast("Signalement envoyé. L'équipe PHAR va réexaminer l'offre.");
   }
 
   return (
@@ -245,7 +245,7 @@ function Detail({
           <dl className="mt-5 grid grid-cols-3 gap-3 text-sm">
             <div><dt className="text-muted">Lieu</dt><dd className="mt-0.5 font-semibold text-ink">{opp.remote ? "À distance" : opp.location || "À préciser"}</dd></div>
             <div><dt className="text-muted">Rémunération</dt><dd className="mt-0.5 font-semibold text-plum">{opp.pay || "À discuter"}</dd></div>
-            <div><dt className="text-muted">Contact</dt><dd className="mt-0.5 break-words font-semibold text-ink">{opp.contact || "Via NAYA"}</dd></div>
+            <div><dt className="text-muted">Contact</dt><dd className="mt-0.5 break-words font-semibold text-ink">{opp.contact || "Via PHAR"}</dd></div>
           </dl>
 
           <p className="mt-6 whitespace-pre-line text-[16px] leading-relaxed text-ink">{opp.description}</p>

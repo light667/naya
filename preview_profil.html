@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil &amp; Portfolio — Aminata Diallo | PHAR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0A2A5C;
+      --turquoise: #22C3C9;
+      --turquoise-dark: #129aa0;
+      --yellow: #FFB81C;
+      --pale-turquoise: #EFFAFB;
+      --white: #FFFFFF;
+      --text-muted: #536B88;
+      --border-color: #E2ECF2;
+      --radius-sm: 14px;
+      --radius-md: 22px;
+      --radius-lg: 30px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #F8FCFD;
+      color: var(--navy);
+      line-height: 1.5;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 14px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-logo img {
+      height: 48px;
+      width: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--navy);
+      font-weight: 600;
+      font-size: 15px;
+      position: relative;
+      padding-bottom: 4px;
+    }
+
+    .nav-links a.active {
+      color: var(--navy);
+      font-weight: 800;
+    }
+
+    .nav-links a.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--yellow);
+      border-radius: 2px;
+    }
+
+    /* PROFIL HEADER HERO */
+    .profile-header-banner {
+      background: linear-gradient(180deg, #FFFFFF 0%, var(--pale-turquoise) 100%);
+      padding: 40px 48px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .profile-hero-card {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 36px;
+      align-items: center;
+      padding-bottom: 40px;
+    }
+
+    .profile-avatar-box {
+      position: relative;
+    }
+
+    .profile-avatar-img {
+      width: 150px;
+      height: 150px;
+      border-radius: var(--radius-md);
+      object-fit: cover;
+      border: 4px solid var(--white);
+      box-shadow: 0 12px 30px rgba(10, 42, 92, 0.12);
+    }
+
+    .status-badge-online {
+      position: absolute;
+      bottom: -6px;
+      right: -6px;
+      background: var(--yellow);
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 2px solid var(--white);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .profile-main-info h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .verified-icon {
+      color: var(--turquoise);
+      font-size: 20px;
+    }
+
+    .profile-headline {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--turquoise-dark);
+      margin-bottom: 10px;
+    }
+
+    .profile-bio {
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 620px;
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+
+    .profile-tags {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .profile-tag {
+      background: var(--white);
+      border: 1px solid var(--border-color);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--navy);
+      padding: 4px 12px;
+      border-radius: 8px;
+    }
+
+    .profile-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn-contact {
+      background: var(--navy);
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      text-align: center;
+      box-shadow: 0 4px 14px rgba(10, 42, 92, 0.15);
+      transition: background 0.2s;
+    }
+
+    .btn-contact:hover {
+      background: #0d326a;
+    }
+
+    .btn-portfolio-share {
+      background: var(--white);
+      color: var(--navy);
+      border: 1.5px solid var(--border-color);
+      font-weight: 700;
+      font-size: 14px;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      text-align: center;
+      text-decoration: none;
+    }
+
+    /* MAIN TWO COLUMNS */
+    .profile-content {
+      max-width: 1280px;
+      margin: 40px auto;
+      padding: 0 48px 80px;
+      display: grid;
+      grid-template-columns: 1fr 1.8fr;
+      gap: 36px;
+      align-items: start;
+    }
+
+    .section-card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: 28px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 6px 20px rgba(10, 42, 92, 0.04);
+      margin-bottom: 28px;
+    }
+
+    .section-card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* COMPÉTENCES */
+    .skills-group {
+      margin-bottom: 20px;
+    }
+
+    .skills-group-title {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--turquoise-dark);
+      margin-bottom: 10px;
+    }
+
+    .skills-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .skill-chip {
+      background: var(--pale-turquoise);
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .skill-chip span.level {
+      color: var(--turquoise);
+      font-weight: 800;
+    }
+
+    /* BADGES CERTIFIÉS */
+    .badges-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .badge-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 14px;
+      background: #FDFEFE;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+    }
+
+    .badge-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(255, 184, 28, 0.2);
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .badge-text-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .badge-text-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* PORTFOLIO RÉALISATIONS GRILLE */
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .portfolio-card {
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      transition: all 0.3s;
+    }
+
+    .portfolio-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(10, 42, 92, 0.09);
+      border-color: var(--turquoise);
+    }
+
+    .portfolio-img {
+      height: 180px;
+      width: 100%;
+      object-fit: cover;
+    }
+
+    .portfolio-info {
+      padding: 16px;
+    }
+
+    .portfolio-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+
+    .portfolio-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* PARCOURS & EXPÉRIENCES */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+      padding-left: 24px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      bottom: 8px;
+      left: 7px;
+      width: 2px;
+      background: var(--border-color);
+    }
+
+    .timeline-item {
+      position: relative;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -24px;
+      top: 4px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 3px solid var(--turquoise);
+    }
+
+    .timeline-item.active .timeline-dot {
+      border-color: var(--yellow);
+      background: var(--navy);
+    }
+
+    .timeline-date {
+      font-size: 12px;
+      color: var(--turquoise-dark);
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+
+    .timeline-role {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+
+    .timeline-org {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    @media (max-width: 992px) {
+      .navbar {
+        padding: 12px 20px;
+      }
+      .nav-links {
+        display: none;
+      }
+      .profile-header-banner {
+        padding: 24px 20px 0;
+      }
+      .profile-hero-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .profile-avatar-box {
+        margin: 0 auto;
+      }
+      .profile-tags {
+        justify-content: center;
+      }
+      .profile-content {
+        grid-template-columns: 1fr;
+        padding: 20px;
+      }
+      .portfolio-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a href="preview_homepage.html" class="brand-logo">
+      <img src="public/img/logo_phar_trimmed.png" alt="PHAR">
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="preview_homepage.html">Accueil</a></li>
+      <li><a href="preview_opportunites.html">Opportunités</a></li>
+      <li><a href="preview_formations.html">Formations</a></li>
+      <li><a href="preview_assistant_ia.html">Assistant IA</a></li>
+      <li><a href="preview_dashboard.html">Mon Cap</a></li>
+    </ul>
+
+    <div style="font-weight: 800; font-size: 14px; color: var(--navy);">
+      Mon Portfolio Public ↗
+    </div>
+  </header>
+
+  <!-- PROFILE HERO BANNER -->
+  <section class="profile-header-banner">
+    <div class="profile-hero-card">
+      
+      <div class="profile-avatar-box">
+        <img src="public/img/accueil.jpg" alt="Aminata Diallo" class="profile-avatar-img">
+        <span class="status-badge-online">Cap Ouvert</span>
+      </div>
+
+      <div class="profile-main-info">
+        <h1>
+          Aminata Diallo
+          <span class="verified-icon" title="Talent Vérifié PHAR">✓</span>
+        </h1>
+        <div class="profile-headline">Styliste Modéliste • Confection Wax &amp; Négociation</div>
+        <p class="profile-bio">
+          Passionnée par la confection textile et le design des motifs wax. J'allie mon expérience pratique acquise dans l'atelier familial de Cotonou avec des compétences solides en gestion de clientèle et calcul des marges.
+        </p>
+        <div class="profile-tags">
+          <span class="profile-tag">📍 Cotonou, Bénin</span>
+          <span class="profile-tag">🧭 Cap validé à 75%</span>
+          <span class="profile-tag">🤝 Mentoré(e) par Babacar Samb</span>
+        </div>
+      </div>
+
+      <div class="profile-actions">
+        <a href="#" class="btn-contact">Proposer une opportunité</a>
+        <a href="#" class="btn-portfolio-share">Partager mon portfolio</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PROFILE MAIN CONTENT -->
+  <main class="profile-content">
+
+    <!-- COLONNE GAUCHE : COMPÉTENCES & BADGES -->
+    <div class="profile-left-col">
+
+      <!-- COMPÉTENCES RECONNU PAR PHAR IA & MENTORS -->
+      <div class="section-card">
+        <h3 class="section-card-title">Compétences Repérées</h3>
+
+        <div class="skills-group">
+          <div class="skills-group-title">Savoir-faire Confection &amp; Technique</div>
+          <div class="skills-chips">
+            <span class="skill-chip">Patronage sur mesure <span class="level">●●●</span></span>
+            <span class="skill-chip">Coupe sans perte wax <span class="level">●●●</span></span>
+            <span class="skill-chip">Couture à la machine <span class="level">●●●</span></span>
+            <span class="skill-chip">Finition &amp; Assemblage <span class="level">●●○</span></span>
+          </div>
+        </div>
+
+        <div class="skills-group">
+          <div class="skills-group-title">Compétences Terrain &amp; Commerce</div>
+          <div class="skills-chips">
+            <span class="skill-chip">Négociation de tissus <span class="level">●●●</span></span>
+            <span class="skill-chip">Gestion d'atelier <span class="level">●●○</span></span>
+            <span class="skill-chip">Relation clientèle <span class="level">●●●</span></span>
+            <span class="skill-chip">WhatsApp Business <span class="level">●●○</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BADGES PHAR -->
+      <div class="section-card">
+        <h3 class="section-card-title">Badges &amp; Certifications</h3>
+        <div class="badges-list">
+          <div class="badge-item">
+            <div class="badge-icon">🧭</div>
+            <div>
+              <div class="badge-text-title">Boussole des Talents validée</div>
+              <div class="badge-text-sub">Diagnostic des savoir-faire informels</div>
+            </div>
+          </div>
+
+          <div class="badge-item">
+            <div class="badge-icon">★</div>
+            <div>
+              <div class="badge-text-title">Atelier Pratique Maître</div>
+              <div class="badge-text-sub">Certifié par la Maison Ahouefa</div>
+            </div>
+          </div>
+
+          <div class="badge-item">
+            <div class="badge-icon">🤝</div>
+            <div>
+              <div class="badge-text-title">Parrainage Mentor Actif</div>
+              <div class="badge-text-sub">Suivie par Babacar Samb (Directeur)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- COLONNE DROITE : PORTFOLIO RÉALISATIONS & PARCOURS -->
+    <div class="profile-right-col">
+
+      <!-- RÉALISATIONS CONCRÈTES -->
+      <div class="section-card">
+        <h3 class="section-card-title">
+          <span>Réalisations &amp; Créations Récentes</span>
+          <span style="font-size: 13px; color: var(--turquoise-dark); font-weight: 700;">4 projets</span>
+        </h3>
+
+        <div class="portfolio-grid">
+          <div class="portfolio-card">
+            <img src="public/img/couture.jpg" alt="Collection Robes Wax" class="portfolio-img">
+            <div class="portfolio-info">
+              <h4 class="portfolio-title">Collection Cotonou Chic</h4>
+              <p class="portfolio-desc">Ensemble de 8 pièces combinant wax authentique et lin écru, coupe moderne cintrée.</p>
+            </div>
+          </div>
+
+          <div class="portfolio-card">
+            <img src="public/img/tissus.jpg" alt="Harmonie Teintures" class="portfolio-img">
+            <div class="portfolio-info">
+              <h4 class="portfolio-title">Nuancier Motifs &amp; Assemblages</h4>
+              <p class="portfolio-desc">Création de patrons optimisés pour zéro déchet textile lors de la découpe en atelier.</p>
+            </div>
+          </div>
+
+          <div class="portfolio-card">
+            <img src="public/img/artisane.jpg" alt="Accessoires" class="portfolio-img">
+            <div class="portfolio-info">
+              <h4 class="portfolio-title">Sacs &amp; Pochettes Assortis</h4>
+              <p class="portfolio-desc">Maroquinerie d'appoint en cuir et chutes de wax cousues main avec fermoirs renforcés.</p>
+            </div>
+          </div>
+
+          <div class="portfolio-card">
+            <img src="public/img/vendeuse.jpg" alt="Vente et Distribution" class="portfolio-img">
+            <div class="portfolio-info">
+              <h4 class="portfolio-title">Stand Démonstration Marché Dantokpa</h4>
+              <p class="portfolio-desc">Présentation commerciale et vente directe de créations artisanales lors de la foire locale.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PARCOURS & EXPÉRIENCES RECONNUES -->
+      <div class="section-card">
+        <h3 class="section-card-title">Parcours &amp; Expériences de Terrain</h3>
+        
+        <div class="timeline">
+          <div class="timeline-item active">
+            <div class="timeline-dot"></div>
+            <div class="timeline-date">2026 — En cours</div>
+            <div class="timeline-role">Formation Haute Couture &amp; Modélisme</div>
+            <div class="timeline-org">Cap Formation PHAR • En partenariat avec les ateliers locaux de Cotonou</div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-date">2024 — 2025</div>
+            <div class="timeline-role">Praticienne en Atelier &amp; Vente Directe</div>
+            <div class="timeline-org">Atelier familial et distribution au marché • Patronage, découpe, gestion des clientes</div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-date">2023</div>
+            <div class="timeline-role">Initiation aux Techniques Textiles &amp; Tissage</div>
+            <div class="timeline-org">Apprentissage traditionnel des points et finitions à la main</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer style="text-align: center; padding: 24px; font-size: 12px; color: #7A91AB; font-style: italic;">
+    Maquette : données et profil fictifs de démonstration — PHAR 2026
+  </footer>
+
+</body>
+</html>

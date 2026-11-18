@@ -3,19 +3,19 @@ import { SITE_DESCRIPTION } from "@/lib/site";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "NAYA — Vos compétences, vos opportunités",
-    short_name: "NAYA",
+    name: "PHAR — Ton avenir a un cap. PHAR l'éclaire.",
+    short_name: "PHAR",
     description: SITE_DESCRIPTION,
     lang: "fr",
     start_url: "/app",
     scope: "/",
     display: "standalone",
-    background_color: "#F6F4FD",
-    theme_color: "#150B3F",
+    background_color: "#F8FCFD",
+    theme_color: "#0A2A5C",
     icons: [
-      { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
+      { src: "/img/logo_phar_trimmed.png", sizes: "342x266", type: "image/png", purpose: "any" },
+      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" },
     ],
   };
 }

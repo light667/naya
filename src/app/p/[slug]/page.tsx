@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const d = await load(slug);
   if (!d) return { title: "Portfolio", robots: { index: false, follow: false } };
   const title = `${d.profile.full_name}${d.profile.headline ? ` — ${d.profile.headline}` : ""}`;
-  const description = (d.profile.settings?.intro || d.profile.bio || "Portfolio professionnel sur NAYA").slice(0, 160);
+  const description = (d.profile.settings?.intro || d.profile.bio || "Portfolio professionnel sur PHAR").slice(0, 160);
   const images = d.profile.avatar_url ? [d.profile.avatar_url] : undefined;
   return {
     title,
