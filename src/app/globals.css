@@ -1,93 +1,76 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 @theme inline {
   --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-display: "Syne", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
 
-  /* Charte PHAR : 100% clair et lumineux */
-  --color-navy: #0A2A5C;
-  --color-navy-800: #0d3470;
-  --color-navy-900: #061938;
+  /* Palette Minimaliste & Pro */
+  --color-navy: #0F2942;
+  --color-navy-800: #163659;
+  --color-navy-900: #0A1C2E;
 
-  --color-turquoise: #22C3C9;
-  --color-turquoise-dark: #129aa0;
-  --color-turquoise-50: #EFFAFB;
+  --color-primary: #0F2942;
+  --color-primary-hover: #1E3A5F;
+  --color-accent: #0D9488;
+  --color-accent-light: #F0FDFA;
 
-  --color-yellow: #FFB81C;
-  --color-yellow-hover: #ffc138;
-  --color-yellow-light: #FFF8E6;
+  --color-turquoise: #0D9488;
+  --color-turquoise-dark: #0F766E;
+  --color-turquoise-50: #F0FDFA;
 
-  --color-bg-light: #F8FDFE;
-  --color-border-soft: #E2F2F5;
-  --color-muted: #536B88;
+  --color-yellow: #F59E0B;
+  --color-yellow-hover: #D97706;
+  --color-yellow-light: #FFFBEB;
+
+  --color-bg-light: #F8FAFC;
+  --color-border-soft: #E2E8F0;
+  --color-muted: #64748B;
 }
 
 html {
   background: #ffffff;
-  color: #0A2A5C;
+  color: #0F172A;
+  scroll-behavior: smooth;
 }
 
 body {
   background: #ffffff;
-  color: #0A2A5C;
+  color: #0F172A;
   font-family: var(--font-sans);
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, .font-display {
+h1, h2, h3, h4, h5, h6, .font-display {
   font-family: var(--font-display);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
-/* Faisceau lumineux doux balayant le haut de page */
-.lighthouse-beam {
-  position: absolute;
-  top: -120px;
-  left: 10%;
-  width: 700px;
-  height: 900px;
-  background: radial-gradient(ellipse at 20% 0%, rgba(255, 184, 28, 0.22) 0%, rgba(34, 195, 201, 0.08) 45%, rgba(255, 255, 255, 0) 75%);
-  pointer-events: none;
-  filter: blur(40px);
-  transform-origin: top left;
-  animation: sweepBeam 14s ease-in-out infinite alternate;
-  z-index: 2;
-}
-
-@keyframes sweepBeam {
-  0% {
-    transform: rotate(-12deg) scale(0.95);
-    opacity: 0.7;
-  }
-  50% {
-    transform: rotate(16deg) scale(1.1);
-    opacity: 0.95;
-  }
-  100% {
-    transform: rotate(-4deg) scale(1.0);
-    opacity: 0.8;
-  }
+  letter-spacing: -0.025em;
 }
 
 :focus-visible {
-  outline: 2px solid #22C3C9;
-  outline-offset: 3px;
-  border-radius: 8px;
+  outline: 2px solid #0F2942;
+  outline-offset: 2px;
+  border-radius: 6px;
 }
 
 ::selection {
-  background: #FFB81C;
-  color: #0A2A5C;
+  background: #E2E8F0;
+  color: #0F172A;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-  .lighthouse-beam {
-    animation: none;
-  }
+/* Scrollbar élégante et discrète */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
 }

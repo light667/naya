@@ -53,7 +53,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className="bg-white">
-      <body className="font-sans antialiased bg-white text-[#0A2A5C] selection:bg-[#FFB81C] selection:text-[#0A2A5C]">
+      <body className="font-sans antialiased bg-white text-slate-900 selection:bg-slate-200 selection:text-slate-900">
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { aiAvailable, chat, chatJson, hasMistral, MistralRateLimitError, MODELS } from "@/lib/mistral";
-import { localExtractSkills } from "@/lib/naya-local";
+import { localExtractSkills, localChatResponse } from "@/lib/naya-local";
 import { computeCompatibility } from "@/lib/compat";
 import { localCandidature, localRendezvous, localServices } from "@/lib/local-writer";
 import type { CoherenceCheck, Compatibility, Lang, MeetingSituation, Opportunity, PortfolioItem, Profile } from "@/lib/types";
@@ -95,16 +95,107 @@ async function verify(facts: unknown, text: string, missing: string[] = []): Pro
 
 export async function POST(req: Request) {
   const token = req.headers.get("authorization")?.replace(/^Bearer /, "");
-  if (!token) return NextResponse.json({ error: "Non connectée" }, { status: 401 });
-  const ctx = await context(token);
-  if (!ctx) return NextResponse.json({ error: "Session invalide" }, { status: 401 });
-
   const body = await req.json();
   const kind = String(body.kind ?? "");
   const ai = aiAvailable();
+
+  // Pour le chat libre, la connexion est optionnelle (permet l'accueil et l'orientation des visiteurs)
+  let ctx: Ctx | null = null;
+  if (token) {
+    ctx = await context(token);
+  }
+
+  /* ---------- Mode Conversationnel Libre (Assistant IA) ---------- */
+  if (kind === "chat") {
+    const profile: Profile = ctx?.profile ?? {
+      id: "guest",
+      full_name: String(body.userName ?? "Talent"),
+      headline: "",
+      city: "",
+      bio: "",
+      experiences: "",
+      interests: [],
+      availability: "",
+      skills: [],
+      suggestions: [],
+      role: "talent",
+    };
+
+    const message = String(body.message ?? "").slice(0, 3000);
+    if (!message.trim()) {
+      return NextResponse.json({ error: "Message vide" }, { status: 400 });
+    }
+
+    const history = Array.isArray(body.history) ? body.history.slice(-8) : [];
+    const userName = profile.full_name ? profile.full_name.split(" ")[0] : (body.userName || "");
+    const userSkills = profile.skills?.map((s) => s.name) || [];
+
+    // Détection des compétences locales systématique
+    const localAnalysis = localExtractSkills(message);
+    const detectedSkills = localAnalysis.skills.map((s) => s.name);
+
+    if (!ai) {
+      const local = localChatResponse(message, { userName, skills: userSkills });
+      return NextResponse.json({
+        source: "local",
+        reply: local.reply,
+        detectedSkills: local.detectedSkills,
+        suggestions: local.suggestions,
+      });
+    }
+
+    try {
+      const chatMessages = [
+        {
+          role: "system" as const,
+          content: `${SYSTEM}\n\nContexte de l'interlocutrice : Prénom: ${userName || "Talent"}, Compétences déjà identifiées: ${userSkills.join(", ") || "en cours d'exploration"}.\n` +
+            `RÈGLE ABSOLUE DE FORMAT : Ne JAMAIS utiliser de syntaxe Markdown (aucun astérisque double **, aucun dièse #, aucun crochet [], aucun backtick). Rédige en français naturel, fluide et soigné. Utilise uniquement de simples sauts de ligne pour aérer les paragraphes et des tirets simples (-) si tu fais une énumération.`,
+        },
+        ...history.map((h: { role: string; content: string }) => ({
+          role: (h.role === "assistant" ? "assistant" : "user") as "assistant" | "user",
+          content: String(h.content || ""),
+        })),
+        { role: "user" as const, content: message },
+      ];
+
+      const text = await chat(chatMessages, {
+        temperature: 0.7,
+        maxTokens: 1200,
+      });
+
+      const suggestions = [
+        "Quelles sont les opportunités adaptées à mon profil ?",
+        "Comment valoriser mes compétences sans diplôme ?",
+        "Aide-moi à fixer mes tarifs ou préparer un entretien",
+      ];
+
+      return NextResponse.json({
+        source: "ia",
+        reply: text,
+        detectedSkills,
+        suggestions,
+      });
+    } catch (e) {
+      console.warn("[naya-ai] chat fallback vers moteur local:", e);
+      const local = localChatResponse(message, { userName, skills: userSkills });
+      return NextResponse.json({
+        source: "local",
+        reply: local.reply,
+        detectedSkills: local.detectedSkills,
+        suggestions: local.suggestions,
+      });
+    }
+  }
+
+  // Pour toutes les autres actions (candidature, vérification, services), un compte connecté est requis
+  if (!ctx) {
+    return NextResponse.json({ error: "Connexion requise pour cette action" }, { status: 401 });
+  }
+
   const { profile, items } = ctx;
 
   try {
+
     /* ---------- Découverte des compétences ---------- */
     if (kind === "skills") {
       const text = String(body.text ?? "").slice(0, 6000);

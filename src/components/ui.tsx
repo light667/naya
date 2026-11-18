@@ -5,19 +5,18 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useId, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from "react";
 
 /* ---------- Boutons ---------- */
-// primary = indigo (navigation, actions courantes) · accent = ambre (action principale de l'écran, une seule)
 type Variant = "primary" | "accent" | "secondary" | "ghost" | "danger";
 
 const VARIANTS: Record<Variant, string> = {
-  primary: "bg-plum text-white hover:bg-plum-700",
-  accent: "bg-sun text-night hover:bg-sun-600 shadow-[0_10px_24px_-12px_rgba(242,154,0,0.95)]",
-  secondary: "bg-white text-plum ring-1 ring-inset ring-plum/25 hover:ring-plum/60 hover:bg-plum-50",
-  ghost: "text-plum hover:bg-plum-50",
+  primary: "bg-slate-900 text-white hover:bg-slate-800 shadow-xs",
+  accent: "bg-slate-900 text-white hover:bg-slate-800 shadow-xs",
+  secondary: "bg-white text-slate-800 ring-1 ring-inset ring-slate-200 hover:bg-slate-50",
+  ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
   danger: "bg-white text-red-700 ring-1 ring-inset ring-red-200 hover:bg-red-50",
 };
 
 const BASE =
-  "relative inline-flex select-none items-center justify-center gap-2 rounded-full px-5 py-3 text-[15px] font-semibold transition-[background-color,box-shadow,transform] duration-200 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40";
+  "relative inline-flex select-none items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-150 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40";
 
 export function Button({
   variant = "primary",
@@ -48,21 +47,21 @@ export function Spinner({ className = "" }: { className?: string }) {
 
 /* ---------- Surfaces ---------- */
 export function Card({ children, className = "", as: Tag = "div" }: { children: ReactNode; className?: string; as?: "div" | "section" | "article" }) {
-  return <Tag className={`rounded-[22px] bg-white p-5 ring-1 ring-line sm:p-6 ${className}`}>{children}</Tag>;
+  return <Tag className={`rounded-2xl bg-white p-5 border border-slate-200/80 shadow-xs sm:p-6 ${className}`}>{children}</Tag>;
 }
 
 type Tone = "plum" | "coral" | "sage" | "neutral" | "red" | "amber";
 
 export function Badge({ children, tone = "plum", className = "" }: { children: ReactNode; tone?: Tone; className?: string }) {
   const tones: Record<Tone, string> = {
-    plum: "bg-plum-50 text-plum",
-    coral: "bg-coral-50 text-coral-700",
-    sage: "bg-sage-50 text-sage-700",
-    neutral: "bg-neutral-100 text-neutral-700",
-    red: "bg-red-50 text-red-800",
-    amber: "bg-sun-50 text-sun-900",
+    plum: "bg-slate-100 text-slate-800 border border-slate-200/60",
+    coral: "bg-rose-50 text-rose-700 border border-rose-200/60",
+    sage: "bg-emerald-50 text-emerald-700 border border-emerald-200/60",
+    neutral: "bg-slate-100 text-slate-700 border border-slate-200/60",
+    red: "bg-red-50 text-red-800 border border-red-200/60",
+    amber: "bg-amber-50 text-amber-900 border border-amber-200/60",
   };
-  return <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[13px] font-medium ${tones[tone]} ${className}`}>{children}</span>;
+  return <span className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-0.5 text-xs font-medium ${tones[tone]} ${className}`}>{children}</span>;
 }
 
 export function VerifiedBadge({ className = "" }: { className?: string }) {
@@ -79,14 +78,14 @@ export function VerifiedBadge({ className = "" }: { className?: string }) {
 
 /* ---------- Champs ---------- */
 const field =
-  "w-full rounded-2xl border border-line bg-white px-4 py-3 text-[15px] text-ink placeholder:text-neutral-400 transition-[border-color,box-shadow] focus:border-plum focus:outline-none focus:ring-4 focus:ring-plum/10";
+  "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-slate-900 focus:outline-none";
 
 export function Input({ label, hint, ...rest }: InputHTMLAttributes<HTMLInputElement> & { label?: string; hint?: string }) {
   return (
     <label className="block">
-      {label && <span className="mb-1.5 block text-sm font-semibold text-ink">{label}</span>}
+      {label && <span className="mb-1.5 block text-xs font-semibold text-slate-800">{label}</span>}
       <input {...rest} className={field} />
-      {hint && <span className="mt-1.5 block text-[13px] text-muted">{hint}</span>}
+      {hint && <span className="mt-1.5 block text-xs text-slate-500">{hint}</span>}
     </label>
   );
 }
@@ -94,9 +93,9 @@ export function Input({ label, hint, ...rest }: InputHTMLAttributes<HTMLInputEle
 export function Textarea({ label, hint, className = "", ...rest }: TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: string; hint?: string }) {
   return (
     <label className="block">
-      {label && <span className="mb-1.5 block text-sm font-semibold text-ink">{label}</span>}
+      {label && <span className="mb-1.5 block text-xs font-semibold text-slate-800">{label}</span>}
       <textarea rows={4} {...rest} className={`${field} resize-none leading-relaxed ${className}`} />
-      {hint && <span className="mt-1.5 block text-[13px] text-muted">{hint}</span>}
+      {hint && <span className="mt-1.5 block text-xs text-slate-500">{hint}</span>}
     </label>
   );
 }
@@ -104,8 +103,8 @@ export function Textarea({ label, hint, className = "", ...rest }: TextareaHTMLA
 export function Select({ label, children, ...rest }: React.SelectHTMLAttributes<HTMLSelectElement> & { label?: string }) {
   return (
     <label className="block">
-      {label && <span className="mb-1.5 block text-sm font-semibold text-ink">{label}</span>}
-      <select {...rest} className={`${field} appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 12 12%22><path d=%22M2 4l4 4 4-4%22 fill=%22none%22 stroke=%22%232A1B6E%22 stroke-width=%221.6%22/></svg>')] bg-[length:12px] bg-[right_1rem_center] bg-no-repeat pr-10`}>
+      {label && <span className="mb-1.5 block text-xs font-semibold text-slate-800">{label}</span>}
+      <select {...rest} className={`${field} appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 12 12%22><path d=%22M2 4l4 4 4-4%22 fill=%22none%22 stroke=%22%230F172A%22 stroke-width=%221.6%22/></svg>')] bg-[length:12px] bg-[right_1rem_center] bg-no-repeat pr-10`}>
         {children}
       </select>
     </label>
@@ -119,8 +118,8 @@ export function Chip({ active, onClick, children }: { active?: boolean; onClick?
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-        active ? "bg-plum text-white" : "bg-white text-ink ring-1 ring-inset ring-line hover:ring-plum/40"
+      className={`shrink-0 rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all ${
+        active ? "bg-slate-900 text-white shadow-xs" : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
       }`}
     >
       {children}
@@ -131,23 +130,18 @@ export function Chip({ active, onClick, children }: { active?: boolean; onClick?
 /* ---------- Identité ---------- */
 export function Logo({ className = "" }: { className?: string }) {
   return (
-    <span className={`inline-flex items-center gap-2 text-plum ${className}`}>
-      <svg viewBox="0 0 32 32" className="h-7 w-7" aria-hidden>
-        <rect width="32" height="32" rx="10" fill="#2A1B6E" />
-        <path d="M9 23V9.5h2.4l7.2 9V9.5H21V23h-2.3l-7.3-9.1V23z" fill="#FFFFFF" />
-        <circle cx="26" cy="6" r="3" fill="#FFB21E" />
-      </svg>
-      <span className="font-display text-[22px] font-extrabold text-[#0A2A5C]">PHAR</span>
+    <span className={`inline-flex items-center gap-2 text-slate-950 ${className}`}>
+      <span className="font-bold text-lg text-slate-950">PHAR</span>
     </span>
   );
 }
 
 export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
   return (
-    <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div className="max-w-2xl">
-        <h1 className="font-display text-[36px] text-plum sm:text-[48px]">{title}</h1>
-        {subtitle && <p className="mt-2 text-[17px] text-muted">{subtitle}</p>}
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">{title}</h1>
+        {subtitle && <p className="mt-1 text-xs sm:text-sm text-slate-500 leading-relaxed">{subtitle}</p>}
       </div>
       {action}
     </div>
@@ -156,37 +150,37 @@ export function PageHeader({ title, subtitle, action }: { title: string; subtitl
 
 export function AiBadge({ source }: { source?: "ia" | "local" | null }) {
   if (!source) return null;
-  return source === "ia" ? <Badge tone="plum">Proposé par l&apos;IA</Badge> : <Badge tone="neutral">Suggestion hors ligne</Badge>;
+  return source === "ia" ? <Badge tone="sage">Optimisé par l&apos;IA</Badge> : <Badge tone="neutral">Moteur local</Badge>;
 }
 
 export function Empty({ title, text, action, icon }: { title: string; text: string; action?: ReactNode; icon?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center rounded-[22px] border border-dashed border-plum/20 bg-white/60 px-6 py-12 text-center">
-      {icon && <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-plum-50 text-2xl text-plum">{icon}</div>}
-      <p className="font-display text-2xl text-plum">{title}</p>
-      <p className="mt-2 max-w-sm text-muted">{text}</p>
-      {action && <div className="mt-6">{action}</div>}
+    <div className="flex flex-col items-center rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-12 text-center">
+      {icon && <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-xl text-slate-700">{icon}</div>}
+      <p className="text-sm sm:text-base font-bold text-slate-900">{title}</p>
+      <p className="mt-1 max-w-sm text-xs text-slate-500 leading-relaxed">{text}</p>
+      {action && <div className="mt-4">{action}</div>}
     </div>
   );
 }
 
 /* ---------- Score de compatibilité ---------- */
-export function ScoreRing({ value, size = 52, label = true }: { value: number; size?: number; label?: boolean }) {
+export function ScoreRing({ value, size = 48, label = true }: { value: number; size?: number; label?: boolean }) {
   const reduce = useReducedMotion();
   const r = (size - 8) / 2;
   const c = 2 * Math.PI * r;
-  const color = value >= 70 ? "#1F9A8A" : value >= 45 ? "#2A1B6E" : "#FFB21E";
+  const color = value >= 70 ? "#059669" : value >= 45 ? "#0F172A" : "#D97706";
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }} role="img" aria-label={`${value} % compatible`}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#ECE8F7" strokeWidth={5} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#F1F5F9" strokeWidth={4} />
         <motion.circle
           cx={size / 2}
           cy={size / 2}
           r={r}
           fill="none"
           stroke={color}
-          strokeWidth={5}
+          strokeWidth={4}
           strokeLinecap="round"
           strokeDasharray={c}
           initial={{ strokeDashoffset: reduce ? c * (1 - value / 100) : c }}
@@ -194,7 +188,7 @@ export function ScoreRing({ value, size = 52, label = true }: { value: number; s
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
         />
       </svg>
-      {label && <span className="absolute inset-0 flex items-center justify-center text-[13px] font-bold text-ink">{value}</span>}
+      {label && <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-900">{value}</span>}
     </div>
   );
 }
@@ -203,17 +197,17 @@ export function ScoreRing({ value, size = 52, label = true }: { value: number; s
 export function Tabs<T extends string>({ tabs, value, onChange }: { tabs: { id: T; label: string }[]; value: T; onChange: (v: T) => void }) {
   const id = useId();
   return (
-    <div role="tablist" className="no-scrollbar inline-flex max-w-full gap-1 overflow-x-auto rounded-full bg-white p-1 ring-1 ring-line">
+    <div role="tablist" className="no-scrollbar inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-slate-100 p-1 border border-slate-200/70">
       {tabs.map((t) => (
         <button
           key={t.id}
           role="tab"
           aria-selected={value === t.id}
           onClick={() => onChange(t.id)}
-          className={`relative shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${value === t.id ? "text-white" : "text-muted hover:text-plum"}`}
+          className={`relative shrink-0 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-colors ${value === t.id ? "text-white" : "text-slate-600 hover:text-slate-950"}`}
         >
           {value === t.id && (
-            <motion.span layoutId={`tab-${id}`} className="absolute inset-0 rounded-full bg-plum" transition={{ type: "spring", stiffness: 500, damping: 38 }} />
+            <motion.span layoutId={`tab-${id}`} className="absolute inset-0 rounded-lg bg-slate-900 shadow-xs" transition={{ type: "spring", stiffness: 500, damping: 38 }} />
           )}
           <span className="relative">{t.label}</span>
         </button>

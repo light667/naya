@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
@@ -5,331 +7,250 @@ import { Footer } from "@/components/Footer";
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen bg-white text-[#0A2A5C]">
-      {/* FAISCEAU LUMINEUX DU PHARE (Balayage animé doux) */}
-      <div className="lighthouse-beam" aria-hidden />
-
-      {/* 1. NAVBAR ÉLÉGANTE */}
+    <div className="relative min-h-screen bg-white text-slate-900 selection:bg-slate-200">
       <Navbar />
 
-      {/* 2. HERO PLEIN ÉCRAN */}
-      <section className="relative min-h-[82vh] flex items-center overflow-hidden bg-[#F7FBFC]">
-        {/* Photo de fond marché à droite */}
-        <div className="absolute top-0 right-0 w-full lg:w-[56%] h-full z-0">
-          <Image
-            src="/img/hero.jpg"
-            alt="Marché local et talents en activité"
-            fill
-            className="object-cover object-center"
-            priority
-          />
-        </div>
-
-        {/* Voile blanc dégradé */}
-        <div className="absolute inset-0 z-10 bg-gradient-to-r from-white via-white/95 lg:via-white/90 lg:to-transparent" />
-
-        <div className="relative z-20 max-w-[1320px] mx-auto px-6 lg:px-12 py-16 w-full">
-          <div className="max-w-[620px]">
-            {/* Tag cap */}
-            <div className="inline-flex items-center gap-2 bg-[#22C3C9]/15 text-[#0A2A5C] px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-widest mb-6">
-              <span className="w-2 h-2 rounded-full bg-[#22C3C9]" />
-              Inclusion &amp; Employabilité
-            </div>
-
-            {/* Slogan officiel en très grande typographie */}
-            <h1 className="font-display text-[42px] sm:text-[58px] lg:text-[68px] leading-[1.05] text-[#0A2A5C] uppercase mb-6">
-              TON AVENIR A UN{" "}
-              <span className="relative inline-block text-[#0A2A5C] px-1 z-10 after:absolute after:bottom-2 after:left-0 after:-z-10 after:h-2/5 after:w-full after:bg-[#FFB81C] after:rounded-md">
-                CAP
-              </span>
-              .<br />
-              <span className="text-[#22C3C9]">PHAR L&apos;ÉCLAIRE.</span>
-            </h1>
-
-            {/* Sous-titre court et percutant */}
-            <p className="text-base sm:text-lg text-[#536B88] font-medium leading-relaxed mb-8 max-w-[500px]">
-              Révèle tes talents, développe tes compétences et rejoins les opportunités vérifiées qui t&apos;attendent.
-            </p>
-
-            {/* 2 Boutons principaux */}
-            <div className="flex flex-wrap items-center gap-3.5 mb-8">
-              <Link
-                href="/connexion?mode=inscription"
-                className="inline-flex items-center gap-2 bg-[#0A2A5C] text-white font-extrabold text-sm sm:text-base px-7 py-3.5 rounded-xl shadow-sm hover:bg-[#0d3470] hover:-translate-y-0.5 transition-all"
-              >
-                Trouver mon cap
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </Link>
-              <Link
-                href="/opportunites"
-                className="inline-flex items-center gap-2 bg-white text-[#0A2A5C] font-extrabold text-sm sm:text-base px-7 py-3.5 rounded-xl border-2 border-[#0A2A5C] hover:bg-[#EFFAFB] hover:-translate-y-0.5 transition-all"
-              >
-                Explorer les offres
-              </Link>
-            </div>
-
-            {/* Social proof épuré */}
-            <div className="flex items-center gap-3 pt-4 border-t border-[#0A2A5C]/10">
-              <div className="flex -space-x-2">
-                <Image src="/img/accueil.jpg" alt="Talent" width={32} height={32} className="w-8 h-8 rounded-full object-cover ring-2 ring-white" />
-                <Image src="/img/artisane.jpg" alt="Talent" width={32} height={32} className="w-8 h-8 rounded-full object-cover ring-2 ring-white" />
-                <Image src="/img/bureau.jpg" alt="Talent" width={32} height={32} className="w-8 h-8 rounded-full object-cover ring-2 ring-white" />
-                <Image src="/img/vendeuse.jpg" alt="Talent" width={32} height={32} className="w-8 h-8 rounded-full object-cover ring-2 ring-white" />
+      {/* HERO SECTION ÉPURÉE & IMPACTANTE */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-slate-50/80 via-white to-white pt-16 pb-20 sm:pt-24 sm:pb-28 border-b border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+            
+            {/* TEXTE PRINCIPAL */}
+            <div className="lg:col-span-7 space-y-6 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200/80">
+                <span className="w-2 h-2 rounded-full bg-teal-600" />
+                Inclusion &amp; Insertion Professionnelle
               </div>
-              <p className="text-xs font-bold text-[#0A2A5C]">
-                Ouvert à tous les jeunes talents et recruteurs partenaires
+
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-950 tracking-tight leading-[1.1]">
+                Révèle tes talents.{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-700 via-sky-800 to-slate-900">
+                  Accède à ton avenir.
+                </span>
+              </h1>
+
+              <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
+                Chaque compétence que tu as apprise — en atelier, au marché, sur le tas ou à l&apos;école — a une réelle valeur.
+                PHAR traduit ton expérience en compétences certifiées et te connecte aux opportunités vérifiées.
               </p>
+
+              {/* CTAs */}
+              <div className="flex flex-wrap items-center gap-3.5 pt-2">
+                <Link
+                  href="/assistant-ia"
+                  className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm px-6 py-3.5 rounded-xl shadow-xs transition-all hover:shadow-sm"
+                >
+                  Révéler mes compétences
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </Link>
+
+                <Link
+                  href="/opportunites"
+                  className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-800 font-semibold text-sm px-6 py-3.5 rounded-xl border border-slate-200 transition-all shadow-2xs"
+                >
+                  Explorer les opportunités
+                </Link>
+              </div>
+
+              {/* GARANTIES */}
+              <div className="pt-6 border-t border-slate-200/60 grid grid-cols-3 gap-4 text-xs text-slate-500">
+                <div>
+                  <strong className="block text-slate-900 font-bold text-sm">100% Vérifié</strong>
+                  <span>Missions modérées</span>
+                </div>
+                <div>
+                  <strong className="block text-slate-900 font-bold text-sm">0 Frais</strong>
+                  <span>Gratuit pour les talents</span>
+                </div>
+                <div>
+                  <strong className="block text-slate-900 font-bold text-sm">IA Éthique</strong>
+                  <span>Valorise le terrain</span>
+                </div>
+              </div>
             </div>
+
+            {/* APERÇU VISUEL MINIMALISTE */}
+            <div className="lg:col-span-5 relative">
+              <div className="relative rounded-2xl overflow-hidden border border-slate-200/90 shadow-lg bg-white p-2">
+                <div className="relative h-80 sm:h-96 rounded-xl overflow-hidden bg-slate-100">
+                  <Image
+                    src="/img/hero.jpg"
+                    alt="Talent en activité"
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
+                  
+                  {/* CARTE DE PRÉSENTATION DES CAPACITÉS */}
+                  <div className="absolute bottom-4 inset-x-4 p-4 rounded-xl bg-white/95 backdrop-blur-md border border-slate-100 shadow-sm text-slate-900">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-bold text-slate-900">Valorisation des compétences</span>
+                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200">
+                        Système actif
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mb-2">Identification des acquis de terrain et mise en relation</p>
+                    <div className="flex flex-wrap gap-1">
+                      <span className="px-2 py-0.5 rounded-md bg-slate-100 text-[10px] font-medium text-slate-700">Coupe &amp; Confection</span>
+                      <span className="px-2 py-0.5 rounded-md bg-slate-100 text-[10px] font-medium text-slate-700">Commerce &amp; Caisse</span>
+                      <span className="px-2 py-0.5 rounded-md bg-slate-100 text-[10px] font-medium text-slate-700">WhatsApp Business</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* 3. VAGUE TURQUOISE PÂLE & BANDEAU DE 5 PHOTOS */}
-      <div className="w-full overflow-hidden leading-none bg-[#F7FBFC]">
-        <svg viewBox="0 0 1440 48" fill="none" preserveAspectRatio="none" className="w-full h-12 block">
-          <path d="M0,20 C320,50 520,0 840,25 C1120,50 1320,10 1440,22 L1440,48 L0,48 Z" fill="#EFFAFB" />
-        </svg>
-      </div>
-
-      <section className="bg-[#EFFAFB] px-6 lg:px-12 py-6 pb-12">
-        <div className="max-w-[1360px] mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-          <div className="relative h-56 rounded-2xl overflow-hidden shadow-xs group">
-            <Image src="/img/couture.jpg" alt="Couture" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-            <div className="absolute inset-x-2.5 bottom-2.5 bg-white/95 px-3 py-1.5 rounded-lg text-xs font-bold text-[#0A2A5C]">
-              Confection Wax
-            </div>
+      {/* LES 4 PILIERS DE LA PLATEFORME */}
+      <section className="py-20 bg-slate-50/60 border-b border-slate-200/70">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl mb-12">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-teal-700 block mb-2">
+              L&apos;Écosystème PHAR
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-950 tracking-tight">
+              Tout ce dont tu as besoin pour avancer
+            </h2>
+            <p className="text-sm text-slate-500 mt-2">
+              Un parcours complet sans barrières pour identifier tes forces, te former et trouver ta place.
+            </p>
           </div>
 
-          <div className="relative h-56 rounded-2xl overflow-hidden shadow-xs group">
-            <Image src="/img/tissus.jpg" alt="Tissus Wax" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-            <div className="absolute inset-x-2.5 bottom-2.5 bg-white/95 px-3 py-1.5 rounded-lg text-xs font-bold text-[#0A2A5C]">
-              Design Textile
-            </div>
-          </div>
-
-          <div className="relative h-56 rounded-2xl overflow-hidden shadow-xs group">
-            <Image src="/img/marche.jpg" alt="Marché" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-            <div className="absolute inset-x-2.5 bottom-2.5 bg-white/95 px-3 py-1.5 rounded-lg text-xs font-bold text-[#0A2A5C]">
-              Commerce &amp; Vente
-            </div>
-          </div>
-
-          <div className="relative h-56 rounded-2xl overflow-hidden shadow-xs group">
-            <Image src="/img/artisane.jpg" alt="Artisanat" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-            <div className="absolute inset-x-2.5 bottom-2.5 bg-white/95 px-3 py-1.5 rounded-lg text-xs font-bold text-[#0A2A5C]">
-              Artisanat d&apos;Art
-            </div>
-          </div>
-
-          <div className="relative h-56 rounded-2xl overflow-hidden shadow-xs group col-span-2 sm:col-span-1">
-            <Image src="/img/farine.jpg" alt="Agro-transformation" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-            <div className="absolute inset-x-2.5 bottom-2.5 bg-white/95 px-3 py-1.5 rounded-lg text-xs font-bold text-[#0A2A5C]">
-              Agro-transformation
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. LES UNIVERS DE PHAR (Composition claire et épurée) */}
-      <section className="max-w-[1320px] mx-auto px-6 lg:px-12 py-16 bg-white">
-        <div className="text-center max-w-xl mx-auto mb-10">
-          <span className="text-xs font-extrabold uppercase tracking-widest text-[#22C3C9] mb-2 block">
-            Écosystème
-          </span>
-          <h2 className="font-display text-2xl sm:text-3xl text-[#0A2A5C] font-extrabold">
-            LES QUATRE UNIVERS DE PHAR
-          </h2>
-        </div>
-
-        {/* Grille asymétrique épurée */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-5">
-          {/* CARTE 1 : BOUSSOLE */}
-          <Link
-            href="/assistant-ia"
-            className="group relative h-[360px] lg:h-full min-h-[380px] rounded-3xl overflow-hidden shadow-sm flex flex-col justify-end transition-all hover:shadow-md"
-          >
-            <Image
-              src="/img/accueil.jpg"
-              alt="Boussole PHAR"
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-            <div className="relative z-10 p-6 sm:p-8 bg-gradient-to-t from-[#129aa0] via-[#22C3C9]/90 to-transparent text-white flex items-end justify-between">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            {/* CARTE 1 */}
+            <Link
+              href="/assistant-ia"
+              className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all group flex flex-col justify-between"
+            >
               <div>
-                <h3 className="font-display text-2xl font-extrabold mb-1">Boussole</h3>
-                <p className="text-sm opacity-95">
-                  Révèle tes talents et savoir-faire avec l&apos;assistant IA.
+                <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center font-bold text-sm mb-4 border border-sky-100">
+                  <svg className="w-5 h-5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <h3 className="font-bold text-base text-slate-900 group-hover:text-slate-950 transition-colors mb-2">
+                  Assistant Carrière IA
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Révèle tes compétences informelles en quelques questions, simule tes entretiens et calibre tes tarifs.
                 </p>
               </div>
-              <span className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-lg shrink-0 group-hover:translate-x-1 transition-transform">
-                →
-              </span>
-            </div>
-          </Link>
-
-          {/* COLONNE DE 3 CARTES */}
-          <div className="flex flex-col gap-4">
-            {/* CARTE 2 : CAP FORMATION */}
-            <Link
-              href="/formations"
-              className="group relative h-36 sm:h-40 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-end transition-all hover:shadow-md"
-            >
-              <Image
-                src="/img/cafe.jpg"
-                alt="Cap Formation"
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="relative z-10 px-6 py-4 bg-gradient-to-t from-[#f5ad0f] via-[#FFB81C]/95 to-transparent text-[#0A2A5C] flex items-center justify-between">
-                <div>
-                  <h3 className="font-display text-lg font-extrabold">Cap Formation</h3>
-                  <p className="text-xs opacity-90">Formations pratiques et certifiantes de terrain.</p>
-                </div>
-                <span className="w-8 h-8 rounded-full bg-[#0A2A5C]/10 flex items-center justify-center font-bold shrink-0 group-hover:translate-x-1 transition-transform">
-                  →
-                </span>
+              <div className="pt-4 mt-6 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-700 group-hover:text-slate-950">
+                <span>Commencer</span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
               </div>
             </Link>
 
-            {/* CARTE 3 : HORIZON EMPLOI */}
+            {/* CARTE 2 */}
             <Link
               href="/opportunites"
-              className="group relative h-36 sm:h-40 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-end transition-all hover:shadow-md"
+              className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all group flex flex-col justify-between"
             >
-              <Image
-                src="/img/bureau.jpg"
-                alt="Horizon Emploi"
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="relative z-10 px-6 py-4 bg-gradient-to-t from-[#061938] via-[#0A2A5C]/90 to-transparent text-white flex items-center justify-between">
-                <div>
-                  <h3 className="font-display text-lg font-extrabold">Horizon Emploi</h3>
-                  <p className="text-xs opacity-90">Stages tremplins, contrats et missions vérifiées.</p>
+              <div>
+                <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center font-bold text-sm mb-4 border border-teal-100">
+                  <svg className="w-5 h-5 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
                 </div>
-                <span className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold shrink-0 group-hover:translate-x-1 transition-transform">
-                  →
-                </span>
+                <h3 className="font-bold text-base text-slate-900 group-hover:text-slate-950 transition-colors mb-2">
+                  Opportunités Vérifiées
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Contrats d&apos;apprentissage, stages rémunérés et missions de terrain vérifiés par notre équipe de modération.
+                </p>
+              </div>
+              <div className="pt-4 mt-6 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-700 group-hover:text-slate-950">
+                <span>Explorer les offres</span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
               </div>
             </Link>
 
-            {/* CARTE 4 : ÉQUIPAGE */}
+            {/* CARTE 3 */}
+            <Link
+              href="/formations"
+              className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all group flex flex-col justify-between"
+            >
+              <div>
+                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold text-sm mb-4 border border-amber-100">
+                  <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                  </svg>
+                </div>
+                <h3 className="font-bold text-base text-slate-900 group-hover:text-slate-950 transition-colors mb-2">
+                  Formations Pratiques
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Perfectionne ta technique en atelier (Wax, cuir, gestion de caisse, WhatsApp Business) en format court.
+                </p>
+              </div>
+              <div className="pt-4 mt-6 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-700 group-hover:text-slate-950">
+                <span>Voir le catalogue</span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              </div>
+            </Link>
+
+            {/* CARTE 4 */}
             <Link
               href="/communaute"
-              className="group relative h-36 sm:h-40 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-end transition-all hover:shadow-md"
+              className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all group flex flex-col justify-between"
             >
-              <Image
-                src="/img/recruteur.jpg"
-                alt="Équipage"
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="relative z-10 px-6 py-4 bg-gradient-to-t from-white via-white/95 to-transparent text-[#0A2A5C] flex items-center justify-between">
-                <div>
-                  <h3 className="font-display text-lg font-extrabold">Équipage</h3>
-                  <p className="text-xs text-[#536B88]">Réseau d&apos;entraide et mentors artisans.</p>
+              <div>
+                <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center font-bold text-sm mb-4 border border-purple-100">
+                  <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
                 </div>
-                <span className="w-8 h-8 rounded-full bg-[#0A2A5C]/10 flex items-center justify-center font-bold shrink-0 group-hover:translate-x-1 transition-transform">
-                  →
-                </span>
+                <h3 className="font-bold text-base text-slate-900 group-hover:text-slate-950 transition-colors mb-2">
+                  Communauté &amp; Entraide
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Échange des astuces d&apos;atelier, trouve des partenaires de confiance et pose tes questions librement.
+                </p>
+              </div>
+              <div className="pt-4 mt-6 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-700 group-hover:text-slate-950">
+                <span>Rejoindre le réseau</span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
               </div>
             </Link>
+
           </div>
         </div>
       </section>
 
-      {/* 5. SECTION IA (PHAR IA) - ÉPURÉE ET DIRECTE */}
-      <section className="bg-[#FAFEFF] py-16 px-6 lg:px-12 border-y border-[#E2ECF2]">
-        <div className="max-w-[1320px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          <div>
-            <span className="text-xs font-extrabold uppercase tracking-widest text-[#22C3C9] mb-2 block">
-              Orientation Intelligente
-            </span>
-            <h2 className="font-display text-2xl sm:text-3xl text-[#0A2A5C] mb-4">
-              L&apos;ASSISTANT QUI VALORISE TES SAVOIR-FAIRE
-            </h2>
-            <p className="text-sm sm:text-base text-[#536B88] mb-8 leading-relaxed">
-              Discute simplement avec le guide PHAR pour transformer tes expériences pratiques en compétences reconnues.
-            </p>
-
-            <div className="space-y-4">
-              <div className="flex gap-3.5 items-start">
-                <div className="w-8 h-8 rounded-lg bg-[#EFFAFB] text-[#22C3C9] border border-[#22C3C9] flex items-center justify-center font-extrabold text-sm shrink-0">
-                  1
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-[#0A2A5C]">Échange naturel</h4>
-                  <p className="text-xs text-[#536B88]">Parle de ton atelier, de tes créations ou de tes projets sans formalisme.</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3.5 items-start">
-                <div className="w-8 h-8 rounded-lg bg-[#EFFAFB] text-[#22C3C9] border border-[#22C3C9] flex items-center justify-center font-extrabold text-sm shrink-0">
-                  2
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-[#0A2A5C]">Compétences révélées</h4>
-                  <p className="text-xs text-[#536B88]">Coupe, vente, maroquinerie, gestion : chaque savoir-faire est valorisé.</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3.5 items-start">
-                <div className="w-8 h-8 rounded-lg bg-[#EFFAFB] text-[#22C3C9] border border-[#22C3C9] flex items-center justify-center font-extrabold text-sm shrink-0">
-                  3
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-[#0A2A5C]">Recommandations sur mesure</h4>
-                  <p className="text-xs text-[#536B88]">Accède aux formations et opportunités adaptées à ton profil.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <Link
-                href="/assistant-ia"
-                className="inline-flex items-center gap-2 bg-[#22C3C9] hover:bg-[#129aa0] text-white font-extrabold text-xs px-6 py-3 rounded-xl transition-colors"
-              >
-                Lancer mon diagnostic →
-              </Link>
-            </div>
-          </div>
-
-          <div className="relative h-[360px] lg:h-[420px] rounded-3xl overflow-hidden shadow-sm">
-            <Image
-              src="/img/mentor.jpg"
-              alt="Orientation PHAR"
-              fill
-              className="object-cover"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* 6. APPEL À L'ACTION FINAL (CTA) ÉPURÉ */}
-      <section className="max-w-[1320px] mx-auto px-6 lg:px-12 my-12">
-        <div className="relative rounded-3xl overflow-hidden shadow-sm p-8 sm:p-14 text-center">
-          <div className="absolute inset-0 z-0">
-            <Image src="/img/equipe.jpg" alt="Équipe" fill className="object-cover" />
-          </div>
-          <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#FFB81C]/90 to-[#22C3C9]/90" />
-          
-          <div className="relative z-20 max-w-xl mx-auto">
-            <h2 className="font-display text-2xl sm:text-3xl text-[#0A2A5C] font-extrabold leading-snug mb-6">
-              « TON AVENIR A UN CAP. PHAR L&apos;ÉCLAIRE. »
-            </h2>
+      {/* BANNIÈRE APPEL À L'ACTION FINALE */}
+      <section className="py-16 bg-slate-900 text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+            Prêt à donner un nouvel élan à ton avenir ?
+          </h2>
+          <p className="text-sm sm:text-base text-slate-400 max-w-xl mx-auto">
+            Rejoins les talents qui valorisent leurs compétences et connecte-toi aux opportunités professionnelles près de chez toi.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
             <Link
               href="/connexion?mode=inscription"
-              className="inline-flex items-center gap-2 bg-[#0A2A5C] text-white font-extrabold text-sm px-8 py-3.5 rounded-xl shadow-sm hover:bg-[#0d3470] hover:-translate-y-0.5 transition-all"
+              className="px-6 py-3.5 rounded-xl bg-white hover:bg-slate-100 text-slate-950 font-bold text-xs sm:text-sm shadow-sm transition-all"
             >
-              Créer mon compte
+              Créer mon profil gratuitement
+            </Link>
+            <Link
+              href="/connexion?mode=inscription&role=entreprise"
+              className="px-6 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs sm:text-sm border border-slate-700 transition-all"
+            >
+              Espace Recruteur
             </Link>
           </div>
         </div>
       </section>
 
-      {/* 7. FOOTER */}
       <Footer />
     </div>
   );

@@ -50,8 +50,6 @@ function AuthFormContent() {
 
     try {
       if (mode === "inscription") {
-        console.log("[Auth] Tentative d'inscription:", cleanEmail);
-
         const { data, error: signUpError } = await supabase.auth.signUp({
           email: cleanEmail,
           password: cleanPassword,
@@ -66,8 +64,6 @@ function AuthFormContent() {
           },
         });
 
-        console.log("[Auth] Résultat signUp:", { data, error: signUpError });
-
         if (signUpError) {
           if (/already registered/i.test(signUpError.message)) {
             setError("Un compte existe déjà avec cet email. Connecte-toi ci-dessous.");
@@ -81,13 +77,11 @@ function AuthFormContent() {
           return;
         }
 
-        // Cas 1 : Session retournée immédiatement (email confirmation désactivée dans Supabase)
-        if (data.session && data.user) {
-          console.log("[Auth] Inscription validée avec session immédiate !");
-          // Création ou mise à jour directe dans public.profiles pour garantir l'enregistrement
+        // Cas 1 : Connexion directe confirmée
+        if (data.session) {
           try {
             await supabase.from("profiles").upsert({
-              id: data.user.id,
+              id: data.session.user.id,
               full_name: fullName,
               role: roleMapping,
               city: city.trim(),
@@ -96,19 +90,17 @@ function AuthFormContent() {
             console.warn("[Auth] Erreur upsert profil:", profileErr);
           }
 
-          // Redirection directe vers l'espace personnel
           window.location.href = "/app";
           return;
         }
 
-        // Cas 2 : data.session est null. Tentative immédiate de connexion avec identifiants
+        // Cas 2 : Tentative immédiate de connexion
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: cleanEmail,
           password: cleanPassword,
         });
 
         if (!signInError && signInData.session && signInData.user) {
-          console.log("[Auth] Connexion immédiate réussie après inscription !");
           try {
             await supabase.from("profiles").upsert({
               id: signInData.user.id,
@@ -124,45 +116,36 @@ function AuthFormContent() {
           return;
         }
 
-        // Cas 3 : Supabase bloque la session car "Confirm email" est activé dans le tableau de bord Supabase
+        // Si validation email nécessaire
         if (signInError && /email not confirmed/i.test(signInError.message)) {
           setNotice(
-            "Compte créé dans Supabase ! Pour supprimer la vérification par email et connecter les utilisateurs immédiatement : désactivez 'Confirm email' dans votre tableau de bord Supabase (Authentication > Providers > Email)."
+            "Compte créé avec succès ! Si la confirmation par email est requise, vérifie ta boîte de réception."
           );
           setLoading(false);
           return;
         }
 
-        // Autre erreur lors de la connexion
         if (signInError) {
           setError(signInError.message);
           setLoading(false);
           return;
         }
 
-        // Si tout s'est bien passé
         setNotice("Compte créé avec succès ! Connecte-toi avec tes identifiants.");
         setMode("connexion");
         setLoading(false);
-
       } else {
         // MODE CONNEXION
-        console.log("[Auth] Tentative de connexion:", cleanEmail);
-
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: cleanEmail,
           password: cleanPassword,
         });
 
-        console.log("[Auth] Résultat signIn:", { signInData, error: signInError });
-
         if (signInError) {
           if (/invalid login/i.test(signInError.message)) {
             setError("Email ou mot de passe incorrect.");
           } else if (/email not confirmed/i.test(signInError.message)) {
-            setError(
-              "Email non confirmé par Supabase. Désactivez 'Confirm email' dans Supabase (Authentication > Providers > Email) pour autoriser la connexion directe."
-            );
+            setError("Email non encore confirmé. Vérifie ta boîte de réception.");
           } else {
             setError(signInError.message);
           }
@@ -185,55 +168,58 @@ function AuthFormContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FCFD] flex flex-col text-[#0A2A5C]">
-      {/* NAVBAR SIMPLE */}
-      <header className="bg-white/95 border-b border-[#E2ECF2] px-6 lg:px-12 py-3.5 flex items-center justify-between">
+    <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
+      {/* HEADER SIMPLE */}
+      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-6 lg:px-12 py-3.5 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/img/logo_phar_trimmed.png"
             alt="PHAR"
-            width={120}
-            height={38}
-            className="h-9 w-auto object-contain"
+            width={110}
+            height={34}
+            className="h-8 w-auto object-contain"
             priority
           />
         </Link>
         <Link
           href="/"
-          className="text-xs font-bold text-[#536B88] hover:text-[#0A2A5C] transition-colors"
+          className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors"
         >
-          Retour à l&apos;accueil →
+          Retour au site →
         </Link>
       </header>
 
-      {/* CONTAINER SIMPLE ET ÉPURÉ */}
-      <main className="flex-1 max-w-[1100px] w-full mx-auto p-4 sm:p-8 grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6 items-center my-auto">
+      {/* CONTAINER FORMULAIRE */}
+      <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-8 grid grid-cols-1 md:grid-cols-[340px_1fr] gap-8 items-center my-auto">
         
-        {/* COLONNE GAUCHE : PHOTO ÉPURÉE */}
-        <div className="relative rounded-3xl overflow-hidden shadow-sm h-[220px] lg:h-[560px] p-6 lg:p-8 flex flex-col justify-end">
+        {/* COLONNE GAUCHE : VISUEL INSPIRANT */}
+        <div className="relative rounded-2xl overflow-hidden shadow-xs h-[220px] md:h-[500px] p-6 flex flex-col justify-end bg-slate-900">
           <Image
             src="/img/accueil.jpg"
-            alt="Talent PHAR"
+            alt="Talent en activité"
             fill
-            className="object-cover"
+            className="object-cover opacity-60"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A2A5C]/90 via-[#0A2A5C]/30 to-transparent" />
-          <div className="relative z-10 text-white">
-            <span className="inline-block bg-[#FFB81C] text-[#0A2A5C] text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-md mb-2">
-              PHAR
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent" />
+          <div className="relative z-10 text-white space-y-2">
+            <span className="inline-block px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white text-[10px] font-semibold tracking-wider uppercase">
+              Impact &amp; Inclusion
             </span>
-            <h2 className="font-display text-xl lg:text-2xl font-extrabold leading-snug">
-              Ton avenir a un cap. <span className="text-[#22C3C9]">PHAR l&apos;éclaire.</span>
+            <h2 className="text-xl font-bold leading-snug tracking-tight">
+              Chaque parcours a une valeur. Révèle la tienne.
             </h2>
+            <p className="text-xs text-slate-300">
+              Des opportunités concrètes et vérifiées pour les jeunes talents.
+            </p>
           </div>
         </div>
 
-        {/* COLONNE DROITE : FORMULAIRE ÉPURÉ */}
-        <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-[#E2ECF2]">
+        {/* COLONNE DROITE : FORMULAIRE */}
+        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xs border border-slate-200/80">
           
           {/* SWITCH CONNEXION / INSCRIPTION */}
-          <div className="flex bg-[#EFFAFB] p-1 rounded-xl mb-6 max-w-xs">
+          <div className="flex bg-slate-100 p-1 rounded-xl mb-6 max-w-xs">
             <button
               type="button"
               onClick={() => {
@@ -241,8 +227,8 @@ function AuthFormContent() {
                 setError(null);
                 setNotice(null);
               }}
-              className={`flex-1 py-2 text-xs font-extrabold rounded-lg transition-all ${
-                mode === "connexion" ? "bg-white text-[#0A2A5C] shadow-xs" : "text-[#536B88]"
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                mode === "connexion" ? "bg-white text-slate-950 shadow-xs" : "text-slate-500 hover:text-slate-900"
               }`}
             >
               Connexion
@@ -254,139 +240,140 @@ function AuthFormContent() {
                 setError(null);
                 setNotice(null);
               }}
-              className={`flex-1 py-2 text-xs font-extrabold rounded-lg transition-all ${
-                mode === "inscription" ? "bg-white text-[#0A2A5C] shadow-xs" : "text-[#536B88]"
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                mode === "inscription" ? "bg-white text-slate-950 shadow-xs" : "text-slate-500 hover:text-slate-900"
               }`}
             >
               Créer un compte
             </button>
           </div>
 
-          <h1 className="font-display text-2xl font-extrabold text-[#0A2A5C] mb-1">
-            {mode === "inscription" ? "Rejoindre PHAR" : "Connexion"}
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-950 mb-1 tracking-tight">
+            {mode === "inscription" ? "Rejoindre la communauté" : "Bon retour parmi nous"}
           </h1>
-          <p className="text-xs text-[#536B88] mb-6">
+          <p className="text-xs text-slate-500 mb-6">
             {mode === "inscription"
-              ? "Crée ton profil en quelques secondes."
-              : "Saisis tes identifiants pour accéder à ton espace."}
+              ? "Crée ton profil en quelques instants pour valoriser tes acquis."
+              : "Saisis tes identifiants pour accéder à ton espace candidat."}
           </p>
 
           {/* MESSAGE D'ERREUR */}
           {error && (
-            <div className="mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
+            <div className="mb-5 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
               {error}
             </div>
           )}
 
           {/* MESSAGE D'INFORMATION */}
           {notice && (
-            <div className="mb-5 p-3.5 rounded-xl bg-[#EFFAFB] border border-[#22C3C9] text-[#0A2A5C] text-xs font-semibold">
+            <div className="mb-5 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium">
               {notice}
             </div>
           )}
 
-          {/* SÉLECTEUR DE RÔLE RAPIDE */}
+          {/* SÉLECTEUR DE RÔLE */}
           {mode === "inscription" && (
             <div className="mb-5">
+              <label className="block text-[11px] font-semibold text-slate-500 mb-2">Je m&apos;inscris en tant que :</label>
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   onClick={() => setRole("jeune")}
-                  className={`py-2 px-3 rounded-xl border-2 text-center transition-all ${
+                  className={`py-2 px-2.5 rounded-xl border text-center transition-all ${
                     role === "jeune"
-                      ? "border-[#22C3C9] bg-[#22C3C9]/10 text-[#0A2A5C]"
-                      : "border-[#E2ECF2] text-[#536B88] hover:border-[#22C3C9]"
+                      ? "border-slate-900 bg-slate-900 text-white font-semibold shadow-xs"
+                      : "border-slate-200 text-slate-600 hover:border-slate-300"
                   }`}
                 >
-                  <CompassIcon className="w-4 h-4 mx-auto mb-1 text-[#22C3C9]" />
-                  <div className="text-xs font-extrabold">Jeune</div>
+                  <CompassIcon className={`w-4 h-4 mx-auto mb-1 ${role === "jeune" ? "text-white" : "text-slate-500"}`} />
+                  <div className="text-[11px]">Talent</div>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setRole("entreprise")}
-                  className={`py-2 px-3 rounded-xl border-2 text-center transition-all ${
+                  className={`py-2 px-2.5 rounded-xl border text-center transition-all ${
                     role === "entreprise"
-                      ? "border-[#22C3C9] bg-[#22C3C9]/10 text-[#0A2A5C]"
-                      : "border-[#E2ECF2] text-[#536B88] hover:border-[#22C3C9]"
+                      ? "border-slate-900 bg-slate-900 text-white font-semibold shadow-xs"
+                      : "border-slate-200 text-slate-600 hover:border-slate-300"
                   }`}
                 >
-                  <BuildingIcon className="w-4 h-4 mx-auto mb-1 text-[#0A2A5C]" />
-                  <div className="text-xs font-extrabold">Entreprise</div>
+                  <BuildingIcon className={`w-4 h-4 mx-auto mb-1 ${role === "entreprise" ? "text-white" : "text-slate-500"}`} />
+                  <div className="text-[11px]">Entreprise</div>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setRole("mentor")}
-                  className={`py-2 px-3 rounded-xl border-2 text-center transition-all ${
+                  className={`py-2 px-2.5 rounded-xl border text-center transition-all ${
                     role === "mentor"
-                      ? "border-[#22C3C9] bg-[#22C3C9]/10 text-[#0A2A5C]"
-                      : "border-[#E2ECF2] text-[#536B88] hover:border-[#22C3C9]"
+                      ? "border-slate-900 bg-slate-900 text-white font-semibold shadow-xs"
+                      : "border-slate-200 text-slate-600 hover:border-slate-300"
                   }`}
                 >
-                  <HandshakeIcon className="w-4 h-4 mx-auto mb-1 text-[#FFB81C]" />
-                  <div className="text-xs font-extrabold">Mentor</div>
+                  <HandshakeIcon className={`w-4 h-4 mx-auto mb-1 ${role === "mentor" ? "text-white" : "text-slate-500"}`} />
+                  <div className="text-[11px]">Mentor</div>
                 </button>
               </div>
             </div>
           )}
 
-          {/* FORMULAIRE ÉPURÉ */}
+          {/* FORMULAIRE */}
           <form onSubmit={handleSubmit} className="space-y-3.5">
             {mode === "inscription" && (
               <>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-[#536B88] mb-1">Prénom</label>
+                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">Prénom</label>
                     <input
                       type="text"
                       required
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="Prénom"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2ECF2] text-xs text-[#0A2A5C] outline-none focus:border-[#22C3C9]"
+                      placeholder="Ton prénom"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 outline-none focus:border-slate-900 transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-[#536B88] mb-1">Nom</label>
+                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">Nom</label>
                     <input
                       type="text"
                       required
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Nom"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2ECF2] text-xs text-[#0A2A5C] outline-none focus:border-[#22C3C9]"
+                      placeholder="Ton nom"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 outline-none focus:border-slate-900 transition-colors"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-[#536B88] mb-1">Ville</label>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">Ville de résidence</label>
                   <input
                     type="text"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    placeholder="Ex: Cotonou, Dakar..."
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2ECF2] text-xs text-[#0A2A5C] outline-none focus:border-[#22C3C9]"
+                    placeholder="Ex: Cotonou, Lomé, Dakar, Abidjan..."
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 outline-none focus:border-slate-900 transition-colors"
                   />
                 </div>
               </>
             )}
 
             <div>
-              <label className="block text-[11px] font-bold text-[#536B88] mb-1">Email</label>
+              <label className="block text-[11px] font-semibold text-slate-700 mb-1">Adresse email</label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="ton.email@exemple.com"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2ECF2] text-xs text-[#0A2A5C] outline-none focus:border-[#22C3C9]"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 outline-none focus:border-slate-900 transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-[#536B88] mb-1">Mot de passe</label>
+              <label className="block text-[11px] font-semibold text-slate-700 mb-1">Mot de passe</label>
               <input
                 type="password"
                 required
@@ -394,17 +381,17 @@ function AuthFormContent() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimum 6 caractères"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2ECF2] text-xs text-[#0A2A5C] outline-none focus:border-[#22C3C9]"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 outline-none focus:border-slate-900 transition-colors"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#FFB81C] hover:bg-[#ffc138] text-[#0A2A5C] font-extrabold text-sm py-3 rounded-xl transition-all shadow-xs mt-2 disabled:opacity-50"
+              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs sm:text-sm py-3 rounded-xl transition-all shadow-xs mt-3 disabled:opacity-50"
             >
               {loading
-                ? "Traitement..."
+                ? "Connexion en cours..."
                 : mode === "inscription"
                 ? "Créer mon compte"
                 : "Se connecter"}
@@ -415,8 +402,8 @@ function AuthFormContent() {
 
       </main>
 
-      <footer className="text-center py-4 text-xs text-[#536B88]">
-        PHAR © 2026
+      <footer className="text-center py-6 text-xs text-slate-400">
+        PHAR / NAYA © {new Date().getFullYear()} · Tous droits réservés
       </footer>
     </div>
   );
@@ -424,7 +411,7 @@ function AuthFormContent() {
 
 export default function ConnexionPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-white" />}>
+    <Suspense fallback={<div className="min-h-screen bg-slate-50" />}>
       <AuthFormContent />
     </Suspense>
   );

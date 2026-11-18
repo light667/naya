@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/lib/supabase";
-import { CompassIcon, HandshakeIcon, MapPinIcon, ClockIcon, LightbulbIcon, CheckIcon } from "@/components/PharIcons";
+import { CompassIcon, HandshakeIcon, MapPinIcon, LightbulbIcon } from "@/components/PharIcons";
 
 type Opportunity = {
   id: string;
@@ -30,7 +29,7 @@ export default function DashboardPage() {
   const [loadingData, setLoadingData] = useState(true);
 
   const userName = profile?.full_name || session?.user?.user_metadata?.full_name || session?.user?.email?.split("@")[0] || "Talent";
-  const userHeadline = profile?.headline || "Cap en cours de définition";
+  const userHeadline = profile?.headline || "Parcours en cours de valorisation";
 
   // Calcul dynamique de progression de profil réel
   let completion = 25; // Compte créé
@@ -49,7 +48,9 @@ export default function DashboardPage() {
         .order("created_at", { ascending: false })
         .limit(4);
 
-      if (opps) setOpportunities(opps as Opportunity[]);
+      if (opps && opps.length > 0) {
+        setOpportunities(opps as Opportunity[]);
+      }
 
       // Charger les candidatures réelles de l'utilisateur
       if (session?.user?.id) {
@@ -71,41 +72,42 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       
-      {/* 1. BANNIÈRE DE BIENVENUE AVEC PHOTO & PROGRESSION DU CAP */}
-      <section className="relative rounded-[32px] overflow-hidden shadow-sm min-h-[240px] flex items-center p-8 sm:p-12 border border-[#E2ECF2]">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="/img/atelier-wide.jpg"
-            alt="Atelier"
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
-        <div className="absolute inset-0 z-10 bg-gradient-to-r from-white via-white/95 sm:via-white/90 to-transparent" />
-
-        <div className="relative z-20 max-w-2xl">
-          <div className="inline-flex items-center gap-2 bg-[#22C3C9]/15 text-[#129aa0] px-3.5 py-1 rounded-full text-xs font-extrabold mb-3">
-            {userHeadline}
-          </div>
-          <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0A2A5C] mb-3 leading-tight">
-            Heureux de te retrouver, {userName} !
-          </h1>
-          <p className="text-sm sm:text-base text-[#536B88] mb-6 leading-relaxed">
-            Bienvenue sur ton espace PHAR. Ici, chaque expérience que tu as vécue a de la valeur pour ton avenir professionnel.
-          </p>
-
-          {/* Jauge de progression du profil réel */}
-          <div className="bg-white p-4 rounded-2xl border border-[#E2ECF2] shadow-sm max-w-md">
-            <div className="flex justify-between text-xs font-bold text-[#0A2A5C] mb-2">
-              <span>Complétude de ton profil</span>
-              <span className="text-[#129aa0]">{completion}%</span>
+      {/* 1. BANNIÈRE DE BIENVENUE ÉPURÉE */}
+      <section className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/80 shadow-xs">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-600" />
+              {userHeadline}
             </div>
-            <div className="w-full h-2.5 bg-[#E8F4F7] rounded-full overflow-hidden">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-950 tracking-tight">
+              Ravi de te retrouver, {userName}
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+              Voici l&apos;état d&apos;avancement de tes compétences et de tes candidatures vérifiées.
+            </p>
+          </div>
+
+          {/* JAUGE DE PROGRESSION DU PROFIL */}
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 w-full lg:w-72 shrink-0">
+            <div className="flex justify-between items-center text-xs font-semibold text-slate-900 mb-2">
+              <span>Complétude du profil</span>
+              <span className="text-slate-950 font-bold">{completion}%</span>
+            </div>
+            <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-[#22C3C9] to-[#FFB81C] rounded-full transition-all duration-500"
+                className="h-full bg-slate-900 rounded-full transition-all duration-500"
                 style={{ width: `${completion}%` }}
               />
+            </div>
+            <div className="mt-2 text-[11px] text-slate-500">
+              {completion < 100 ? (
+                <Link href="/profil" className="text-slate-900 hover:underline font-medium">
+                  Compléter mes informations →
+                </Link>
+              ) : (
+                <span className="text-emerald-700 font-medium">Profil complet et attractif ✓</span>
+              )}
             </div>
           </div>
         </div>
@@ -114,72 +116,71 @@ export default function DashboardPage() {
       {/* 2. GRILLE PRINCIPALE */}
       <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 items-start">
         
-        {/* COLONNE GAUCHE : ACTIONS RECOMMANDÉES & OPPORTUNITÉS */}
+        {/* COLONNE GAUCHE : CANDIDATURES & RECOMMANDATIONS */}
         <div className="space-y-8">
           
-          {/* ACTIONS RECOMMANDÉES */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display text-xl font-extrabold text-[#0A2A5C]">
-                Actions recommandées pour ton cap
-              </h2>
-            </div>
+          {/* ACTIONS PRIORITAIRES */}
+          <div className="space-y-3">
+            <h2 className="text-base font-bold text-slate-900">
+              Actions recommandées
+            </h2>
 
-            <div className="space-y-3">
-              {completion < 75 && (
-                <div className="bg-white border border-[#E2ECF2] rounded-2xl p-4 sm:p-5 flex items-center justify-between shadow-sm hover:border-[#22C3C9] transition-all">
-                  <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 rounded-xl bg-[#FFB81C]/20 text-[#0A2A5C] flex items-center justify-center shrink-0">
-                      <CompassIcon className="w-5 h-5 text-[#0A2A5C]" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-[#0A2A5C]">
-                        Identifier tes compétences avec l'Assistant PHAR IA
-                      </h3>
-                      <p className="text-xs text-[#536B88]">
-                        Échange en langage simple pour faire émerger tes savoir-faire de terrain
-                      </p>
-                    </div>
-                  </div>
-                  <Link
-                    href="/assistant-ia"
-                    className="bg-[#EFFAFB] text-[#0A2A5C] hover:bg-[#FFB81C] text-xs font-extrabold px-4 py-2 rounded-xl transition-colors shrink-0"
-                  >
-                    Démarrer
-                  </Link>
-                </div>
-              )}
-
-              <div className="bg-white border border-[#E2ECF2] rounded-2xl p-4 sm:p-5 flex items-center justify-between shadow-sm hover:border-[#22C3C9] transition-all">
-                <div className="flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-xl bg-[#22C3C9]/15 text-[#129aa0] flex items-center justify-center shrink-0">
-                    <HandshakeIcon className="w-5 h-5 text-[#129aa0]" />
+            {completion < 75 && (
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 flex items-center justify-between shadow-xs hover:border-slate-300 transition-all gap-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-900 flex items-center justify-center shrink-0">
+                    <CompassIcon className="w-5 h-5 text-slate-700" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-[#0A2A5C]">
-                      Rejoindre les discussions de l'Équipage
+                    <h3 className="text-xs sm:text-sm font-bold text-slate-900">
+                      Révéler mes compétences avec l&apos;Assistant IA
                     </h3>
-                    <p className="text-xs text-[#536B88]">
-                      Échange avec d'autres talents et pose tes questions aux mentors
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Dialogue en direct pour traduire tes expériences de terrain en compétences certifiées.
                     </p>
                   </div>
                 </div>
                 <Link
-                  href="/communaute"
-                  className="bg-[#EFFAFB] text-[#0A2A5C] hover:bg-[#FFB81C] text-xs font-extrabold px-4 py-2 rounded-xl transition-colors shrink-0"
+                  href="/assistant-ia"
+                  className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all shrink-0 shadow-2xs"
                 >
-                  Découvrir
+                  Démarrer
                 </Link>
               </div>
+            )}
+
+            <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 flex items-center justify-between shadow-xs hover:border-slate-300 transition-all gap-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-900 flex items-center justify-center shrink-0">
+                  <HandshakeIcon className="w-5 h-5 text-slate-700" />
+                </div>
+                <div>
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-900">
+                    Rejoindre les échanges de la Communauté
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Découvre les retours d&apos;expérience des ateliers et artisans en activité.
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/communaute"
+                className="bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-semibold px-4 py-2 rounded-lg transition-all shrink-0"
+              >
+                Explorer
+              </Link>
             </div>
           </div>
 
-          {/* CANDIDATURES ACTIVES */}
-          <div>
+          {/* SUIVI DES CANDIDATURES */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display text-xl font-extrabold text-[#0A2A5C]">
-                Mes candidatures en cours
+              <h2 className="text-base font-bold text-slate-900">
+                Suivi de mes candidatures
               </h2>
+              <span className="text-xs text-slate-400">
+                {applications.length} candidature{applications.length > 1 ? "s" : ""}
+              </span>
             </div>
 
             {applications.length > 0 ? (
@@ -187,44 +188,38 @@ export default function DashboardPage() {
                 {applications.map((app) => (
                   <div
                     key={app.id}
-                    className="bg-white border border-[#E2ECF2] rounded-2xl p-4 flex items-center justify-between shadow-sm"
+                    className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/70 flex items-center justify-between gap-3 text-xs"
                   >
                     <div>
-                      <h3 className="font-bold text-sm text-[#0A2A5C]">
-                        {app.opportunity?.title || "Candidature"}
-                      </h3>
-                      <p className="text-xs text-[#536B88]">
-                        {app.opportunity?.organization}
-                      </p>
+                      <div className="font-bold text-slate-900">{app.opportunity?.title || "Mission"}</div>
+                      <div className="text-slate-500">{app.opportunity?.organization || "Entreprise"}</div>
                     </div>
-                    <span className="bg-[#EFFAFB] text-[#129aa0] text-xs font-extrabold px-3 py-1 rounded-full">
+                    <span className="bg-white border border-slate-200 text-slate-700 font-semibold px-2.5 py-1 rounded-md">
                       {app.status === "envoyee" ? "Envoyée" : app.status === "entretien" ? "Entretien" : "En cours"}
                     </span>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="bg-white border border-[#E2ECF2] rounded-2xl p-6 text-center shadow-sm">
-                <p className="text-sm text-[#536B88] mb-3">
-                  Tu n'as pas encore postulé à une opportunité.
-                </p>
+              <div className="py-6 text-center text-xs text-slate-500">
+                <p className="mb-3">Tu n&apos;as pas encore postulé à une opportunité vérifiée.</p>
                 <Link
                   href="/opportunites"
-                  className="inline-block bg-[#0A2A5C] hover:bg-[#0d3470] text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-colors"
+                  className="inline-block bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2 rounded-lg transition-all shadow-2xs"
                 >
-                  Explorer les offres disponibles
+                  Voir les opportunités
                 </Link>
               </div>
             )}
           </div>
 
-          {/* OPPORTUNITÉS RECOMMANDÉES */}
+          {/* DERNIÈRES OPPORTUNITÉS VÉRIFIÉES */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display text-xl font-extrabold text-[#0A2A5C]">
+              <h2 className="text-base font-bold text-slate-900">
                 Dernières opportunités vérifiées
               </h2>
-              <Link href="/opportunites" className="text-xs font-extrabold text-[#129aa0] hover:underline">
+              <Link href="/opportunites" className="text-xs font-semibold text-slate-700 hover:text-slate-950">
                 Voir toutes les offres →
               </Link>
             </div>
@@ -234,35 +229,36 @@ export default function DashboardPage() {
                 {opportunities.map((opp) => (
                   <div
                     key={opp.id}
-                    className="bg-white rounded-2xl p-5 border border-[#E2ECF2] shadow-sm flex flex-col justify-between hover:border-[#22C3C9] transition-all"
+                    className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-all"
                   >
                     <div>
-                      <span className="text-xs font-bold text-[#129aa0] block mb-1">
+                      <span className="text-[11px] font-semibold text-slate-400 block mb-1">
                         {opp.organization}
                       </span>
-                      <h3 className="font-bold text-sm text-[#0A2A5C] mb-2 leading-snug">
+                      <h3 className="font-bold text-sm text-slate-900 mb-2 leading-snug">
                         {opp.title}
                       </h3>
-                      <div className="flex items-center gap-3 text-xs text-[#536B88] mb-3">
-                        <span className="flex items-center gap-1">
-                          <MapPinIcon className="w-3.5 h-3.5 text-[#22C3C9]" /> {opp.location || "Local"}
-                        </span>
+                      <div className="flex items-center gap-1 text-xs text-slate-500 mb-4">
+                        <MapPinIcon className="w-3.5 h-3.5 text-slate-400" /> {opp.location || "Local"}
                       </div>
                     </div>
                     <Link
-                      href="/opportunites"
-                      className="w-full text-center bg-[#0A2A5C] hover:bg-[#0d3470] text-white font-bold text-xs py-2 rounded-xl transition-colors"
+                      href={`/app/assistant?mode=candidature&o=${opp.id}`}
+                      className="w-full text-center bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs py-2 rounded-lg transition-all shadow-2xs"
                     >
-                      Consulter l'offre
+                      Postuler
                     </Link>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="bg-white border border-[#E2ECF2] rounded-2xl p-6 text-center shadow-sm">
-                <p className="text-sm text-[#536B88]">
-                  De nouvelles opportunités partenaires sont en cours de validation par l'équipe PHAR.
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-6 text-center shadow-xs">
+                <p className="text-xs text-slate-500 mb-2">
+                  Aucune opportunité vérifiée pour le moment.
                 </p>
+                <Link href="/opportunites" className="text-xs font-semibold text-slate-900 hover:underline">
+                  Consulter les offres disponibles →
+                </Link>
               </div>
             )}
           </div>
@@ -273,34 +269,34 @@ export default function DashboardPage() {
         <div className="space-y-6">
           
           {/* CATALOGUE FORMATIONS */}
-          <div className="bg-white rounded-2xl p-5 border border-[#E2ECF2] shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-display font-extrabold text-base text-[#0A2A5C]">
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-bold text-sm text-slate-900">
                 Formations Pratiques
               </h3>
-              <Link href="/formations" className="text-xs font-bold text-[#129aa0]">
+              <Link href="/formations" className="text-xs font-semibold text-slate-600 hover:text-slate-900">
                 Voir tout
               </Link>
             </div>
-            <p className="text-xs text-[#536B88] mb-4">
-              Des parcours courts certifiés pour perfectionner tes savoir-faire de terrain.
+            <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+              Parcours courts de terrain pour perfectionner ta technique et sécuriser tes devis.
             </p>
             <Link
               href="/formations"
-              className="block w-full text-center bg-[#EFFAFB] hover:bg-[#FFB81C] text-[#0A2A5C] font-extrabold text-xs py-2.5 rounded-xl transition-colors"
+              className="block w-full text-center bg-slate-50 hover:bg-slate-100 text-slate-900 font-semibold text-xs py-2 rounded-lg border border-slate-200 transition-colors"
             >
               Parcourir le catalogue
             </Link>
           </div>
 
-          {/* CONSEIL DU PHAR IA */}
-          <div className="bg-gradient-to-br from-[#EFFAFB] to-[#FFF8E6] border border-[#22C3C9]/30 rounded-2xl p-5 shadow-2xs">
-            <div className="flex items-center gap-2 text-xs font-extrabold text-[#129aa0] uppercase tracking-wider mb-2">
-              <LightbulbIcon className="w-4 h-4 text-[#FFB81C]" />
-              <span>Conseil PHAR IA</span>
+          {/* CONSEIL CARRIÈRE */}
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-900 mb-2">
+              <LightbulbIcon className="w-4 h-4 text-amber-500" />
+              <span>Conseil d&apos;insertion</span>
             </div>
-            <p className="text-xs text-[#0A2A5C] leading-relaxed">
-              « Chaque expérience pratique, même acquise dans un atelier familial ou lors de ventes au marché, constitue une compétence valorisable. Raconte ton parcours à l'Assistant IA pour éclairer ton cap. »
+            <p className="text-xs text-slate-600 leading-relaxed">
+              &ldquo;Même acquise dans un atelier familial ou au marché, toute expérience concrète a de la valeur. L&apos;assistant IA t&apos;aide à la traduire en compétences pour convaincre les recruteurs.&rdquo;
             </p>
           </div>
 

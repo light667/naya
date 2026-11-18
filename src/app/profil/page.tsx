@@ -6,7 +6,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { CheckIcon, MapPinIcon, CompassIcon, HandshakeIcon, StarIcon } from "@/components/PharIcons";
+import { CheckIcon, MapPinIcon, CompassIcon, StarIcon } from "@/components/PharIcons";
 
 type PortfolioItem = {
   id: string;
@@ -62,27 +62,27 @@ export default function ProfilPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8FCFD] flex items-center justify-center">
-        <div className="text-sm font-bold text-[#0A2A5C]">Chargement de ton profil...</div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-xs font-semibold text-slate-500">Chargement de votre profil...</div>
       </div>
     );
   }
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-[#F8FCFD] flex flex-col text-[#0A2A5C]">
+      <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
         <Navbar />
-        <main className="flex-1 max-w-lg mx-auto flex flex-col justify-center text-center p-6">
-          <div className="w-16 h-16 rounded-3xl bg-[#EFFAFB] text-[#22C3C9] flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
-            <CompassIcon className="w-8 h-8" />
+        <main className="flex-1 max-w-md mx-auto flex flex-col justify-center text-center p-6 my-auto">
+          <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center mx-auto mb-4 text-xl">
+            <CompassIcon className="w-6 h-6 text-slate-900" />
           </div>
-          <h1 className="font-display text-2xl font-extrabold mb-2">Connecte-toi à ton espace</h1>
-          <p className="text-sm text-[#536B88] mb-6">
-            Pour visualiser et gérer ton portfolio et tes compétences validées par PHAR, connecte-toi à ton compte.
+          <h1 className="text-xl font-bold text-slate-950 mb-2">Connecte-toi à ton espace</h1>
+          <p className="text-xs text-slate-500 mb-6 leading-relaxed">
+            Pour visualiser et gérer ton portfolio et tes compétences certifiées, connecte-toi à ton compte.
           </p>
           <Link
             href="/connexion"
-            className="bg-[#0A2A5C] text-white font-extrabold text-sm py-3 px-6 rounded-xl hover:bg-[#0d3470] transition-colors"
+            className="bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs py-3 px-6 rounded-xl transition-all shadow-xs"
           >
             Se connecter ou créer un compte
           </Link>
@@ -92,195 +92,189 @@ export default function ProfilPage() {
     );
   }
 
-  const fullName = profile?.full_name || session?.user?.user_metadata?.full_name || "Talent Émergent";
-  const headline = profile?.headline || "Cap professionnel en cours d'élaboration";
-  const bio = profile?.bio || "Partage ton histoire et tes savoir-faire pour enrichir ton profil PHAR.";
-  const city = profile?.city || "Afrique de l'Ouest";
+  const fullName = profile?.full_name || session?.user?.user_metadata?.full_name || session?.user?.email?.split("@")[0] || "Mon Profil";
+  const headline = profile?.headline;
+  const bio = profile?.bio;
+  const city = profile?.city;
   const skills = Array.isArray(profile?.skills) ? profile.skills : [];
 
   return (
-    <div className="min-h-screen bg-[#F8FCFD] flex flex-col text-[#0A2A5C]">
+    <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
       <Navbar />
 
-      {/* HEADER BANNER PROFIL */}
-      <section className="bg-gradient-to-b from-white to-[#EFFAFB] border-b border-[#E2ECF2] px-6 lg:px-12 pt-10 pb-12">
-        <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row items-center md:items-start gap-8">
+      {/* HEADER BANNER PROFIL ÉPURÉ */}
+      <section className="bg-white border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 py-10">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center md:items-start gap-8">
           
-          {/* AVATAR AVEC INITIALE DYNAMIQUE */}
+          {/* AVATAR ÉPURÉ */}
           <div className="relative shrink-0">
-            <div className="w-32 h-32 rounded-3xl bg-gradient-to-br from-[#22C3C9] to-[#0A2A5C] text-white flex items-center justify-center text-4xl font-extrabold border-4 border-white shadow-md">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-3xl font-bold shadow-xs">
               {fullName.charAt(0).toUpperCase()}
             </div>
-            <span className="absolute -bottom-2 -right-2 bg-[#FFB81C] text-[#0A2A5C] text-[11px] font-extrabold px-3 py-1 rounded-full border-2 border-white shadow-sm">
-              Cap Ouvert
+            <span className="absolute -bottom-2 -right-1 bg-white border border-slate-200 text-slate-800 text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-2xs">
+              Talent
             </span>
           </div>
 
           {/* INFORMATIONS PRINCIPALES */}
           <div className="flex-1 text-center md:text-left">
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-1">
-              <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-[#0A2A5C]">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 mb-1.5">
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-950 tracking-tight">
                 {fullName}
               </h1>
-              <span className="w-6 h-6 rounded-full bg-[#22C3C9]/15 text-[#129aa0] inline-flex items-center justify-center" title="Talent Vérifié PHAR">
-                <CheckIcon className="w-3.5 h-3.5" />
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200/60" title="Talent Vérifié PHAR">
+                <CheckIcon className="w-3 h-3 text-emerald-600" /> Profil actif
               </span>
             </div>
 
-            <p className="text-sm sm:text-base font-bold text-[#129aa0] mb-3">
-              {headline}
-            </p>
+            {headline && (
+              <p className="text-sm font-semibold text-slate-700 mb-2">
+                {headline}
+              </p>
+            )}
 
-            <p className="text-sm text-[#536B88] max-w-2xl leading-relaxed mb-4">
-              {bio}
-            </p>
+            {bio ? (
+              <p className="text-xs sm:text-sm text-slate-500 max-w-2xl leading-relaxed mb-4">
+                {bio}
+              </p>
+            ) : (
+              <p className="text-xs text-slate-400 max-w-2xl leading-relaxed mb-4">
+                Aucune biographie renseignée pour le moment.
+              </p>
+            )}
 
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
-              <span className="bg-white border border-[#E2ECF2] text-xs font-bold text-[#0A2A5C] px-3 py-1 rounded-lg flex items-center gap-1.5">
-                <MapPinIcon className="w-3.5 h-3.5 text-[#22C3C9]" /> {city}
-              </span>
-              <span className="bg-white border border-[#E2ECF2] text-xs font-bold text-[#0A2A5C] px-3 py-1 rounded-lg flex items-center gap-1.5">
-                <CompassIcon className="w-3.5 h-3.5 text-[#FFB81C]" /> Compte Vérifié PHAR
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+              {city && (
+                <span className="bg-slate-100 text-xs font-medium text-slate-700 px-3 py-1 rounded-md flex items-center gap-1.5">
+                  <MapPinIcon className="w-3.5 h-3.5 text-slate-500" /> {city}
+                </span>
+              )}
+              <span className="bg-slate-100 text-xs font-medium text-slate-700 px-3 py-1 rounded-md flex items-center gap-1.5">
+                <CompassIcon className="w-3.5 h-3.5 text-slate-500" /> Membre du réseau PHAR
               </span>
             </div>
           </div>
 
           {/* ACTIONS */}
-          <div className="flex flex-col gap-2.5 shrink-0 w-full sm:w-auto">
+          <div className="flex flex-col gap-2 shrink-0 w-full sm:w-auto">
             <button
               onClick={() => setShowAddModal(true)}
-              className="bg-[#0A2A5C] hover:bg-[#0d3470] text-white font-extrabold text-xs px-6 py-3 rounded-xl transition-colors text-center shadow-sm"
+              className="bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all text-center shadow-xs"
             >
               + Ajouter une réalisation
             </button>
             <Link
               href="/app"
-              className="bg-white hover:bg-[#EFFAFB] border border-[#E2ECF2] text-[#0A2A5C] font-bold text-xs px-6 py-2.5 rounded-xl transition-colors text-center"
+              className="bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-medium text-xs px-5 py-2.5 rounded-xl transition-colors text-center"
             >
-              Aller à Mon Cap
+              Tableau de bord
             </Link>
           </div>
 
         </div>
       </section>
 
-      {/* CONTENU EN 2 COLONNES : COMPÉTENCES & PORTFOLIO RÉEL */}
-      <main className="flex-1 max-w-[1280px] w-full mx-auto px-6 lg:px-12 py-10 grid grid-cols-1 lg:grid-cols-[1fr_1.8fr] gap-8 items-start">
+      {/* CONTENU EN 2 COLONNES */}
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-[1fr_1.8fr] gap-8 items-start">
         
-        {/* COLONNE GAUCHE : COMPÉTENCES RECONNUES & BADGES */}
+        {/* COLONNE GAUCHE : COMPÉTENCES */}
         <div className="space-y-6">
-          
-          {/* COMPÉTENCES DU PROFIL RÉEL */}
-          <div className="bg-white rounded-2xl p-6 border border-[#E2ECF2] shadow-sm">
-            <h2 className="font-display font-extrabold text-base text-[#0A2A5C] mb-4">
-              Compétences Repérées
+          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
+            <h2 className="text-sm font-bold text-slate-900 mb-3 uppercase tracking-wider">
+              Compétences Identifiées
             </h2>
 
             {skills.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {skills.map((skill: any, idx: number) => (
+              <div className="flex flex-wrap gap-1.5">
+                {skills.map((skill: { name?: string } | string, idx: number) => (
                   <span
                     key={idx}
-                    className="bg-[#EFFAFB] text-[#0A2A5C] text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+                    className="bg-slate-50 border border-slate-200/80 text-slate-800 text-xs font-medium px-2.5 py-1 rounded-md flex items-center gap-1.5"
                   >
-                    <CheckIcon className="w-3 h-3 text-[#129aa0]" />
+                    <CheckIcon className="w-3 h-3 text-teal-600" />
                     {typeof skill === "string" ? skill : skill.name || "Compétence"}
                   </span>
                 ))}
               </div>
             ) : (
               <div className="text-center py-4">
-                <p className="text-xs text-[#536B88] mb-3">
+                <p className="text-xs text-slate-400 mb-3">
                   Aucune compétence répertoriée pour le moment.
                 </p>
                 <Link
                   href="/assistant-ia"
-                  className="inline-block bg-[#EFFAFB] hover:bg-[#FFB81C] text-[#0A2A5C] text-xs font-extrabold px-3.5 py-1.5 rounded-lg transition-colors"
+                  className="inline-block bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
                 >
-                  Révéler mes compétences avec l'IA →
+                  Révéler mes compétences avec l&apos;IA →
                 </Link>
               </div>
             )}
           </div>
 
-          {/* BADGES PHAR */}
-          <div className="bg-white rounded-2xl p-6 border border-[#E2ECF2] shadow-sm">
-            <h2 className="font-display font-extrabold text-base text-[#0A2A5C] mb-4">
-              Accréditations PHAR
+          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
+            <h2 className="text-sm font-bold text-slate-900 mb-3 uppercase tracking-wider">
+              Garanties &amp; Avantages
             </h2>
-
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 p-3 rounded-xl border border-[#E2ECF2] bg-[#FDFEFE]">
-                <div className="w-10 h-10 rounded-xl bg-[#FFB81C]/20 text-[#0A2A5C] flex items-center justify-center shrink-0">
-                  <CompassIcon className="w-5 h-5 text-[#0A2A5C]" />
-                </div>
-                <div>
-                  <h3 className="text-xs font-extrabold text-[#0A2A5C]">Profil PHAR Actif</h3>
-                  <p className="text-[11px] text-[#536B88]">Reconnaissance des parcours d'inclusion</p>
-                </div>
+            <div className="space-y-3 text-xs text-slate-600">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span>Accès prioritaire aux offres vérifiées</span>
               </div>
-
-              <div className="flex items-center gap-3 p-3 rounded-xl border border-[#E2ECF2] bg-[#FDFEFE]">
-                <div className="w-10 h-10 rounded-xl bg-[#22C3C9]/15 text-[#129aa0] flex items-center justify-center shrink-0">
-                  <StarIcon className="w-4 h-4 text-[#129aa0]" />
-                </div>
-                <div>
-                  <h3 className="text-xs font-extrabold text-[#0A2A5C]">Accès Réseau Partenaires</h3>
-                  <p className="text-[11px] text-[#536B88]">Candidature directe aux offres vérifiées</p>
-                </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span>Candidatures directes sur WhatsApp / email</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span>Zéro frais d&apos;inscription ou de dossier</span>
               </div>
             </div>
           </div>
-
         </div>
 
         {/* COLONNE DROITE : PORTFOLIO RÉEL */}
-        <div className="space-y-8">
-          
-          <div className="bg-white rounded-2xl p-6 border border-[#E2ECF2] shadow-sm">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="font-display font-extrabold text-base text-[#0A2A5C]">
-                Portfolio &amp; Réalisations
-              </h2>
-              <span className="text-xs font-bold text-[#129aa0]">
-                {portfolioItems.length} réalisation{portfolioItems.length > 1 ? "s" : ""}
-              </span>
-            </div>
-
-            {portfolioItems.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {portfolioItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="rounded-xl border border-[#E2ECF2] p-4 bg-[#F8FCFD] flex flex-col justify-between"
-                  >
-                    <div>
-                      <h3 className="font-bold text-sm text-[#0A2A5C] mb-1">{item.title}</h3>
-                      <p className="text-xs text-[#536B88] line-clamp-3 leading-relaxed">
-                        {item.description || "Aucune description renseignée."}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-10 border border-dashed border-[#E2ECF2] rounded-xl bg-[#F8FCFD]">
-                <p className="text-sm font-semibold text-[#0A2A5C] mb-1">
-                  Ton portfolio est encore vide
-                </p>
-                <p className="text-xs text-[#536B88] max-w-sm mx-auto mb-4">
-                  Ajoute tes premières créations (photos d'atelier, confections, projets de vente) pour les présenter aux recruteurs.
-                </p>
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="bg-[#FFB81C] hover:bg-[#ffc138] text-[#0A2A5C] font-extrabold text-xs px-4 py-2 rounded-xl transition-colors"
-                >
-                  + Ajouter un premier projet
-                </button>
-              </div>
-            )}
+        <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+              Portfolio &amp; Réalisations
+            </h2>
+            <span className="text-xs text-slate-400">
+              {portfolioItems.length} réalisation{portfolioItems.length > 1 ? "s" : ""}
+            </span>
           </div>
 
+          {portfolioItems.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {portfolioItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-xl border border-slate-200 p-4 bg-slate-50/60 flex flex-col justify-between"
+                >
+                  <div>
+                    <h3 className="font-bold text-sm text-slate-900 mb-1">{item.title}</h3>
+                    <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
+                      {item.description || "Aucune description renseignée."}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+              <p className="text-sm font-semibold text-slate-900 mb-1">
+                Ton portfolio est encore vide
+              </p>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto mb-4">
+                Ajoute tes premières créations (photos d&apos;atelier, confections, projets de vente) pour les présenter aux recruteurs partenaires.
+              </p>
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs px-4 py-2 rounded-xl transition-all shadow-2xs"
+              >
+                + Ajouter un premier projet
+              </button>
+            </div>
+          )}
         </div>
 
       </main>
@@ -288,50 +282,50 @@ export default function ProfilPage() {
       {/* MODAL D'AJOUT DE RÉALISATION */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-[#E2ECF2]">
-            <h3 className="font-display font-extrabold text-lg text-[#0A2A5C] mb-2">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-xl border border-slate-200">
+            <h3 className="font-bold text-base text-slate-950 mb-1">
               Ajouter une réalisation
             </h3>
-            <p className="text-xs text-[#536B88] mb-5">
-              Décris un travail pratique que tu as réalisé (vêtements, stand de marché, objet d'art...).
+            <p className="text-xs text-slate-500 mb-4">
+              Décris un travail pratique que tu as réalisé (vêtements, stand de marché, objet d&apos;art...).
             </p>
 
-            <form onSubmit={handleAddPortfolioItem} className="space-y-4">
+            <form onSubmit={handleAddPortfolioItem} className="space-y-3.5">
               <div>
-                <label className="block text-xs font-bold text-[#0A2A5C] mb-1">Titre du projet</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Titre de la réalisation</label>
                 <input
                   type="text"
                   required
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="Ex: Confection de 5 robes d'été en wax"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2ECF2] text-sm text-[#0A2A5C] outline-none focus:border-[#22C3C9]"
+                  placeholder="Ex: Confection de 5 tenues wax sur mesure"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 outline-none focus:border-slate-900"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#0A2A5C] mb-1">Description</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Description</label>
                 <textarea
                   rows={3}
                   value={newDesc}
                   onChange={(e) => setNewDesc(e.target.value)}
-                  placeholder="Explique ce que tu as fait, les matériaux utilisés, le résultat..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E2ECF2] text-sm text-[#0A2A5C] outline-none focus:border-[#22C3C9]"
+                  placeholder="Explique ce que tu as fait, les matières, les finitions et le résultat..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 outline-none focus:border-slate-900 resize-none"
                 />
               </div>
 
-              <div className="flex gap-3 pt-2">
+              <div className="flex gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="flex-1 py-2.5 border border-[#E2ECF2] rounded-xl text-xs font-bold text-[#536B88] hover:bg-gray-50 transition-colors"
+                  className="flex-1 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex-1 py-2.5 bg-[#0A2A5C] text-white rounded-xl text-xs font-bold hover:bg-[#0d3470] transition-colors disabled:opacity-50"
+                  className="flex-1 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-slate-800 transition-colors disabled:opacity-50 shadow-xs"
                 >
                   {saving ? "Enregistrement..." : "Ajouter"}
                 </button>

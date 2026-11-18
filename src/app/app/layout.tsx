@@ -12,11 +12,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { session, profile } = useAuth();
 
   const links = [
-    { label: "Mon Cap", href: "/app" },
+    { label: "Tableau de bord", href: "/app" },
     { label: "Opportunités", href: "/opportunites" },
-    { label: "Mes Formations", href: "/formations" },
+    { label: "Formations", href: "/formations" },
     { label: "Assistant IA", href: "/assistant-ia" },
-    { label: "Équipage", href: "/communaute" },
+    { label: "Communauté", href: "/communaute" },
   ];
 
   async function handleSignOut() {
@@ -28,37 +28,36 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const displayRole = profile?.headline || "Talent émergent";
 
   return (
-    <div className="min-h-screen bg-[#F8FCFD] flex flex-col text-[#0A2A5C]">
+    <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
       {/* NAVBAR DASHBOARD */}
-      <header className="bg-white border-b border-[#E2ECF2] sticky top-0 z-40">
-        <div className="max-w-[1360px] mx-auto px-6 lg:px-12 h-18 flex items-center justify-between">
-          <div className="flex items-center gap-10">
+      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2">
               <Image
                 src="/img/logo_phar_trimmed.png"
                 alt="PHAR"
-                width={130}
-                height={42}
-                className="h-10 w-auto object-contain"
+                width={110}
+                height={34}
+                className="h-8 w-auto object-contain"
                 priority
               />
             </Link>
 
-            <nav className="hidden md:flex items-center gap-6">
+            <nav className="hidden md:flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-full border border-slate-200/70">
               {links.map((link) => {
                 const isActive = pathname === link.href;
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`relative py-1 text-sm font-bold transition-colors ${
-                      isActive ? "text-[#0A2A5C]" : "text-[#536B88] hover:text-[#0A2A5C]"
+                    className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
+                      isActive
+                        ? "bg-white text-slate-950 font-semibold shadow-xs"
+                        : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
                     {link.label}
-                    {isActive && (
-                      <span className="absolute bottom-0 left-0 w-full h-[3px] bg-[#FFB81C] rounded-full" />
-                    )}
                   </Link>
                 );
               })}
@@ -66,15 +65,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
 
           {/* USER WIDGET AVEC DÉCONNEXION */}
-          <div className="flex items-center gap-4">
-            <Link href="/profil" className="flex items-center gap-3 group">
+          <div className="flex items-center gap-3">
+            <Link href="/profil" className="flex items-center gap-2.5 group">
               <div className="text-right hidden sm:block">
-                <div className="text-sm font-extrabold text-[#0A2A5C] group-hover:text-[#22C3C9] transition-colors truncate max-w-[160px]">
+                <div className="text-xs font-semibold text-slate-900 group-hover:text-slate-950 transition-colors truncate max-w-[140px]">
                   {displayName}
                 </div>
-                <div className="text-xs text-[#536B88] truncate max-w-[160px]">{displayRole}</div>
+                <div className="text-[11px] text-slate-500 truncate max-w-[140px]">{displayRole}</div>
               </div>
-              <div className="w-10 h-10 rounded-full bg-[#22C3C9]/15 border-2 border-[#22C3C9] flex items-center justify-center text-sm font-extrabold text-[#129aa0]">
+              <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-700">
                 {displayName.charAt(0).toUpperCase()}
               </div>
             </Link>
@@ -83,7 +82,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <button
                 onClick={handleSignOut}
                 title="Se déconnecter"
-                className="text-xs font-bold text-[#536B88] hover:text-red-600 px-2 py-1 rounded-lg border border-[#E2ECF2] hover:border-red-200 transition-colors"
+                className="text-xs font-medium text-slate-500 hover:text-red-600 px-2.5 py-1.5 rounded-lg border border-slate-200 hover:border-red-200 transition-colors"
               >
                 Sortir
               </button>
@@ -93,12 +92,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* CONTENU */}
-      <main className="flex-1 max-w-[1360px] w-full mx-auto px-6 lg:px-12 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
 
-      <footer className="text-center py-6 text-xs text-[#536B88] border-t border-[#E2ECF2] bg-white">
-        Plateforme PHAR — Inclusion &amp; Employabilité des Jeunes
+      <footer className="text-center py-6 text-xs text-slate-400 border-t border-slate-200/80 bg-white">
+        PHAR / NAYA · Plateforme d&apos;insertion professionnelle et d&apos;autonomisation économique
       </footer>
     </div>
   );

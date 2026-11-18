@@ -13,7 +13,6 @@ export function Navbar() {
   const { session, profile } = useAuth();
 
   const navLinks = [
-    { label: "Accueil", href: "/" },
     { label: "Opportunités", href: "/opportunites" },
     { label: "Formations", href: "/formations" },
     { label: "Assistant IA", href: "/assistant-ia" },
@@ -28,146 +27,129 @@ export function Navbar() {
   const userInitial = profile?.full_name ? profile.full_name[0].toUpperCase() : "U";
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#E2F2F5] transition-all">
-      <div className="max-w-[1360px] mx-auto px-6 lg:px-12 h-16 sm:h-20 flex items-center justify-between">
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/80 transition-all">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
-        {/* LOGO PHAR */}
-        <Link href="/" className="flex items-center gap-2">
+        {/* LOGO */}
+        <Link href="/" className="flex items-center gap-2.5 group">
           <Image
             src="/img/logo_phar_trimmed.png"
             alt="PHAR"
-            width={140}
-            height={44}
-            className="h-10 sm:h-12 w-auto object-contain"
+            width={120}
+            height={38}
+            className="h-9 w-auto object-contain transition-opacity group-hover:opacity-90"
             priority
           />
         </Link>
 
         {/* NAVIGATION DESKTOP */}
-        <nav className="hidden md:flex items-center gap-7">
+        <nav className="hidden md:flex items-center gap-1 bg-slate-50/80 px-2 py-1 rounded-full border border-slate-200/70">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`relative py-1 text-sm font-semibold transition-colors ${
-                  isActive ? "text-[#0A2A5C] font-bold" : "text-[#536B88] hover:text-[#0A2A5C]"
+                className={`px-3.5 py-1.5 text-xs font-medium rounded-full transition-all ${
+                  isActive
+                    ? "bg-white text-slate-950 font-semibold shadow-xs"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
                 }`}
               >
                 {link.label}
-                {isActive && (
-                  <span className="absolute bottom-0 left-0 w-full h-[2.5px] bg-[#FFB81C] rounded-full" />
-                )}
               </Link>
             );
           })}
         </nav>
 
-        {/* CTA ACTIONS OU PROFIL UTILISATEUR */}
-        <div className="hidden sm:flex items-center gap-3">
+        {/* ACTIONS : VISIBLE SUR ORDINATEUR ET MOBILE */}
+        <div className="flex items-center gap-2 sm:gap-3">
           {session ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Link
                 href="/app"
-                className="flex items-center gap-2 bg-[#EFFAFB] hover:bg-[#E2ECF2] px-3.5 py-1.5 rounded-xl transition-colors"
+                className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium shadow-xs transition-all"
               >
-                <div className="w-7 h-7 rounded-full bg-[#0A2A5C] text-white font-extrabold text-xs flex items-center justify-center">
+                <div className="w-5 h-5 rounded-full bg-white/20 text-white font-semibold text-[10px] flex items-center justify-center">
                   {userInitial}
                 </div>
-                <span className="text-xs font-bold text-[#0A2A5C]">Mon Espace</span>
+                <span>Mon Espace</span>
               </Link>
               <button
                 onClick={handleSignOut}
-                className="text-xs text-[#536B88] hover:text-red-600 font-semibold px-2 py-1 transition-colors"
+                className="hidden sm:inline-block text-xs text-slate-500 hover:text-red-600 font-medium px-2 py-1 transition-colors"
               >
                 Déconnexion
               </button>
             </div>
           ) : (
-            <>
+            <div className="flex items-center gap-2">
               <Link
                 href="/connexion"
-                className="text-xs font-bold text-[#0A2A5C] hover:text-[#22C3C9] px-3 py-2 transition-colors"
+                className="inline-flex items-center justify-center text-xs font-semibold text-slate-800 hover:text-slate-950 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 sm:bg-transparent sm:border-transparent transition-colors"
               >
                 Connexion
               </Link>
               <Link
                 href="/connexion?mode=inscription"
-                className="inline-flex items-center justify-center bg-[#FFB81C] hover:bg-[#ffc138] text-[#0A2A5C] font-extrabold text-xs px-5 py-2.5 rounded-xl shadow-xs transition-all"
+                className="hidden sm:inline-flex items-center justify-center bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs px-4 py-2 rounded-lg shadow-xs transition-all hover:shadow-sm"
               >
-                Rejoindre
+                Commencer
               </Link>
-            </>
+            </div>
           )}
-        </div>
 
-        {/* BURGER MOBILE */}
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden p-2 text-[#0A2A5C] hover:text-[#22C3C9] focus:outline-none"
-          aria-label="Menu"
-        >
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            {mobileOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
-        </button>
+          {/* BURGER MOBILE */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden p-2 text-slate-700 hover:text-slate-900 focus:outline-none"
+            aria-label="Menu"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {mobileOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* MOBILE MENU DROPDOWN */}
       {mobileOpen && (
-        <div className="md:hidden bg-white border-b border-[#E2F2F5] px-6 py-4 flex flex-col gap-2.5">
+        <div className="md:hidden bg-white border-b border-slate-200 px-6 py-4 flex flex-col gap-2 shadow-lg animate-in fade-in duration-150">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setMobileOpen(false)}
-              className="py-1.5 text-sm font-bold text-[#0A2A5C]"
+              className={`py-2 text-sm font-medium transition-colors ${
+                pathname === link.href ? "text-slate-950 font-semibold" : "text-slate-600"
+              }`}
             >
               {link.label}
             </Link>
           ))}
-          <div className="pt-3 border-t border-[#E2F2F5] flex flex-col gap-2">
+          <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
             {session ? (
-              <>
-                <Link
-                  href="/app"
-                  onClick={() => setMobileOpen(false)}
-                  className="text-center bg-[#EFFAFB] text-[#0A2A5C] font-bold py-2 rounded-xl text-xs"
-                >
-                  Mon Espace
-                </Link>
-                <button
-                  onClick={() => {
-                    setMobileOpen(false);
-                    handleSignOut();
-                  }}
-                  className="text-center text-red-600 font-bold py-1.5 text-xs"
-                >
-                  Déconnexion
-                </button>
-              </>
+              <button
+                onClick={() => {
+                  setMobileOpen(false);
+                  handleSignOut();
+                }}
+                className="text-left text-red-600 font-medium py-1.5 text-xs"
+              >
+                Déconnexion
+              </button>
             ) : (
-              <>
-                <Link
-                  href="/connexion"
-                  onClick={() => setMobileOpen(false)}
-                  className="text-center py-2 text-xs font-bold text-[#0A2A5C]"
-                >
-                  Connexion
-                </Link>
-                <Link
-                  href="/connexion?mode=inscription"
-                  onClick={() => setMobileOpen(false)}
-                  className="text-center bg-[#FFB81C] text-[#0A2A5C] font-extrabold py-2.5 rounded-xl text-xs shadow-xs"
-                >
-                  Rejoindre
-                </Link>
-              </>
+              <Link
+                href="/connexion?mode=inscription"
+                onClick={() => setMobileOpen(false)}
+                className="text-center bg-slate-900 text-white font-medium py-2.5 rounded-lg text-xs"
+              >
+                Créer un compte
+              </Link>
             )}
           </div>
         </div>
