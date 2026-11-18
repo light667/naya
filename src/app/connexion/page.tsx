@@ -30,10 +30,10 @@ function AuthFormContent() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  // Redirection automatique sur l'accueil si déjà connecté
+  // Redirection automatique sur le tableau de bord si déjà connecté
   useEffect(() => {
     if (!authLoading && session) {
-      router.replace("/");
+      router.replace("/app");
     }
   }, [session, authLoading, router]);
 
@@ -62,7 +62,7 @@ function AuthFormContent() {
               phar_role: role,
               city: city.trim(),
             },
-            emailRedirectTo: `${window.location.origin}/`,
+            emailRedirectTo: `${window.location.origin}/app`,
           },
         });
 
@@ -96,8 +96,8 @@ function AuthFormContent() {
             console.warn("[Auth] Erreur upsert profil:", profileErr);
           }
 
-          // Redirection vers l'accueil avec session active
-          window.location.href = "/";
+          // Redirection directe vers l'espace personnel
+          window.location.href = "/app";
           return;
         }
 
@@ -120,7 +120,7 @@ function AuthFormContent() {
             console.warn("[Auth] Erreur upsert profil:", profileErr);
           }
 
-          window.location.href = "/";
+          window.location.href = "/app";
           return;
         }
 
@@ -171,7 +171,7 @@ function AuthFormContent() {
         }
 
         if (signInData.session) {
-          window.location.href = "/";
+          window.location.href = "/app";
         } else {
           setError("Impossible d'établir la session.");
           setLoading(false);
