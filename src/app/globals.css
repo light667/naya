@@ -1,65 +1,144 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
+/*
+  PHAR — direction « atelier et marché » : chaleureux, direct, fier.
+  Fond crème, texte brun très foncé, une seule couleur d'action (terre cuite).
+  L'indigo et l'ocre sont réservés aux catégories métier et à la carte de compétences.
+
+  Les classes `slate-*` utilisées dans tout le code sont reteintées ici en brun chaud :
+  changer la rampe ci-dessous change toute l'application.
+*/
 @theme inline {
-  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-display: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-sans: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Figtree", system-ui, -apple-system, sans-serif;
 
-  /* Palette Minimaliste & Pro */
-  --color-navy: #0F2942;
-  --color-navy-800: #163659;
-  --color-navy-900: #0A1C2E;
+  /* Échelle de texte : rien en dessous de 14 px, le corps à 16 px */
+  --text-xs: 0.875rem;
+  --text-xs--line-height: 1.35rem;
+  --text-sm: 1rem;
+  --text-sm--line-height: 1.5rem;
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.65rem;
+  --text-lg: 1.1875rem;
+  --text-lg--line-height: 1.75rem;
 
-  --color-primary: #0F2942;
-  --color-primary-hover: #1E3A5F;
-  --color-accent: #0D9488;
-  --color-accent-light: #F0FDFA;
+  /* Rampe neutre chaude (remplace le gris ardoise) */
+  --color-slate-50: #fbf6ee;
+  --color-slate-100: #f4ece0;
+  --color-slate-200: #e7dccd;
+  --color-slate-300: #d3c3af;
+  --color-slate-400: #8f7b68;
+  --color-slate-500: #6b5848;
+  --color-slate-600: #574536;
+  --color-slate-700: #45352a;
+  --color-slate-800: #35271e;
+  --color-slate-900: #2b1b14;
+  --color-slate-950: #1e120c;
 
-  --color-turquoise: #0D9488;
-  --color-turquoise-dark: #0F766E;
-  --color-turquoise-50: #F0FDFA;
+  /* Rôles */
+  --color-bg: #fff8ef;
+  --color-ink: #2b1b14;
+  --color-muted: #6b5848;
+  --color-line: #e7dccd;
+  --color-night: #1e120c;
 
-  --color-yellow: #F59E0B;
-  --color-yellow-hover: #D97706;
-  --color-yellow-light: #FFFBEB;
+  /* Action : terre cuite (texte blanc sur #C2410C = 5,2:1) */
+  --color-sun: #c2410c;
+  --color-sun-50: #fdf1e7;
+  --color-sun-100: #f9dcc6;
+  --color-sun-700: #a3360a;
+  --color-sun-800: #8a2e08;
+  --color-sun-900: #6b2306;
+  --color-coral: #c2410c;
+  --color-coral-50: #fdf1e7;
+  --color-coral-700: #9a3412;
 
-  --color-bg-light: #F8FAFC;
-  --color-border-soft: #E2E8F0;
-  --color-muted: #64748B;
+  /* Ancien « plum » : devient le brun fort de la rampe */
+  --color-plum: #2b1b14;
+  --color-plum-50: #f4ece0;
+  --color-plum-100: #e7dccd;
+  --color-plum-700: #1e120c;
+
+  /* Vérifié / réussite : vert feuille, sobre */
+  --color-sage: #2f7a4f;
+  --color-sage-50: #eaf4ec;
+  --color-sage-700: #24603d;
+  --color-teal-50: #eaf4ec;
+  --color-teal-100: #d3e9d8;
+  --color-teal-500: #3d8b5d;
+  --color-teal-600: #2f7a4f;
+  --color-teal-700: #24603d;
+  --color-teal-800: #1c4b30;
+
+  /* Catégories et carte de compétences uniquement */
+  --color-indigo-brand: #1f3a8a;
+  --color-ocre: #d9a441;
 }
 
 html {
-  background: #ffffff;
-  color: #0F172A;
+  background: var(--color-bg);
+  color: var(--color-ink);
   scroll-behavior: smooth;
 }
 
 body {
-  background: #ffffff;
-  color: #0F172A;
+  background: var(--color-bg);
+  color: var(--color-ink);
   font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.55;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6, .font-display {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-display {
   font-family: var(--font-display);
-  letter-spacing: -0.025em;
+  letter-spacing: -0.01em;
+}
+
+/* Les titres ne dépassent jamais 600 : la hiérarchie vient de la taille */
+.font-bold,
+.font-extrabold,
+.font-black {
+  font-weight: 600;
 }
 
 :focus-visible {
-  outline: 2px solid #0F2942;
+  outline: 2px solid var(--color-sun);
   outline-offset: 2px;
   border-radius: 6px;
 }
 
 ::selection {
-  background: #E2E8F0;
-  color: #0F172A;
+  background: var(--color-sun-100);
+  color: var(--color-ink);
 }
 
-/* Scrollbar élégante et discrète */
+/* Signature : un fin bandeau de motif wax, tout en haut de l'écran, nulle part ailleurs */
+.wax-band {
+  height: 6px;
+  background-color: var(--color-sun);
+  background-image:
+    radial-gradient(circle at 6px 3px, var(--color-ocre) 2px, transparent 2.5px),
+    radial-gradient(circle at 18px 3px, var(--color-indigo-brand) 2px, transparent 2.5px);
+  background-size: 24px 6px;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -68,9 +147,16 @@ h1, h2, h3, h4, h5, h6, .font-display {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: var(--color-slate-300);
   border-radius: 9999px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

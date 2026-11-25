@@ -1,159 +1,132 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
+import { Icon } from "@/components/icons";
+import { Logo } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 
+export const NAV_LINKS = [
+  { label: "Offres", href: "/opportunites" },
+  { label: "Formations", href: "/formations" },
+  { label: "Assistant", href: "/assistant-ia" },
+  { label: "Réseau", href: "/communaute" },
+];
+
+const isActive = (pathname: string, href: string) => (href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`));
+
+/** En-tête unique : logo, liens (ordinateur), une seule action. Sur mobile, la navigation passe dans la barre du bas. */
 export function Navbar() {
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter();
   const { session, profile } = useAuth();
+  const firstName = (profile?.full_name || "").trim().split(/\s+/)[0];
 
-  const navLinks = [
-    { label: "Opportunités", href: "/opportunites" },
-    { label: "Formations", href: "/formations" },
-    { label: "Assistant IA", href: "/assistant-ia" },
-    { label: "Communauté", href: "/communaute" },
-  ];
-
-  async function handleSignOut() {
+  async function signOut() {
     await supabase.auth.signOut();
-    window.location.href = "/";
+    router.replace("/");
   }
 
-  const userInitial = profile?.full_name ? profile.full_name[0].toUpperCase() : "U";
-
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/80 transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        
-        {/* LOGO */}
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <Image
-            src="/img/logo_phar_trimmed.png"
-            alt="PHAR"
-            width={120}
-            height={38}
-            className="h-9 w-auto object-contain transition-opacity group-hover:opacity-90"
-            priority
-          />
-        </Link>
+    <>
+      <header className="sticky top-0 z-40 border-b border-line bg-bg/95 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+          <Link href={session ? "/app" : "/"} aria-label="PHAR, accueil" className="flex min-h-12 items-center">
+            <Logo />
+          </Link>
 
-        {/* NAVIGATION DESKTOP */}
-        <nav className="hidden md:flex items-center gap-1 bg-slate-50/80 px-2 py-1 rounded-full border border-slate-200/70">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
-            return (
+          <nav aria-label="Navigation principale" className="hidden items-center gap-1 md:flex">
+            {NAV_LINKS.map((l) => (
               <Link
-                key={link.href}
-                href={link.href}
-                className={`px-3.5 py-1.5 text-xs font-medium rounded-full transition-all ${
-                  isActive
-                    ? "bg-white text-slate-950 font-semibold shadow-xs"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                key={l.href}
+                href={l.href}
+                aria-current={isActive(pathname, l.href) ? "page" : undefined}
+                className={`rounded-lg px-3 py-2 text-sm transition-colors ${
+                  isActive(pathname, l.href) ? "font-semibold text-ink" : "text-muted hover:text-ink"
                 }`}
               >
-                {link.label}
+                {l.label}
               </Link>
-            );
-          })}
-        </nav>
+            ))}
+          </nav>
 
-        {/* ACTIONS : VISIBLE SUR ORDINATEUR ET MOBILE */}
-        <div className="flex items-center gap-2 sm:gap-3">
           {session ? (
-            <div className="flex items-center gap-2">
-              <Link
-                href="/app"
-                className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium shadow-xs transition-all"
-              >
-                <div className="w-5 h-5 rounded-full bg-white/20 text-white font-semibold text-[10px] flex items-center justify-center">
-                  {userInitial}
-                </div>
-                <span>Mon Espace</span>
+            <div className="flex items-center gap-1">
+              <Link href="/profil" className="flex min-h-12 items-center gap-2 rounded-xl px-2 text-sm text-ink hover:bg-slate-100">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-ink ring-1 ring-line">
+                  {(firstName[0] || "?").toUpperCase()}
+                </span>
+                <span className="hidden font-medium sm:inline">{firstName || "Mon profil"}</span>
               </Link>
               <button
-                onClick={handleSignOut}
-                className="hidden sm:inline-block text-xs text-slate-500 hover:text-red-600 font-medium px-2 py-1 transition-colors"
+                onClick={signOut}
+                aria-label="Se déconnecter"
+                title="Se déconnecter"
+                className="flex h-12 w-12 items-center justify-center rounded-xl text-muted transition-colors hover:bg-slate-100 hover:text-ink"
               >
-                Déconnexion
+                <Icon.logout />
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Link
-                href="/connexion"
-                className="inline-flex items-center justify-center text-xs font-semibold text-slate-800 hover:text-slate-950 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 sm:bg-transparent sm:border-transparent transition-colors"
-              >
+              <Link href="/connexion" className="flex min-h-12 items-center rounded-xl px-3 text-sm font-medium text-ink hover:bg-slate-100">
                 Connexion
               </Link>
               <Link
                 href="/connexion?mode=inscription"
-                className="hidden sm:inline-flex items-center justify-center bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs px-4 py-2 rounded-lg shadow-xs transition-all hover:shadow-sm"
+                className="hidden min-h-11 items-center rounded-xl bg-white px-4 text-sm font-semibold text-ink ring-1 ring-inset ring-line transition-colors hover:bg-slate-50 md:inline-flex"
               >
-                Commencer
+                Créer mon compte
               </Link>
             </div>
           )}
-
-          {/* BURGER MOBILE */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-2 text-slate-700 hover:text-slate-900 focus:outline-none"
-            aria-label="Menu"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              {mobileOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
         </div>
-      </div>
+      </header>
+      <TabBar />
+    </>
+  );
+}
 
-      {/* MOBILE MENU DROPDOWN */}
-      {mobileOpen && (
-        <div className="md:hidden bg-white border-b border-slate-200 px-6 py-4 flex flex-col gap-2 shadow-lg animate-in fade-in duration-150">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setMobileOpen(false)}
-              className={`py-2 text-sm font-medium transition-colors ${
-                pathname === link.href ? "text-slate-950 font-semibold" : "text-slate-600"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-          <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
-            {session ? (
-              <button
-                onClick={() => {
-                  setMobileOpen(false);
-                  handleSignOut();
-                }}
-                className="text-left text-red-600 font-medium py-1.5 text-xs"
-              >
-                Déconnexion
-              </button>
-            ) : (
+const TABS = [
+  { label: "Accueil", href: "/", authHref: "/app", icon: Icon.home },
+  { label: "Offres", href: "/opportunites", icon: Icon.briefcase },
+  { label: "Assistant", href: "/assistant-ia", icon: Icon.chat },
+  { label: "Formations", href: "/formations", icon: Icon.book },
+  { label: "Réseau", href: "/communaute", icon: Icon.people },
+  { label: "Profil", href: "/profil", icon: Icon.user },
+];
+
+/** Barre fixe en bas de l'écran sur mobile. */
+export function TabBar() {
+  const pathname = usePathname();
+  const { session } = useAuth();
+  return (
+    <nav
+      aria-label="Navigation"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white pb-[env(safe-area-inset-bottom)] md:hidden"
+    >
+      <ul className="grid grid-cols-6">
+        {TABS.map((t) => {
+          const href = session && t.authHref ? t.authHref : t.href;
+          const active = t.href === "/" ? pathname === "/" || pathname === "/app" : isActive(pathname, t.href);
+          const I = t.icon;
+          return (
+            <li key={t.label}>
               <Link
-                href="/connexion?mode=inscription"
-                onClick={() => setMobileOpen(false)}
-                className="text-center bg-slate-900 text-white font-medium py-2.5 rounded-lg text-xs"
+                href={href}
+                aria-current={active ? "page" : undefined}
+                className={`flex h-16 flex-col items-center justify-center gap-1 text-[12px] leading-none transition-colors ${
+                  active ? "font-semibold text-sun" : "text-muted"
+                }`}
               >
-                Créer un compte
+                <I />
+                {t.label}
               </Link>
-            )}
-          </div>
-        </div>
-      )}
-    </header>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }

@@ -27,8 +27,8 @@ const GROUPS = [
 
 export default function CommunautePage() {
   const { session, profile } = useAuth();
-  const userName = profile?.full_name || "Talent NAYA";
-  const userRole = profile?.headline || (profile?.role === "recruteur" ? "Entreprise Partenaire" : "Talent émergent");
+  const userName = profile?.full_name || "Membre PHAR";
+  const userRole = profile?.headline || (profile?.role === "recruteur" ? "Entreprise" : "");
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
@@ -117,182 +117,120 @@ export default function CommunautePage() {
     return p.category.toLowerCase().includes(selectedGroup.toLowerCase());
   });
 
+  const SUGGESTIONS = [
+    "Comment fixer le prix d'une tenue en wax ?",
+    "Où acheter du tissu de bonne qualité à Lomé ?",
+    "Comment trouver mes premiers clients sur WhatsApp ?",
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
+    <div className="flex min-h-screen flex-col">
       <Navbar />
 
-      {/* EN-TÊTE ÉPURÉ */}
-      <section className="bg-white border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 py-8">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-teal-700 block mb-1">
-              Réseau &amp; Entraide
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-950 tracking-tight">
-              Communauté des Talents
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Partage tes retours d&apos;expérience, pose tes questions métier et échange avec tes pairs.
-            </p>
-          </div>
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6 sm:py-14">
+        <h1 className="text-[32px] font-semibold leading-[1.15] text-ink sm:text-4xl">Réseau</h1>
+        <p className="mt-2 max-w-xl text-base text-muted">Pose tes questions et partage tes astuces d&apos;atelier.</p>
 
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              {posts.length} publication{posts.length > 1 ? "s" : ""}
-            </span>
+        <form onSubmit={handleCreatePost} className="mt-8 rounded-2xl bg-white p-4 ring-1 ring-line sm:p-5">
+          <label htmlFor="post" className="sr-only">Ton message</label>
+          <textarea
+            id="post"
+            rows={3}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Ta question ou ton astuce"
+            className="w-full resize-none rounded-xl border border-line bg-white p-4 text-base text-ink transition-colors placeholder:text-slate-400 focus:border-sun focus:outline-none"
+          />
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <select
+              value={postingCategory}
+              onChange={(e) => setPostingCategory(e.target.value)}
+              aria-label="Catégorie"
+              className="min-h-11 rounded-xl border border-line bg-white px-3 text-sm text-ink outline-none focus:border-sun"
+            >
+              <option value="Confection & Mode">Confection &amp; Mode</option>
+              <option value="Commerce & Vente">Commerce &amp; Vente</option>
+              <option value="Artisanat">Artisanat</option>
+              <option value="Digital & Tech">Digital &amp; Tech</option>
+            </select>
+            <button
+              type="submit"
+              disabled={!content.trim() || isSubmitting}
+              className="inline-flex min-h-12 items-center justify-center rounded-xl bg-sun px-6 text-sm font-semibold text-white transition-colors hover:bg-sun-700 disabled:opacity-40"
+            >
+              Publier
+            </button>
           </div>
-        </div>
-      </section>
+        </form>
 
-      {/* CONTENU PRINCIPAL */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-[240px_1fr] gap-8 items-start">
-        
-        {/* SIDEBAR GROUPES */}
-        <aside className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs space-y-1">
-          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 px-3">
-            Canaux métiers
-          </div>
+        <div className="no-scrollbar -mx-4 mt-10 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label="Catégories">
           {GROUPS.map((g) => (
             <button
               key={g.key}
               onClick={() => setSelectedGroup(g.key)}
-              className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium transition-all ${
-                selectedGroup === g.key
-                  ? "bg-slate-900 text-white font-semibold shadow-xs"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              aria-pressed={selectedGroup === g.key}
+              className={`min-h-10 shrink-0 rounded-lg px-4 text-sm transition-colors ${
+                selectedGroup === g.key ? "bg-ink font-medium text-white" : "bg-white text-slate-700 ring-1 ring-inset ring-line hover:bg-slate-50"
               }`}
             >
-              {g.label}
+              {g.key === "all" ? "Tout" : g.label}
             </button>
           ))}
+        </div>
 
-          <div className="pt-4 mt-4 border-t border-slate-100 px-3">
-            <p className="text-[11px] text-slate-500 leading-relaxed">
-              Charte de la communauté : respect mutuel, partage de bonnes pratiques de terrain et solidarité professionnelle.
-            </p>
-          </div>
-        </aside>
-
-        {/* FEED PRINCIPAL */}
-        <div className="space-y-6">
-          
-          {/* COMPOSITEUR DE POST */}
-          <form
-            onSubmit={handleCreatePost}
-            className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-slate-900">
-                Partager une astuce ou poser une question
-              </span>
-              <select
-                value={postingCategory}
-                onChange={(e) => setPostingCategory(e.target.value)}
-                className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 outline-none focus:border-slate-900 font-medium"
-              >
-                <option value="Confection & Mode">Confection &amp; Mode</option>
-                <option value="Commerce & Vente">Commerce &amp; Vente</option>
-                <option value="Artisanat">Artisanat</option>
-                <option value="Digital & Tech">Digital &amp; Tech</option>
-              </select>
+        <div className="mt-6">
+          {loadingPosts ? (
+            <p className="py-12 text-center text-sm text-muted">Chargement…</p>
+          ) : filteredPosts.length === 0 ? (
+            <div className="py-6">
+              <p className="text-sm text-muted">Pas encore de message ici. Tu peux commencer par une de ces questions :</p>
+              <ul className="mt-3 space-y-2">
+                {SUGGESTIONS.map((q) => (
+                  <li key={q}>
+                    <button
+                      type="button"
+                      onClick={() => setContent(q)}
+                      className="flex min-h-12 w-full items-center rounded-xl bg-white px-4 text-left text-sm text-ink ring-1 ring-line transition-colors hover:bg-slate-50"
+                    >
+                      {q}
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
-
-            <textarea
-              rows={3}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Écris ton message ici (astuce d'atelier, question sur un fournisseur, retour d'expérience...)"
-              className="w-full p-3 text-xs sm:text-sm rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white focus:border-slate-900 focus:outline-none transition-all placeholder:text-slate-400 resize-none"
-            />
-
-            <div className="flex items-center justify-between pt-3 mt-1 border-t border-slate-100">
-              <span className="text-[11px] text-slate-400">
-                Publié en tant que <strong className="text-slate-700 font-semibold">{userName}</strong>
-              </span>
-              <button
-                type="submit"
-                disabled={!content.trim() || isSubmitting}
-                className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-xs transition-all disabled:opacity-40"
-              >
-                Publier
-              </button>
-            </div>
-          </form>
-
-          {/* LISTE DES PUBLICATIONS */}
-          <div className="space-y-4">
-            {loadingPosts ? (
-              <div className="bg-white rounded-2xl p-8 text-center border border-slate-200/80 text-slate-500 text-xs">
-                Chargement des échanges...
-              </div>
-            ) : filteredPosts.length === 0 ? (
-              <div className="bg-white rounded-2xl p-8 text-center border border-slate-200/80 text-slate-500 text-xs leading-relaxed">
-                Aucune publication pour le moment dans ce canal. Sois la première personne à partager une expérience ou poser une question !
-              </div>
-            ) : (
-              filteredPosts.map((post) => (
-                <article
-                  key={post.id}
-                  className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all"
-                >
-                  <div className="flex items-start justify-between gap-4 mb-3">
+          ) : (
+            <ul className="divide-y divide-line rounded-2xl bg-white ring-1 ring-line">
+              {filteredPosts.map((post) => (
+                <li key={post.id}>
+                  <article className="p-5">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-800 flex items-center justify-center font-bold text-xs">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-ink" aria-hidden>
                         {post.authorName.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <div className="text-xs sm:text-sm font-bold text-slate-900">
-                          {post.authorName}
-                        </div>
-                        <div className="text-[11px] text-slate-500">{post.authorRole}</div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-medium">
-                        {post.category}
                       </span>
-                      <span className="text-[10px] text-slate-400">{post.createdAt}</span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-ink">{post.authorName}</p>
+                        <p className="truncate text-xs text-muted">
+                          {[post.authorRole, post.category, post.createdAt].filter(Boolean).join(" · ")}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line mb-4">
-                    {post.content}
-                  </p>
-
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
+                    <p className="mt-3 whitespace-pre-line text-base text-slate-700">{post.content}</p>
                     <button
                       onClick={() => handleLike(post.id)}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all text-xs font-medium ${
-                        post.userLiked
-                          ? "bg-rose-50 border-rose-200 text-rose-600 font-semibold"
-                          : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-                      }`}
+                      aria-pressed={post.userLiked}
+                      className={`mt-3 inline-flex min-h-11 items-center gap-2 text-sm transition-colors ${post.userLiked ? "font-medium text-sun" : "text-muted hover:text-ink"}`}
                     >
-                      <svg
-                        className={`w-3.5 h-3.5 ${post.userLiked ? "fill-rose-600 text-rose-600" : "fill-none text-slate-500"}`}
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                        />
-                      </svg>
-                      <span>{post.likes}</span>
+                      Utile
+                      <span className="tabular-nums">{post.likes}</span>
                     </button>
-
-                    <span className="text-[11px] text-slate-400">Échange vérifié PHAR</span>
-                  </div>
-                </article>
-              ))
-            )}
-          </div>
-
+                  </article>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
+
+        <p className="mt-12 text-xs text-muted">Règle du réseau : respect, entraide, et jamais de demande d&apos;argent.</p>
       </main>
 
       <Footer />

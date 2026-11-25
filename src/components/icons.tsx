@@ -13,5 +13,9 @@ export const Icon = {
   pin: () => (<svg viewBox="0 0 24 24" className="h-4 w-4" {...P}><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" /><circle cx="12" cy="10" r="2.3" /></svg>),
   flag: () => (<svg viewBox="0 0 24 24" className="h-4 w-4" {...P}><path d="M5 21V4M5 4h11l-2 4 2 4H5" /></svg>),
   copy: () => (<svg viewBox="0 0 24 24" className="h-4 w-4" {...P}><rect x="8" y="8" width="12" height="12" rx="3" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" /></svg>),
+  briefcase: () => (<svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" {...P}><rect x="3.5" y="7.5" width="17" height="12" rx="2.5" /><path d="M9 7.5V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.5M3.5 13h17" /></svg>),
+  book: () => (<svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" {...P}><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z" /></svg>),
+  chat: () => (<svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" {...P}><path d="M4.5 6.5A2.5 2.5 0 0 1 7 4h10a2.5 2.5 0 0 1 2.5 2.5v7A2.5 2.5 0 0 1 17 16h-6l-4.5 4v-4H7a2.5 2.5 0 0 1-2.5-2.5z" /></svg>),
+  people: () => (<svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" {...P}><circle cx="9" cy="8.5" r="3.2" /><path d="M3 19.5c.9-3 3.2-4.6 6-4.6s5.1 1.6 6 4.6M15.5 5.6a3.2 3.2 0 0 1 0 5.8M17.5 15.2c1.7.6 2.9 2 3.5 4.3" /></svg>),
   link: () => (<svg viewBox="0 0 24 24" className="h-4 w-4" {...P}><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></svg>),
 };

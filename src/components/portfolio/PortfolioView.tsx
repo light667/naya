@@ -79,7 +79,7 @@ export function PortfolioView({ data }: { data: PortfolioData }) {
                 {(list as Skill[]).map((s) => (
                   <li key={s.name} className="flex items-center justify-between gap-2 text-[15px]">
                     <span className="text-ink">{s.name}</span>
-                    {s.level && <span className="text-[12px] capitalize text-muted">{s.level}</span>}
+                    {s.level && <span className="text-xs capitalize text-muted">{s.level}</span>}
                   </li>
                 ))}
               </ul>
@@ -116,7 +116,7 @@ export function PortfolioView({ data }: { data: PortfolioData }) {
             return (
               <article key={i.id} className="grid gap-5 overflow-hidden rounded-[28px] bg-white p-5 ring-1 ring-line sm:p-7 md:grid-cols-[1.1fr_1fr] print:break-inside-avoid">
                 <div>
-                  {i.category && <p className="text-[13px] font-semibold uppercase tracking-wide text-coral-700">{i.category}</p>}
+                  {i.category && <p className="text-xs font-semibold text-coral-700">{i.category}</p>}
                   <h3 className="font-display mt-1 text-[26px] text-plum">{i.title}</h3>
                   {i.description && <p className="mt-3 whitespace-pre-line leading-relaxed text-ink">{i.description}</p>}
                   <dl className="mt-4 space-y-2 text-[15px]">
@@ -124,7 +124,7 @@ export function PortfolioView({ data }: { data: PortfolioData }) {
                     {i.role && <div><dt className="inline font-semibold text-ink">Mon rôle : </dt><dd className="inline text-muted">{i.role}</dd></div>}
                     {i.results && <div><dt className="inline font-semibold text-ink">Résultats : </dt><dd className="inline text-muted">{i.results}</dd></div>}
                   </dl>
-                  {(i.tools?.length ?? 0) > 0 && <div className="mt-3 flex flex-wrap gap-1.5">{i.tools!.map((t) => <span key={t} className="rounded-full bg-plum-50 px-2.5 py-0.5 text-[13px] text-plum">{t}</span>)}</div>}
+                  {(i.tools?.length ?? 0) > 0 && <div className="mt-3 flex flex-wrap gap-1.5">{i.tools!.map((t) => <span key={t} className="rounded-full bg-plum-50 px-2.5 py-0.5 text-xs text-plum">{t}</span>)}</div>}
                   {i.link && <a href={i.link} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex font-semibold text-plum underline-offset-4 hover:underline print:hidden">Voir la réalisation en ligne →</a>}
                 </div>
                 {m.length > 0 && (
@@ -183,7 +183,7 @@ function Thumb({ m, onOpen, big, caption }: { m: PortfolioMedia; onOpen: () => v
         </span>
       )}
       {caption && (m.title || m.caption) && (
-        <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-night/85 to-transparent p-3 pt-8 text-[13px] text-white">
+        <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-night/85 to-transparent p-3 pt-8 text-xs text-white">
           <span className="block font-semibold">{m.title}</span>
           {m.caption && <span className="line-clamp-2 text-white/80">{m.caption}</span>}
         </span>
@@ -215,7 +215,7 @@ function Lightbox({ m, onClose }: { m: PortfolioMedia | null; onClose: () => voi
               <figcaption className="mx-auto mt-4 max-w-2xl text-center text-white">
                 {m.title && <p className="font-semibold">{m.title}</p>}
                 <p className="mt-1 text-sm text-white/75">{m.description || m.caption}</p>
-                {m.keywords?.length > 0 && <p className="mt-2 text-[13px] text-sun">{m.keywords.map((k) => `#${k}`).join("  ")}</p>}
+                {m.keywords?.length > 0 && <p className="mt-2 text-xs text-sun">{m.keywords.map((k) => `#${k}`).join("  ")}</p>}
               </figcaption>
             )}
           </motion.figure>

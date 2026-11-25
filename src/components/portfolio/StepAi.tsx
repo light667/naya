@@ -75,7 +75,7 @@ export function StepAi({ media, setMedia, onNext, onBack }: Pick<MediaState, "me
               <div className="min-w-0">
                 {!p ? (
                   <>
-                    <p className="font-semibold text-ink">{m.title || "Sans titre"} {m.ai_status === "accepted" && <span className="ml-1 rounded-full bg-sage-50 px-2 py-0.5 text-[12px] font-semibold text-sage-700">✓ validé</span>}</p>
+                    <p className="font-semibold text-ink">{m.title || "Sans titre"} {m.ai_status === "accepted" && <span className="ml-1 rounded-full bg-sage-50 px-2 py-0.5 text-xs font-semibold text-sage-700">✓ validé</span>}</p>
                     {m.caption && <p className="text-sm text-muted">{m.caption}</p>}
                     <div className="mt-3 flex items-center justify-between gap-2">
                       <span className="text-sm font-semibold text-ink">Contexte (facultatif)</span>
@@ -86,7 +86,7 @@ export function StepAi({ media, setMedia, onNext, onBack }: Pick<MediaState, "me
                   </>
                 ) : (
                   <div className="space-y-2">
-                    <p className="text-[13px] font-bold uppercase tracking-wide text-sun-800">Proposition de l&apos;IA, à relire</p>
+                    <p className="text-xs font-bold text-sun-800">Proposition de l&apos;IA, à relire</p>
                     <input aria-label="Titre" value={p.title} onChange={(e) => edit(m.id, { title: e.target.value })} className="w-full rounded-xl border border-line px-3 py-2 font-semibold" />
                     <input aria-label="Légende" value={p.caption} onChange={(e) => edit(m.id, { caption: e.target.value })} className="w-full rounded-xl border border-line px-3 py-2 text-sm" />
                     <textarea aria-label="Description" value={p.description} onChange={(e) => edit(m.id, { description: e.target.value })} rows={3} className="w-full rounded-xl border border-line px-3 py-2 text-sm" />

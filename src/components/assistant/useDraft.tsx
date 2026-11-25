@@ -47,7 +47,7 @@ export function SaveIndicator({ state }: { state: SaveState }) {
   if (state === "idle") return null;
   const label = { saving: "Enregistrement…", saved: "Brouillon enregistré", error: "Historique indisponible" }[state];
   return (
-    <span className={`text-[13px] ${state === "error" ? "text-red-700" : "text-muted"}`} title={state === "error" ? "Exécutez la migration 002 dans Supabase pour activer l'historique." : undefined}>
+    <span className={`text-xs ${state === "error" ? "text-red-700" : "text-muted"}`} title={state === "error" ? "Exécutez la migration 002 dans Supabase pour activer l'historique." : undefined}>
       {state === "saved" && "✓ "}{label}
     </span>
   );

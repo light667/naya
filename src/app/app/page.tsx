@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/lib/supabase";
-import { CompassIcon, HandshakeIcon, MapPinIcon, LightbulbIcon } from "@/components/PharIcons";
 
 type Opportunity = {
   id: string;
@@ -22,288 +21,171 @@ type Application = {
   opportunity: Opportunity;
 };
 
+const STATUS: Record<string, string> = { a_postuler: "À envoyer", envoyee: "Envoyée", entretien: "Entretien", acceptee: "Acceptée", refusee: "Refusée" };
+
+// Conseil qui change chaque jour (à déplacer en base plus tard pour pouvoir le modifier)
+const TIPS = [
+  "Une photo nette de ton travail vaut mieux qu'un long texte. Prends-la à la lumière du jour.",
+  "Avant un entretien, prépare un exemple précis : une commande difficile et comment tu l'as réussie.",
+  "Note tes prix et le temps passé sur chaque travail. Tu sauras mieux fixer ton tarif.",
+  "Un employeur sérieux ne te demandera jamais d'argent pour postuler.",
+  "Réponds vite aux messages WhatsApp des clients : c'est souvent ce qui fait la différence.",
+  "Garde un carnet de tes clients fidèles. Ils sont tes meilleures références.",
+  "Même appris en famille ou au marché, ton savoir-faire compte. Raconte-le simplement.",
+];
+
 export default function DashboardPage() {
   const { session, profile, loading: authLoading } = useAuth();
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
-  const userName = profile?.full_name || session?.user?.user_metadata?.full_name || session?.user?.email?.split("@")[0] || "Talent";
-  const userHeadline = profile?.headline || "Parcours en cours de valorisation";
+  const firstName = (profile?.full_name || session?.user?.user_metadata?.full_name || "").trim().split(/\s+/)[0];
+  const hasSkills = Array.isArray(profile?.skills) && profile.skills.length > 0;
+  const hasBasics = !!(profile?.city || profile?.bio);
+  const hasApplied = applications.length > 0;
 
-  // Calcul dynamique de progression de profil réel
-  let completion = 25; // Compte créé
-  if (profile?.city || profile?.bio) completion += 25;
-  if (profile?.skills && Array.isArray(profile.skills) && profile.skills.length > 0) completion += 25;
-  if (applications.length > 0) completion += 25;
+  const checklist = [
+    { done: true, label: "Créer ton compte", gain: 25, href: "/profil" },
+    { done: hasSkills, label: "Créer ta carte de compétences", gain: 25, href: "/assistant-ia" },
+    { done: hasBasics, label: "Ajouter ta ville et une phrase sur toi", gain: 25, href: "/profil" },
+    { done: hasApplied, label: "Postuler à une offre", gain: 25, href: "/opportunites" },
+  ];
+  const completion = checklist.reduce((a, c) => a + (c.done ? c.gain : 0), 0);
+
+  const next = !hasSkills
+    ? { text: "Raconte ce que tu sais faire. L'assistant en fait ta carte de compétences.", cta: "Créer ma carte de compétences", href: "/assistant-ia" }
+    : !hasBasics
+      ? { text: "Ajoute ta ville et une phrase sur toi pour que les employeurs te trouvent.", cta: "Compléter mon profil", href: "/profil" }
+      : !hasApplied
+        ? { text: "Ta carte est prête. Choisis une offre près de chez toi et postule.", cta: "Voir les offres", href: "/opportunites" }
+        : { text: "Suis tes candidatures et prépare tes entretiens avec l'assistant.", cta: "Préparer un entretien", href: "/assistant-ia" };
+
+  const tip = TIPS[Math.floor(Date.now() / 86_400_000) % TIPS.length];
 
   useEffect(() => {
     async function loadData() {
       setLoadingData(true);
-      // Charger les opportunités vérifiées réelles
-      const { data: opps } = await supabase
-        .from("opportunities")
-        .select("*")
-        .eq("status", "verifiee")
-        .order("created_at", { ascending: false })
-        .limit(4);
+      const { data: opps } = await supabase.from("opportunities").select("*").eq("status", "verifiee").order("created_at", { ascending: false }).limit(4);
+      if (opps && opps.length > 0) setOpportunities(opps as Opportunity[]);
 
-      if (opps && opps.length > 0) {
-        setOpportunities(opps as Opportunity[]);
-      }
-
-      // Charger les candidatures réelles de l'utilisateur
       if (session?.user?.id) {
-        const { data: apps } = await supabase
-          .from("applications")
-          .select("id, status, opportunity:opportunities(*)")
-          .eq("user_id", session.user.id);
-
+        const { data: apps } = await supabase.from("applications").select("id, status, opportunity:opportunities(*)").eq("user_id", session.user.id);
         if (apps) setApplications(apps as unknown as Application[]);
       }
       setLoadingData(false);
     }
-
-    if (!authLoading) {
-      loadData();
-    }
+    if (!authLoading) loadData();
   }, [session, authLoading]);
 
   return (
-    <div className="space-y-8">
-      
-      {/* 1. BANNIÈRE DE BIENVENUE ÉPURÉE */}
-      <section className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/80 shadow-xs">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-teal-600" />
-              {userHeadline}
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-950 tracking-tight">
-              Ravi de te retrouver, {userName}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
-              Voici l&apos;état d&apos;avancement de tes compétences et de tes candidatures vérifiées.
-            </p>
-          </div>
-
-          {/* JAUGE DE PROGRESSION DU PROFIL */}
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 w-full lg:w-72 shrink-0">
-            <div className="flex justify-between items-center text-xs font-semibold text-slate-900 mb-2">
-              <span>Complétude du profil</span>
-              <span className="text-slate-950 font-bold">{completion}%</span>
-            </div>
-            <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-slate-900 rounded-full transition-all duration-500"
-                style={{ width: `${completion}%` }}
-              />
-            </div>
-            <div className="mt-2 text-[11px] text-slate-500">
-              {completion < 100 ? (
-                <Link href="/profil" className="text-slate-900 hover:underline font-medium">
-                  Compléter mes informations →
-                </Link>
-              ) : (
-                <span className="text-emerald-700 font-medium">Profil complet et attractif ✓</span>
-              )}
-            </div>
-          </div>
-        </div>
+    <div className="space-y-16">
+      {/* La seule chose à regarder : la prochaine étape */}
+      <section className="max-w-2xl">
+        <h1 className="text-[36px] font-semibold leading-[1.1] text-ink sm:text-5xl">{firstName ? `Bonjour ${firstName}` : "Bonjour"}</h1>
+        {!firstName && !authLoading && (
+          <Link href="/profil" className="mt-2 inline-flex min-h-11 items-center text-sm text-muted underline underline-offset-4 hover:text-ink">
+            Ajoute ton prénom
+          </Link>
+        )}
+        <p className="mt-4 text-lg text-muted">{next.text}</p>
+        <Link
+          href={next.href}
+          className="mt-8 inline-flex min-h-[52px] w-full items-center justify-center rounded-xl bg-sun px-6 text-base font-semibold text-white transition-colors hover:bg-sun-700 active:scale-[0.98] sm:w-auto"
+        >
+          {next.cta}
+        </Link>
       </section>
 
-      {/* 2. GRILLE PRINCIPALE */}
-      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 items-start">
-        
-        {/* COLONNE GAUCHE : CANDIDATURES & RECOMMANDATIONS */}
-        <div className="space-y-8">
-          
-          {/* ACTIONS PRIORITAIRES */}
-          <div className="space-y-3">
-            <h2 className="text-base font-bold text-slate-900">
-              Actions recommandées
-            </h2>
-
-            {completion < 75 && (
-              <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 flex items-center justify-between shadow-xs hover:border-slate-300 transition-all gap-4">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-900 flex items-center justify-center shrink-0">
-                    <CompassIcon className="w-5 h-5 text-slate-700" />
-                  </div>
-                  <div>
-                    <h3 className="text-xs sm:text-sm font-bold text-slate-900">
-                      Révéler mes compétences avec l&apos;Assistant IA
-                    </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Dialogue en direct pour traduire tes expériences de terrain en compétences certifiées.
-                    </p>
-                  </div>
-                </div>
-                <Link
-                  href="/assistant-ia"
-                  className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all shrink-0 shadow-2xs"
-                >
-                  Démarrer
-                </Link>
-              </div>
-            )}
-
-            <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 flex items-center justify-between shadow-xs hover:border-slate-300 transition-all gap-4">
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-900 flex items-center justify-center shrink-0">
-                  <HandshakeIcon className="w-5 h-5 text-slate-700" />
-                </div>
-                <div>
-                  <h3 className="text-xs sm:text-sm font-bold text-slate-900">
-                    Rejoindre les échanges de la Communauté
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Découvre les retours d&apos;expérience des ateliers et artisans en activité.
-                  </p>
-                </div>
-              </div>
-              <Link
-                href="/communaute"
-                className="bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-semibold px-4 py-2 rounded-lg transition-all shrink-0"
-              >
-                Explorer
-              </Link>
+      {/* Le reste, en retrait */}
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.4fr_1fr]">
+        <div className="min-w-0 space-y-12">
+          <section>
+            <div className="flex items-baseline justify-between">
+              <h2 className="text-lg font-semibold text-ink">Mes candidatures</h2>
+              <span className="text-xs tabular-nums text-muted">{applications.length}</span>
             </div>
-          </div>
-
-          {/* SUIVI DES CANDIDATURES */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-bold text-slate-900">
-                Suivi de mes candidatures
-              </h2>
-              <span className="text-xs text-slate-400">
-                {applications.length} candidature{applications.length > 1 ? "s" : ""}
-              </span>
-            </div>
-
             {applications.length > 0 ? (
-              <div className="space-y-3">
+              <ul className="mt-4 divide-y divide-line rounded-2xl bg-white ring-1 ring-line">
                 {applications.map((app) => (
-                  <div
-                    key={app.id}
-                    className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/70 flex items-center justify-between gap-3 text-xs"
-                  >
-                    <div>
-                      <div className="font-bold text-slate-900">{app.opportunity?.title || "Mission"}</div>
-                      <div className="text-slate-500">{app.opportunity?.organization || "Entreprise"}</div>
+                  <li key={app.id} className="flex items-center justify-between gap-4 px-5 py-4">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-ink">{app.opportunity?.title || "Mission"}</p>
+                      <p className="truncate text-xs text-muted">{app.opportunity?.organization}</p>
                     </div>
-                    <span className="bg-white border border-slate-200 text-slate-700 font-semibold px-2.5 py-1 rounded-md">
-                      {app.status === "envoyee" ? "Envoyée" : app.status === "entretien" ? "Entretien" : "En cours"}
-                    </span>
-                  </div>
+                    <span className="shrink-0 text-xs text-muted">{STATUS[app.status] ?? "En cours"}</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             ) : (
-              <div className="py-6 text-center text-xs text-slate-500">
-                <p className="mb-3">Tu n&apos;as pas encore postulé à une opportunité vérifiée.</p>
-                <Link
-                  href="/opportunites"
-                  className="inline-block bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2 rounded-lg transition-all shadow-2xs"
-                >
-                  Voir les opportunités
-                </Link>
-              </div>
+              <p className="mt-4 text-sm text-muted">{loadingData ? "Chargement…" : "Pas encore de candidature."}</p>
             )}
-          </div>
+          </section>
 
-          {/* DERNIÈRES OPPORTUNITÉS VÉRIFIÉES */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-bold text-slate-900">
-                Dernières opportunités vérifiées
-              </h2>
-              <Link href="/opportunites" className="text-xs font-semibold text-slate-700 hover:text-slate-950">
-                Voir toutes les offres →
+          <section>
+            <div className="flex items-baseline justify-between">
+              <h2 className="text-lg font-semibold text-ink">Offres récentes</h2>
+              <Link href="/opportunites" className="inline-flex min-h-11 items-center text-sm text-muted hover:text-ink">
+                Tout voir
               </Link>
             </div>
-
             {opportunities.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <ul className="mt-2 divide-y divide-line rounded-2xl bg-white ring-1 ring-line">
                 {opportunities.map((opp) => (
-                  <div
-                    key={opp.id}
-                    className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-all"
-                  >
-                    <div>
-                      <span className="text-[11px] font-semibold text-slate-400 block mb-1">
-                        {opp.organization}
-                      </span>
-                      <h3 className="font-bold text-sm text-slate-900 mb-2 leading-snug">
-                        {opp.title}
-                      </h3>
-                      <div className="flex items-center gap-1 text-xs text-slate-500 mb-4">
-                        <MapPinIcon className="w-3.5 h-3.5 text-slate-400" /> {opp.location || "Local"}
+                  <li key={opp.id}>
+                    <Link href={`/app/assistant?mode=candidature&o=${opp.id}`} className="group flex items-center justify-between gap-4 px-5 py-4">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-ink group-hover:text-sun">{opp.title}</p>
+                        <p className="truncate text-xs text-muted">
+                          {opp.organization}
+                          {opp.location ? ` · ${opp.location}` : ""}
+                        </p>
                       </div>
-                    </div>
-                    <Link
-                      href={`/app/assistant?mode=candidature&o=${opp.id}`}
-                      className="w-full text-center bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs py-2 rounded-lg transition-all shadow-2xs"
-                    >
-                      Postuler
+                      <span className="shrink-0 text-sm font-medium text-sun">Postuler</span>
                     </Link>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             ) : (
-              <div className="bg-white border border-slate-200/80 rounded-2xl p-6 text-center shadow-xs">
-                <p className="text-xs text-slate-500 mb-2">
-                  Aucune opportunité vérifiée pour le moment.
-                </p>
-                <Link href="/opportunites" className="text-xs font-semibold text-slate-900 hover:underline">
-                  Consulter les offres disponibles →
-                </Link>
-              </div>
+              <p className="mt-4 text-sm text-muted">{loadingData ? "Chargement…" : "Aucune offre pour le moment."}</p>
             )}
-          </div>
-
+          </section>
         </div>
 
-        {/* COLONNE DROITE : FORMATIONS & CONSEILS */}
-        <div className="space-y-6">
-          
-          {/* CATALOGUE FORMATIONS */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-bold text-sm text-slate-900">
-                Formations Pratiques
-              </h3>
-              <Link href="/formations" className="text-xs font-semibold text-slate-600 hover:text-slate-900">
-                Voir tout
-              </Link>
+        <aside className="min-w-0 space-y-12">
+          <section>
+            <div className="flex items-baseline justify-between">
+              <h2 className="text-lg font-semibold text-ink">Mon profil</h2>
+              <span className="text-xs tabular-nums text-muted">{completion} %</span>
             </div>
-            <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-              Parcours courts de terrain pour perfectionner ta technique et sécuriser tes devis.
-            </p>
-            <Link
-              href="/formations"
-              className="block w-full text-center bg-slate-50 hover:bg-slate-100 text-slate-900 font-semibold text-xs py-2 rounded-lg border border-slate-200 transition-colors"
-            >
-              Parcourir le catalogue
-            </Link>
-          </div>
+            <ul className="mt-4 space-y-1">
+              {checklist.map((c) => (
+                <li key={c.label}>
+                  <Link href={c.href} className="flex min-h-11 items-center gap-3 text-sm">
+                    <span
+                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${c.done ? "bg-sage text-white" : "ring-1 ring-inset ring-slate-300"}`}
+                      aria-hidden
+                    >
+                      {c.done && (
+                        <svg viewBox="0 0 16 16" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2}>
+                          <path d="m4 8.5 2.5 2.5L12 5.5" />
+                        </svg>
+                      )}
+                    </span>
+                    <span className={c.done ? "text-muted line-through decoration-slate-300" : "text-ink"}>{c.label}</span>
+                    {!c.done && <span className="ml-auto text-xs tabular-nums text-muted">+{c.gain} %</span>}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
 
-          {/* CONSEIL CARRIÈRE */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-900 mb-2">
-              <LightbulbIcon className="w-4 h-4 text-amber-500" />
-              <span>Conseil d&apos;insertion</span>
-            </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              &ldquo;Même acquise dans un atelier familial ou au marché, toute expérience concrète a de la valeur. L&apos;assistant IA t&apos;aide à la traduire en compétences pour convaincre les recruteurs.&rdquo;
-            </p>
-          </div>
-
-        </div>
-
+          <section>
+            <h2 className="text-lg font-semibold text-ink">Conseil du jour</h2>
+            <p className="mt-3 text-sm text-muted">{tip}</p>
+          </section>
+        </aside>
       </div>
-
     </div>
   );
 }

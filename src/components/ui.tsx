@@ -8,15 +8,15 @@ import { useEffect, useId, type ButtonHTMLAttributes, type InputHTMLAttributes, 
 type Variant = "primary" | "accent" | "secondary" | "ghost" | "danger";
 
 const VARIANTS: Record<Variant, string> = {
-  primary: "bg-slate-900 text-white hover:bg-slate-800 shadow-xs",
-  accent: "bg-slate-900 text-white hover:bg-slate-800 shadow-xs",
-  secondary: "bg-white text-slate-800 ring-1 ring-inset ring-slate-200 hover:bg-slate-50",
-  ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+  primary: "bg-ink text-white hover:bg-slate-800",
+  accent: "bg-sun text-white hover:bg-sun-700",
+  secondary: "bg-white text-ink ring-1 ring-inset ring-line hover:bg-slate-50",
+  ghost: "text-slate-600 hover:bg-slate-100 hover:text-ink",
   danger: "bg-white text-red-700 ring-1 ring-inset ring-red-200 hover:bg-red-50",
 };
 
 const BASE =
-  "relative inline-flex select-none items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-150 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40";
+  "relative inline-flex min-h-12 select-none items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-[background-color,color,transform] duration-150 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40";
 
 export function Button({
   variant = "primary",
@@ -47,7 +47,7 @@ export function Spinner({ className = "" }: { className?: string }) {
 
 /* ---------- Surfaces ---------- */
 export function Card({ children, className = "", as: Tag = "div" }: { children: ReactNode; className?: string; as?: "div" | "section" | "article" }) {
-  return <Tag className={`rounded-2xl bg-white p-5 border border-slate-200/80 shadow-xs sm:p-6 ${className}`}>{children}</Tag>;
+  return <Tag className={`rounded-2xl bg-white p-5 ring-1 ring-line sm:p-6 ${className}`}>{children}</Tag>;
 }
 
 type Tone = "plum" | "coral" | "sage" | "neutral" | "red" | "amber";
@@ -71,21 +71,21 @@ export function VerifiedBadge({ className = "" }: { className?: string }) {
         <path fill="currentColor" d="M8 0l1.9 1.5 2.4-.2.8 2.3 2.1 1.2-.6 2.3.9 2.2-1.9 1.5-.3 2.4-2.4.4L9.6 15 8 14l-1.6 1-1.3-1.9-2.4-.4-.3-2.4L.5 8.8l.9-2.2-.6-2.3L2.9 3l.8-2.3 2.4.2z" />
         <path fill="#fff" d="M7 10.6L4.7 8.3l1-1L7 8.6l3.3-3.3 1 1z" />
       </svg>
-      Vérifiée par PHAR
+      Vérifiée
     </Badge>
   );
 }
 
 /* ---------- Champs ---------- */
 const field =
-  "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-slate-900 focus:outline-none";
+  "w-full min-h-12 rounded-xl border border-line bg-white px-4 py-3 text-sm text-ink placeholder:text-slate-400 transition-colors focus:border-sun focus:outline-none";
 
 export function Input({ label, hint, ...rest }: InputHTMLAttributes<HTMLInputElement> & { label?: string; hint?: string }) {
   return (
     <label className="block">
-      {label && <span className="mb-1.5 block text-xs font-semibold text-slate-800">{label}</span>}
+      {label && <span className="mb-2 block text-sm font-medium text-ink">{label}</span>}
       <input {...rest} className={field} />
-      {hint && <span className="mt-1.5 block text-xs text-slate-500">{hint}</span>}
+      {hint && <span className="mt-1.5 block text-xs text-muted">{hint}</span>}
     </label>
   );
 }
@@ -93,9 +93,9 @@ export function Input({ label, hint, ...rest }: InputHTMLAttributes<HTMLInputEle
 export function Textarea({ label, hint, className = "", ...rest }: TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: string; hint?: string }) {
   return (
     <label className="block">
-      {label && <span className="mb-1.5 block text-xs font-semibold text-slate-800">{label}</span>}
+      {label && <span className="mb-2 block text-sm font-medium text-ink">{label}</span>}
       <textarea rows={4} {...rest} className={`${field} resize-none leading-relaxed ${className}`} />
-      {hint && <span className="mt-1.5 block text-xs text-slate-500">{hint}</span>}
+      {hint && <span className="mt-1.5 block text-xs text-muted">{hint}</span>}
     </label>
   );
 }
@@ -103,7 +103,7 @@ export function Textarea({ label, hint, className = "", ...rest }: TextareaHTMLA
 export function Select({ label, children, ...rest }: React.SelectHTMLAttributes<HTMLSelectElement> & { label?: string }) {
   return (
     <label className="block">
-      {label && <span className="mb-1.5 block text-xs font-semibold text-slate-800">{label}</span>}
+      {label && <span className="mb-2 block text-sm font-medium text-ink">{label}</span>}
       <select {...rest} className={`${field} appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 12 12%22><path d=%22M2 4l4 4 4-4%22 fill=%22none%22 stroke=%22%230F172A%22 stroke-width=%221.6%22/></svg>')] bg-[length:12px] bg-[right_1rem_center] bg-no-repeat pr-10`}>
         {children}
       </select>
@@ -118,8 +118,8 @@ export function Chip({ active, onClick, children }: { active?: boolean; onClick?
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`shrink-0 rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all ${
-        active ? "bg-slate-900 text-white shadow-xs" : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
+      className={`min-h-10 shrink-0 rounded-lg px-4 py-2 text-xs font-medium transition-colors ${
+        active ? "bg-ink text-white" : "bg-white text-slate-700 ring-1 ring-inset ring-line hover:bg-slate-50"
       }`}
     >
       {children}
@@ -128,20 +128,33 @@ export function Chip({ active, onClick, children }: { active?: boolean; onClick?
 }
 
 /* ---------- Identité ---------- */
+export function PharMark({ className = "h-7 w-7" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
+      <path d="M13.2 5.2 22.5 2.6v5.2z" opacity=".55" />
+      <path d="M7.3 4.4 11 1.6l3.7 2.8z" />
+      <rect x="7.9" y="4.9" width="6.2" height="3" rx=".6" />
+      <path d="M8.6 8.6h4.8L15 20.6H7z" />
+      <rect x="4.6" y="20.6" width="12.8" height="2.4" rx="1.2" />
+    </svg>
+  );
+}
+
 export function Logo({ className = "" }: { className?: string }) {
   return (
-    <span className={`inline-flex items-center gap-2 text-slate-950 ${className}`}>
-      <span className="font-bold text-lg text-slate-950">PHAR</span>
+    <span className={`inline-flex items-center gap-2 ${className}`}>
+      <PharMark className="h-8 w-8 text-sun" />
+      <span className="text-[22px] font-semibold leading-none tracking-[0.02em] text-ink">PHAR</span>
     </span>
   );
 }
 
 export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div className="max-w-2xl">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">{title}</h1>
-        {subtitle && <p className="mt-1 text-xs sm:text-sm text-slate-500 leading-relaxed">{subtitle}</p>}
+        <h1 className="text-[32px] leading-[1.15] font-semibold text-ink sm:text-4xl">{title}</h1>
+        {subtitle && <p className="mt-2 max-w-xl text-base text-muted">{subtitle}</p>}
       </div>
       {action}
     </div>
@@ -155,11 +168,11 @@ export function AiBadge({ source }: { source?: "ia" | "local" | null }) {
 
 export function Empty({ title, text, action, icon }: { title: string; text: string; action?: ReactNode; icon?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-12 text-center">
-      {icon && <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-xl text-slate-700">{icon}</div>}
-      <p className="text-sm sm:text-base font-bold text-slate-900">{title}</p>
-      <p className="mt-1 max-w-sm text-xs text-slate-500 leading-relaxed">{text}</p>
-      {action && <div className="mt-4">{action}</div>}
+    <div className="flex flex-col items-center rounded-2xl bg-white px-6 py-12 text-center ring-1 ring-line">
+      {icon && <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-600">{icon}</div>}
+      <p className="text-lg font-semibold text-ink">{title}</p>
+      <p className="mt-2 max-w-sm text-sm text-muted">{text}</p>
+      {action && <div className="mt-6">{action}</div>}
     </div>
   );
 }
@@ -169,11 +182,11 @@ export function ScoreRing({ value, size = 48, label = true }: { value: number; s
   const reduce = useReducedMotion();
   const r = (size - 8) / 2;
   const c = 2 * Math.PI * r;
-  const color = value >= 70 ? "#059669" : value >= 45 ? "#0F172A" : "#D97706";
+  const color = value >= 70 ? "#2F7A4F" : value >= 45 ? "#2B1B14" : "#C2410C";
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }} role="img" aria-label={`${value} % compatible`}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#F1F5F9" strokeWidth={4} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#F4ECE0" strokeWidth={4} />
         <motion.circle
           cx={size / 2}
           cy={size / 2}
@@ -188,7 +201,7 @@ export function ScoreRing({ value, size = 48, label = true }: { value: number; s
           transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
         />
       </svg>
-      {label && <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-900">{value}</span>}
+      {label && <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold tabular-nums text-ink">{value}</span>}
     </div>
   );
 }
@@ -197,17 +210,17 @@ export function ScoreRing({ value, size = 48, label = true }: { value: number; s
 export function Tabs<T extends string>({ tabs, value, onChange }: { tabs: { id: T; label: string }[]; value: T; onChange: (v: T) => void }) {
   const id = useId();
   return (
-    <div role="tablist" className="no-scrollbar inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-slate-100 p-1 border border-slate-200/70">
+    <div role="tablist" className="no-scrollbar inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-slate-100 p-1 ring-1 ring-line">
       {tabs.map((t) => (
         <button
           key={t.id}
           role="tab"
           aria-selected={value === t.id}
           onClick={() => onChange(t.id)}
-          className={`relative shrink-0 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-colors ${value === t.id ? "text-white" : "text-slate-600 hover:text-slate-950"}`}
+          className={`relative shrink-0 rounded-lg min-h-10 px-4 py-2 text-xs font-semibold transition-colors ${value === t.id ? "text-white" : "text-slate-600 hover:text-ink"}`}
         >
           {value === t.id && (
-            <motion.span layoutId={`tab-${id}`} className="absolute inset-0 rounded-lg bg-slate-900 shadow-xs" transition={{ type: "spring", stiffness: 500, damping: 38 }} />
+            <motion.span layoutId={`tab-${id}`} className="absolute inset-0 rounded-lg bg-ink" transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }} />
           )}
           <span className="relative">{t.label}</span>
         </button>
@@ -242,11 +255,11 @@ export function Sheet({ open, onClose, children, footer, title }: { open: boolea
             onClick={onClose}
           />
           <motion.div
-            className="relative flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[28px] bg-white shadow-[0_-20px_60px_-20px_rgba(42,27,110,0.35)] sm:rounded-[28px]"
+            className="relative flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[28px] bg-white shadow-[0_8px_24px_rgba(43,27,20,0.12)] sm:rounded-[28px]"
             initial={{ y: "100%", opacity: 0.6 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
-            transition={{ type: "spring", stiffness: 380, damping: 38 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             drag="y"
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={{ top: 0, bottom: 0.6 }}
@@ -287,7 +300,7 @@ export function Stepper({ steps, current, failed }: { steps: string[]; current: 
                 transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: i * 0.06 }}
               />
             </span>
-            <span className={`hidden text-[12px] sm:block ${i === current ? "font-semibold text-ink" : "text-muted"}`}>{s}</span>
+            <span className={`hidden text-xs sm:block ${i === current ? "font-semibold text-ink" : "text-muted"}`}>{s}</span>
           </li>
         );
       })}
@@ -308,8 +321,8 @@ export function Segmented<T extends string>({ label, options, value, onChange, s
             role="radio"
             aria-checked={value === o.id}
             onClick={() => onChange(o.id)}
-            className={`flex-1 shrink-0 whitespace-nowrap rounded-xl font-semibold transition-colors ${size === "sm" ? "px-2.5 py-1.5 text-[13px]" : "px-3 py-2 text-sm"} ${
-              value === o.id ? "bg-white text-plum shadow-sm ring-1 ring-plum/15" : "text-muted hover:text-plum"
+            className={`flex-1 shrink-0 whitespace-nowrap rounded-xl font-semibold transition-colors ${size === "sm" ? "min-h-10 px-3 py-2 text-xs" : "min-h-12 px-3 py-2 text-sm"} ${
+              value === o.id ? "bg-white text-ink ring-1 ring-line" : "text-muted hover:text-ink"
             }`}
           >
             {o.label}

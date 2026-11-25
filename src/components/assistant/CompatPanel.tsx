@@ -57,7 +57,7 @@ export function CompatPanel({
                 transition={{ duration: 0.6, delay: 0.05 * i, ease: [0.22, 1, 0.36, 1] }}
               />
             </div>
-            <p className="mt-0.5 text-[13px] text-muted">{c.detail}</p>
+            <p className="mt-0.5 text-xs text-muted">{c.detail}</p>
           </li>
         ))}
       </ul>
@@ -68,16 +68,16 @@ export function CompatPanel({
           <p className="text-sm font-semibold text-ink">Compétences demandées</p>
           <ul className="mt-2 flex flex-wrap gap-2">
             {a.matchedSkills.map((m) => (
-              <li key={m.skill} title={m.via} className="inline-flex items-center gap-1.5 rounded-full bg-sage-50 px-3 py-1 text-[13px] font-medium text-sage-700">✓ {m.skill}</li>
+              <li key={m.skill} title={m.via} className="inline-flex items-center gap-1.5 rounded-full bg-sage-50 px-3 py-1 text-xs font-medium text-sage-700">✓ {m.skill}</li>
             ))}
             {a.partialSkills.map((m) => (
-              <li key={m.skill} title={m.via} className="inline-flex items-center gap-1.5 rounded-full bg-sun-50 px-3 py-1 text-[13px] font-medium text-sun-900">≈ {m.skill}</li>
+              <li key={m.skill} title={m.via} className="inline-flex items-center gap-1.5 rounded-full bg-sun-50 px-3 py-1 text-xs font-medium text-sun-900">≈ {m.skill}</li>
             ))}
             {a.missingSkills.map((s) => (
-              <li key={s} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1 text-[13px] font-medium text-neutral-600">○ {s}</li>
+              <li key={s} className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-600">○ {s}</li>
             ))}
           </ul>
-          <p className="mt-2 text-[12px] text-muted">✓ dans votre profil · ≈ évoquée dans votre parcours · ○ absente</p>
+          <p className="mt-2 text-xs text-muted">✓ dans votre profil · ≈ évoquée dans votre parcours · ○ absente</p>
         </div>
       )}
 
@@ -105,7 +105,7 @@ export function CompatPanel({
           {onAddSkill && a.partialSkills.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-2">
               {a.partialSkills.map((p) => (
-                <button key={p.skill} type="button" onClick={() => onAddSkill(p.skill)} className="rounded-full px-3 py-1.5 text-[13px] font-semibold text-plum ring-1 ring-plum/25 hover:bg-plum-50">
+                <button key={p.skill} type="button" onClick={() => onAddSkill(p.skill)} className="rounded-full px-3 py-1.5 text-xs font-semibold text-plum ring-1 ring-plum/25 hover:bg-plum-50">
                   + Ajouter « {p.skill} » à mes compétences
                 </button>
               ))}
@@ -117,7 +117,7 @@ export function CompatPanel({
       {a.questions.length > 0 && (
         <div className="mt-5 border-t border-line pt-5">
           <p className="text-sm font-bold text-ink">Pour une candidature plus juste, répondez si vous le pouvez</p>
-          <p className="text-[13px] text-muted">Vos réponses sont utilisées telles quelles, l&apos;assistante n&apos;invente rien.</p>
+          <p className="text-xs text-muted">Vos réponses sont utilisées telles quelles, l&apos;assistante n&apos;invente rien.</p>
           <div className="mt-3 space-y-3">
             {a.questions.map((q) => (
               <label key={q.id} className="block">

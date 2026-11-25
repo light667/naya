@@ -139,7 +139,7 @@ function OpportunitesInner() {
                     >
                       <div className="flex items-start gap-4">
                         <div className="min-w-0 flex-1">
-                          <p className="text-[13px] font-medium text-plum">{o.category}</p>
+                          <p className="text-xs font-medium text-plum">{o.category}</p>
                           <h3 className="mt-1 text-lg font-bold leading-snug text-ink">{o.title}</h3>
                           <p className="mt-0.5 text-sm text-muted">{o.organization}</p>
                         </div>

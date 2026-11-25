@@ -126,8 +126,8 @@ export function StepMedia({ items, setItems, media, setMedia, onNext, onBack }: 
                   ) : <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-plum-50 text-2xl text-plum/40">▣</span>}
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold text-ink">{i.title}</p>
-                    <p className="line-clamp-2 text-[13px] text-muted">{i.description || "Pas encore de description"}</p>
-                    <div className="mt-1 flex gap-3 text-[13px]">
+                    <p className="line-clamp-2 text-xs text-muted">{i.description || "Pas encore de description"}</p>
+                    <div className="mt-1 flex gap-3 text-xs">
                       <button onClick={() => setEditing(i)} className="font-semibold text-plum hover:underline">Modifier</button>
                       <span className="text-muted">{media.filter((m) => m.item_id === i.id).length} média(s)</span>
                       <button onClick={async () => { setItems((l) => l.filter((x) => x.id !== i.id)); setMedia((l) => l.map((m) => (m.item_id === i.id ? { ...m, item_id: null } : m))); await supabase.from("portfolio_items").delete().eq("id", i.id); toast("Projet supprimé (ses médias sont conservés)"); }} className="ml-auto text-muted hover:text-red-700">Supprimer</button>
@@ -177,7 +177,7 @@ export function StepMedia({ items, setItems, media, setMedia, onNext, onBack }: 
                       </select>
                       <input aria-label="Catégorie" value={p.category} onChange={(e) => patchPending(p.key, { category: e.target.value })} className="w-28 rounded-xl border border-line bg-white px-2 py-2 text-sm" placeholder="Catégorie" />
                     </div>
-                    <div className="flex justify-between text-[13px]">
+                    <div className="flex justify-between text-xs">
                       <span className="text-muted">{(p.file.size / 1024 / 1024).toFixed(1)} Mo</span>
                       <button onClick={() => dropPending(p.key)} className="font-semibold text-red-700 hover:underline">Retirer</button>
                     </div>
@@ -230,12 +230,12 @@ function MediaCard({ m, items, onChange, onDelete, onReplace }: { m: PortfolioMe
           // eslint-disable-next-line @next/next/no-img-element
           <img src={url} alt={m.caption || m.title} loading="lazy" className="aspect-square w-full object-cover" />
         ) : <video src={`${url}#t=0.5`} preload="metadata" muted playsInline className="aspect-square w-full bg-night object-cover" />}
-        {m.kind === "video" && <span className="absolute left-2 top-2 rounded-full bg-night/70 px-2 py-0.5 text-[11px] font-semibold text-white">Vidéo</span>}
-        {m.ai_status === "accepted" && <span className="absolute right-2 top-2 rounded-full bg-sage px-2 py-0.5 text-[11px] font-semibold text-white">Décrit</span>}
+        {m.kind === "video" && <span className="absolute left-2 top-2 rounded-full bg-night/70 px-2 py-0.5 text-xs font-semibold text-white">Vidéo</span>}
+        {m.ai_status === "accepted" && <span className="absolute right-2 top-2 rounded-full bg-sage px-2 py-0.5 text-xs font-semibold text-white">Décrit</span>}
       </div>
       <div className="p-2.5">
         <p className="truncate text-sm font-semibold text-ink">{m.title || "Sans titre"}</p>
-        <div className="mt-1 flex flex-wrap gap-x-3 text-[12px]">
+        <div className="mt-1 flex flex-wrap gap-x-3 text-xs">
           <button onClick={() => setOpen(!open)} className="font-semibold text-plum">{open ? "Fermer" : "Modifier"}</button>
           <label className="cursor-pointer font-semibold text-muted hover:text-plum">Remplacer<input type="file" accept={ACCEPT} className="sr-only" onChange={(e) => e.target.files?.[0] && onReplace(e.target.files[0])} /></label>
           <button onClick={onDelete} className="text-muted hover:text-red-700">Supprimer</button>

@@ -128,7 +128,7 @@ export function StepPresentation({ onNext }: { onNext: () => void }) {
             {(["headline", "bio", "experiences", "education", "certifications"] as const).map((k) => proposal[k]?.trim() ? (
               <div key={k} className="rounded-2xl bg-bg p-4">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-[13px] font-bold uppercase tracking-wide text-muted">{{ headline: "Titre", bio: "Présentation", experiences: "Expériences", education: "Formations", certifications: "Certifications" }[k]}</p>
+                  <p className="text-xs font-bold text-muted">{{ headline: "Titre", bio: "Présentation", experiences: "Expériences", education: "Formations", certifications: "Certifications" }[k]}</p>
                   <button onClick={() => apply(k)} className="text-sm font-semibold text-plum hover:underline">Appliquer</button>
                 </div>
                 <p className="mt-1 whitespace-pre-line text-[15px] text-ink">{proposal[k]}</p>
@@ -166,12 +166,12 @@ export function StepPresentation({ onNext }: { onNext: () => void }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={f.avatar_url} alt="Photo de profil" className="h-28 w-28 rounded-[28px] object-cover ring-1 ring-line" />
             ) : (
-              <span className="flex h-28 w-28 items-center justify-center rounded-[28px] bg-plum-50 text-center text-[13px] font-semibold text-plum">Ajouter une photo</span>
+              <span className="flex h-28 w-28 items-center justify-center rounded-[28px] bg-plum-50 text-center text-xs font-semibold text-plum">Ajouter une photo</span>
             )}
             <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(e) => e.target.files?.[0] && uploadAvatar(e.target.files[0])} />
             {uploading && <span className="absolute inset-0 flex items-center justify-center rounded-[28px] bg-white/70 text-sm">Envoi…</span>}
           </label>
-          <span className="text-[12px] text-muted">Photo de profil</span>
+          <span className="text-xs text-muted">Photo de profil</span>
         </div>
         <div className="space-y-4">
           <Input label="Titre professionnel" placeholder="Couturière et créatrice en pagne" value={f.headline} onChange={(e) => set("headline", e.target.value)} />

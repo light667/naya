@@ -100,7 +100,7 @@ export function ResultPanel({
 
       {setSubject && subject !== undefined && channel !== "whatsapp" && (
         <label className="mb-2 block">
-          <span className="text-[13px] font-semibold text-muted">Objet</span>
+          <span className="text-xs font-semibold text-muted">Objet</span>
           <input value={subject} onChange={(e) => setSubject(e.target.value)} className="mt-1 w-full rounded-xl border border-transparent bg-bg px-3 py-2 text-[15px] font-semibold focus:border-plum focus:outline-none" />
         </label>
       )}
@@ -118,7 +118,7 @@ export function ResultPanel({
           className="w-full resize-y rounded-2xl border border-transparent bg-bg p-4 text-[15px] leading-relaxed focus:border-plum focus:outline-none focus:ring-4 focus:ring-plum/10"
         />
       )}
-      <p className="mt-1 text-right text-[12px] text-muted">{text.trim().split(/\s+/).length} mots · modifiable directement</p>
+      <p className="mt-1 text-right text-xs text-muted">{text.trim().split(/\s+/).length} mots · modifiable directement</p>
 
       <div className="mt-3 flex flex-wrap gap-2">
         <Button variant="secondary" disabled={writing} onClick={async () => { await navigator.clipboard.writeText(full); toast("Texte copié"); }}><Icon.copy /> Copier</Button>

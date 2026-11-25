@@ -151,7 +151,7 @@ export function CandidatureTab({ opps, items, initialOppId, restore }: { opps: O
                     <li key={o.id}>
                       <button type="button" onClick={() => setOppId(o.id)} className="flex w-full items-center gap-3 rounded-2xl p-2 text-left hover:bg-plum-50">
                         <ScoreRing value={m.score} size={42} />
-                        <span className="min-w-0"><span className="block truncate font-semibold text-ink">{o.title}</span><span className="block truncate text-[13px] text-muted">{o.organization}</span></span>
+                        <span className="min-w-0"><span className="block truncate font-semibold text-ink">{o.title}</span><span className="block truncate text-xs text-muted">{o.organization}</span></span>
                       </button>
                     </li>
                   );
@@ -220,7 +220,7 @@ export function CandidatureTab({ opps, items, initialOppId, restore }: { opps: O
 function MissionSummary({ opp }: { opp: Opportunity }) {
   return (
     <section className="rounded-[22px] bg-white p-5 ring-1 ring-line sm:p-6">
-      <p className="text-[13px] font-semibold text-plum">{opp.category}</p>
+      <p className="text-xs font-semibold text-plum">{opp.category}</p>
       <h3 className="mt-1 text-lg font-bold leading-snug text-ink">{opp.title}</h3>
       <p className="text-sm text-muted">{opp.organization} · {opp.remote ? "À distance" : opp.location} · <span className="font-semibold text-plum">{opp.pay || "Rémunération à discuter"}</span></p>
       <p className="mt-3 line-clamp-4 text-sm leading-relaxed text-ink">{opp.description}</p>
@@ -237,7 +237,7 @@ export function Steps({ current, labels }: { current: number; labels: string[] }
         const state = n < current ? "done" : n === current ? "current" : "todo";
         return (
           <li key={l} className="flex items-center gap-2" aria-current={state === "current" ? "step" : undefined}>
-            <span className={`flex h-7 w-7 items-center justify-center rounded-full text-[13px] font-bold transition-colors ${state === "done" ? "bg-sage text-white" : state === "current" ? "bg-plum text-white" : "bg-white text-muted ring-1 ring-line"}`}>
+            <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-colors ${state === "done" ? "bg-sage text-white" : state === "current" ? "bg-plum text-white" : "bg-white text-muted ring-1 ring-line"}`}>
               {state === "done" ? "✓" : n}
             </span>
             <span className={`text-sm ${state === "current" ? "font-semibold text-ink" : "text-muted"}`}>{l}</span>

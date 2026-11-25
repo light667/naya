@@ -40,7 +40,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FFFFFF",
+  themeColor: "#FFF8EF",
   width: "device-width",
   initialScale: 1,
   colorScheme: "light",
@@ -52,8 +52,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="bg-white">
-      <body className="font-sans antialiased bg-white text-slate-900 selection:bg-slate-200 selection:text-slate-900">
+    <html lang="fr" className="bg-bg">
+      <body className="font-sans antialiased bg-bg text-ink pb-[calc(64px+env(safe-area-inset-bottom))] md:pb-0">
+        <div className="wax-band" aria-hidden />
         <Providers>{children}</Providers>
       </body>
     </html>

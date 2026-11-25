@@ -52,7 +52,7 @@ export function PortfolioBuilder() {
               aria-current={step === i ? "step" : undefined}
               className={`flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-4 text-sm font-semibold transition-colors ${step === i ? "bg-plum text-white" : i < step ? "bg-white text-plum ring-1 ring-plum/20" : "bg-white text-muted ring-1 ring-line"}`}
             >
-              <span className={`flex h-7 w-7 items-center justify-center rounded-full text-[13px] ${step === i ? "bg-sun text-night" : i < step ? "bg-sage text-white" : "bg-bg"}`}>{i < step ? "✓" : i + 1}</span>
+              <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs ${step === i ? "bg-sun text-night" : i < step ? "bg-sage text-white" : "bg-bg"}`}>{i < step ? "✓" : i + 1}</span>
               {s}
             </button>
           </li>

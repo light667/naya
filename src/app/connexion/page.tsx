@@ -3,10 +3,9 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/components/AuthProvider";
-import { CompassIcon, BuildingIcon, HandshakeIcon } from "@/components/PharIcons";
+import { Button, Input, Logo, Segmented } from "@/components/ui";
 
 function AuthFormContent() {
   const params = useSearchParams();
@@ -66,7 +65,7 @@ function AuthFormContent() {
 
         if (signUpError) {
           if (/already registered/i.test(signUpError.message)) {
-            setError("Un compte existe déjà avec cet email. Connecte-toi ci-dessous.");
+            setError("Un compte existe déjà avec cet e-mail. Connecte-toi.");
             setMode("connexion");
           } else if (/password/i.test(signUpError.message)) {
             setError("Le mot de passe doit contenir au moins 6 caractères.");
@@ -119,7 +118,7 @@ function AuthFormContent() {
         // Si validation email nécessaire
         if (signInError && /email not confirmed/i.test(signInError.message)) {
           setNotice(
-            "Compte créé avec succès ! Si la confirmation par email est requise, vérifie ta boîte de réception."
+            "Ton compte est créé. Ouvre l'e-mail que nous venons d'envoyer pour le confirmer."
           );
           setLoading(false);
           return;
@@ -131,7 +130,7 @@ function AuthFormContent() {
           return;
         }
 
-        setNotice("Compte créé avec succès ! Connecte-toi avec tes identifiants.");
+        setNotice("Ton compte est créé. Tu peux te connecter.");
         setMode("connexion");
         setLoading(false);
       } else {
@@ -143,9 +142,9 @@ function AuthFormContent() {
 
         if (signInError) {
           if (/invalid login/i.test(signInError.message)) {
-            setError("Email ou mot de passe incorrect.");
+            setError("E-mail ou mot de passe incorrect.");
           } else if (/email not confirmed/i.test(signInError.message)) {
-            setError("Email non encore confirmé. Vérifie ta boîte de réception.");
+            setError("Ton e-mail n'est pas encore confirmé. Regarde dans ta boîte de réception.");
           } else {
             setError(signInError.message);
           }
@@ -156,262 +155,104 @@ function AuthFormContent() {
         if (signInData.session) {
           window.location.href = "/app";
         } else {
-          setError("Impossible d'établir la session.");
+          setError("La connexion n'a pas marché. Réessaie.");
           setLoading(false);
         }
       }
     } catch (err: unknown) {
       console.error("[Auth] Exception:", err);
-      setError(err instanceof Error ? err.message : "Erreur inattendue de connexion.");
+      setError(err instanceof Error ? err.message : "La connexion n'a pas marché. Réessaie.");
       setLoading(false);
     }
   }
 
+  const isSignup = mode === "inscription";
+  function switchMode(m: "connexion" | "inscription") {
+    setMode(m);
+    setError(null);
+    setNotice(null);
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
-      {/* HEADER SIMPLE */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-6 lg:px-12 py-3.5 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/img/logo_phar_trimmed.png"
-            alt="PHAR"
-            width={110}
-            height={34}
-            className="h-8 w-auto object-contain"
-            priority
-          />
-        </Link>
-        <Link
-          href="/"
-          className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors"
-        >
-          Retour au site →
-        </Link>
+    <div className="flex min-h-screen flex-col">
+      <header className="border-b border-line">
+        <div className="mx-auto flex h-16 max-w-md items-center justify-between px-4">
+          <Link href="/" aria-label="PHAR, accueil" className="flex min-h-12 items-center">
+            <Logo />
+          </Link>
+          <Link href="/" className="flex min-h-12 items-center px-2 text-sm text-muted hover:text-ink">
+            Retour
+          </Link>
+        </div>
       </header>
 
-      {/* CONTAINER FORMULAIRE */}
-      <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-8 grid grid-cols-1 md:grid-cols-[340px_1fr] gap-8 items-center my-auto">
-        
-        {/* COLONNE GAUCHE : VISUEL INSPIRANT */}
-        <div className="relative rounded-2xl overflow-hidden shadow-xs h-[220px] md:h-[500px] p-6 flex flex-col justify-end bg-slate-900">
-          <Image
-            src="/img/accueil.jpg"
-            alt="Talent en activité"
-            fill
-            className="object-cover opacity-60"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent" />
-          <div className="relative z-10 text-white space-y-2">
-            <span className="inline-block px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white text-[10px] font-semibold tracking-wider uppercase">
-              Impact &amp; Inclusion
-            </span>
-            <h2 className="text-xl font-bold leading-snug tracking-tight">
-              Chaque parcours a une valeur. Révèle la tienne.
-            </h2>
-            <p className="text-xs text-slate-300">
-              Des opportunités concrètes et vérifiées pour les jeunes talents.
-            </p>
-          </div>
-        </div>
+      <main className="mx-auto w-full max-w-md flex-1 px-4 py-10 sm:py-14">
+        <h1 className="text-[32px] font-semibold leading-[1.15] text-ink">{isSignup ? "Créer mon compte" : "Connexion"}</h1>
+        <p className="mt-2 text-lg text-muted">{isSignup ? "C'est gratuit. Le reste de ton profil se complète plus tard." : "Avec ton e-mail et ton mot de passe."}</p>
 
-        {/* COLONNE DROITE : FORMULAIRE */}
-        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xs border border-slate-200/80">
-          
-          {/* SWITCH CONNEXION / INSCRIPTION */}
-          <div className="flex bg-slate-100 p-1 rounded-xl mb-6 max-w-xs">
-            <button
-              type="button"
-              onClick={() => {
-                setMode("connexion");
-                setError(null);
-                setNotice(null);
-              }}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                mode === "connexion" ? "bg-white text-slate-950 shadow-xs" : "text-slate-500 hover:text-slate-900"
-              }`}
-            >
-              Connexion
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setMode("inscription");
-                setError(null);
-                setNotice(null);
-              }}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                mode === "inscription" ? "bg-white text-slate-950 shadow-xs" : "text-slate-500 hover:text-slate-900"
-              }`}
-            >
-              Créer un compte
-            </button>
-          </div>
-
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-950 mb-1 tracking-tight">
-            {mode === "inscription" ? "Rejoindre la communauté" : "Bon retour parmi nous"}
-          </h1>
-          <p className="text-xs text-slate-500 mb-6">
-            {mode === "inscription"
-              ? "Crée ton profil en quelques instants pour valoriser tes acquis."
-              : "Saisis tes identifiants pour accéder à ton espace candidat."}
+        {error && (
+          <p role="alert" className="mt-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 ring-1 ring-red-200">
+            {error}
           </p>
+        )}
+        {notice && (
+          <p role="status" className="mt-6 rounded-xl bg-sage-50 px-4 py-3 text-sm text-sage-700 ring-1 ring-sage/30">
+            {notice}
+          </p>
+        )}
 
-          {/* MESSAGE D'ERREUR */}
-          {error && (
-            <div className="mb-5 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
-              {error}
-            </div>
-          )}
-
-          {/* MESSAGE D'INFORMATION */}
-          {notice && (
-            <div className="mb-5 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium">
-              {notice}
-            </div>
-          )}
-
-          {/* SÉLECTEUR DE RÔLE */}
-          {mode === "inscription" && (
-            <div className="mb-5">
-              <label className="block text-[11px] font-semibold text-slate-500 mb-2">Je m&apos;inscris en tant que :</label>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setRole("jeune")}
-                  className={`py-2 px-2.5 rounded-xl border text-center transition-all ${
-                    role === "jeune"
-                      ? "border-slate-900 bg-slate-900 text-white font-semibold shadow-xs"
-                      : "border-slate-200 text-slate-600 hover:border-slate-300"
-                  }`}
-                >
-                  <CompassIcon className={`w-4 h-4 mx-auto mb-1 ${role === "jeune" ? "text-white" : "text-slate-500"}`} />
-                  <div className="text-[11px]">Talent</div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setRole("entreprise")}
-                  className={`py-2 px-2.5 rounded-xl border text-center transition-all ${
-                    role === "entreprise"
-                      ? "border-slate-900 bg-slate-900 text-white font-semibold shadow-xs"
-                      : "border-slate-200 text-slate-600 hover:border-slate-300"
-                  }`}
-                >
-                  <BuildingIcon className={`w-4 h-4 mx-auto mb-1 ${role === "entreprise" ? "text-white" : "text-slate-500"}`} />
-                  <div className="text-[11px]">Entreprise</div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setRole("mentor")}
-                  className={`py-2 px-2.5 rounded-xl border text-center transition-all ${
-                    role === "mentor"
-                      ? "border-slate-900 bg-slate-900 text-white font-semibold shadow-xs"
-                      : "border-slate-200 text-slate-600 hover:border-slate-300"
-                  }`}
-                >
-                  <HandshakeIcon className={`w-4 h-4 mx-auto mb-1 ${role === "mentor" ? "text-white" : "text-slate-500"}`} />
-                  <div className="text-[11px]">Mentor</div>
-                </button>
+        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+          {isSignup && (
+            <>
+              <Segmented
+                label="Je viens pour"
+                value={role}
+                onChange={setRole}
+                options={[
+                  { id: "jeune", label: "Travailler" },
+                  { id: "entreprise", label: "Recruter" },
+                  { id: "mentor", label: "Aider" },
+                ]}
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <Input label="Prénom" required autoComplete="given-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                <Input label="Nom" autoComplete="family-name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
               </div>
-            </div>
+              <Input label="Ville" autoComplete="address-level2" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ex. Lomé" />
+            </>
           )}
+          <Input label="E-mail" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Input
+            label="Mot de passe"
+            type="password"
+            required
+            minLength={6}
+            autoComplete={isSignup ? "new-password" : "current-password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            hint={isSignup ? "6 caractères minimum" : undefined}
+          />
+          <Button variant="accent" type="submit" loading={loading} className="!mt-8 w-full min-h-[52px] text-base">
+            {loading ? "Un instant…" : isSignup ? "Créer mon compte" : "Me connecter"}
+          </Button>
+        </form>
 
-          {/* FORMULAIRE */}
-          <form onSubmit={handleSubmit} className="space-y-3.5">
-            {mode === "inscription" && (
-              <>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">Prénom</label>
-                    <input
-                      type="text"
-                      required
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="Ton prénom"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 outline-none focus:border-slate-900 transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">Nom</label>
-                    <input
-                      type="text"
-                      required
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Ton nom"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 outline-none focus:border-slate-900 transition-colors"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">Ville de résidence</label>
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="Ex: Cotonou, Lomé, Dakar, Abidjan..."
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 outline-none focus:border-slate-900 transition-colors"
-                  />
-                </div>
-              </>
-            )}
-
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-700 mb-1">Adresse email</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="ton.email@exemple.com"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 outline-none focus:border-slate-900 transition-colors"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-700 mb-1">Mot de passe</label>
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Minimum 6 caractères"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-900 outline-none focus:border-slate-900 transition-colors"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs sm:text-sm py-3 rounded-xl transition-all shadow-xs mt-3 disabled:opacity-50"
-            >
-              {loading
-                ? "Connexion en cours..."
-                : mode === "inscription"
-                ? "Créer mon compte"
-                : "Se connecter"}
-            </button>
-          </form>
-
-        </div>
-
+        <p className="mt-6 text-center text-sm text-muted">
+          {isSignup ? "Tu as déjà un compte ?" : "Pas encore de compte ?"}{" "}
+          <button type="button" onClick={() => switchMode(isSignup ? "connexion" : "inscription")} className="inline-flex min-h-11 items-center font-medium text-ink underline underline-offset-4">
+            {isSignup ? "Me connecter" : "Créer un compte"}
+          </button>
+        </p>
       </main>
 
-      <footer className="text-center py-6 text-xs text-slate-400">
-        PHAR / NAYA © {new Date().getFullYear()} · Tous droits réservés
-      </footer>
+      <footer className="py-6 text-center text-xs text-muted">© {new Date().getFullYear()} PHAR / NAYA</footer>
     </div>
   );
 }
 
 export default function ConnexionPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-50" />}>
+    <Suspense fallback={<div className="min-h-screen" />}>
       <AuthFormContent />
     </Suspense>
   );

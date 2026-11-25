@@ -57,7 +57,7 @@ export function StepPreview({ items, media, onNext, onBack }: { items: Portfolio
       </section>
 
       <div className="rounded-[32px] bg-bg p-3 ring-1 ring-line sm:p-6">
-        <p className="mb-4 text-center text-[13px] font-semibold uppercase tracking-wide text-muted">Aperçu</p>
+        <p className="mb-4 text-center text-xs font-semibold text-muted">Aperçu</p>
         <PortfolioView data={data} />
       </div>
 
@@ -152,7 +152,7 @@ export function StepPublish({ onBack }: { onBack: () => void }) {
               <div className="flex-1"><Input aria-label="Adresse du portfolio" value={slug} onChange={(e) => setSlug(slugify(e.target.value))} /></div>
               <Button variant="secondary" loading={busy} disabled={!slug || slug === profile.portfolio_slug || slug.length < 3} onClick={() => update({ portfolio_slug: slug }, "Adresse mise à jour")}>Changer</Button>
             </div>
-            <p className="mt-1 text-[13px] text-muted">Attention : l&apos;ancien lien cessera de fonctionner. Les modifications du contenu, elles, ne changent jamais le lien.</p>
+            <p className="mt-1 text-xs text-muted">Attention : l&apos;ancien lien cessera de fonctionner. Les modifications du contenu, elles, ne changent jamais le lien.</p>
           </section>
         </>
       )}

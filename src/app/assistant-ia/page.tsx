@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/lib/supabase";
 
@@ -13,14 +12,14 @@ type Message = {
   text: string;
   detectedSkills?: string[];
   suggestions?: string[];
-  timestamp: string;
+  timestamp?: string;
 };
 
 const STARTER_PROMPTS = [
-  "Comment valoriser mon expérience en couture sans diplôme ?",
-  "Quels tarifs puis-je demander pour de la vente ou gestion de caisse ?",
-  "Simule un entretien d'embauche pour voir comment je réponds",
-  "Aide-moi à rédiger une accroche WhatsApp pour mes services",
+  { label: "Révéler mes compétences", prompt: "Aide-moi à trouver mes compétences. Pose-moi des questions simples, une à la fois." },
+  { label: "Calculer mon prix pour un travail", prompt: "Aide-moi à calculer mon prix pour un travail : le coût de la matière, le temps passé et ma marge." },
+  { label: "Simuler un entretien", prompt: "Simule un entretien d'embauche avec moi, puis donne-moi une note et des conseils." },
+  { label: "Écrire un message WhatsApp pour mes clients", prompt: "Aide-moi à écrire un message WhatsApp court pour présenter mes services." },
 ];
 
 function cleanPlainResponse(text: string): string {
@@ -42,11 +41,7 @@ export default function AssistantIaPage() {
     {
       id: "init",
       sender: "ia",
-      text: userName
-        ? `Bonjour ${userName}. Je suis ton assistant carrière NAYA. Raconte-moi ce que tu sais faire (couture, artisanat, commerce, gestion, digital) ou pose-moi une question sur tes tarifs, tes candidatures ou tes entretiens.`
-        : "Bonjour. Je suis ton assistant carrière NAYA. Raconte-moi tes expériences de terrain (couture, artisanat, commerce, gestion, digital) ou pose-moi tes questions sur tes tarifs, tes candidatures et tes entretiens.",
-      suggestions: STARTER_PROMPTS,
-      timestamp: "À l'instant",
+      text: "",
     },
   ]);
 
@@ -86,7 +81,7 @@ export default function AssistantIaPage() {
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
 
-    const history = messages.slice(-6).map((m) => ({
+    const history = messages.filter((m) => m.text).slice(-6).map((m) => ({
       role: m.sender === "ia" ? "assistant" : "user",
       content: m.text,
     }));
@@ -177,168 +172,119 @@ export default function AssistantIaPage() {
     }
   }
 
+  const started = messages.length > 1;
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
+    <div className="flex min-h-[100svh] flex-col">
       <Navbar />
 
-      {/* EN-TÊTE ÉPURÉ */}
-      <section className="bg-white border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 py-6">
-        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-200/60 mb-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              IA Carrière active
-            </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-              Assistant IA &amp; Orientation
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-              Échange libre pour révéler tes compétences, préparer tes candidatures et fixer tes tarifs.
-            </p>
-          </div>
-
-          {sessionSkills.length > 0 && session && (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleSaveSkills}
-                disabled={savingSkills}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium shadow-xs transition-all disabled:opacity-50"
-              >
-                {savedSuccess ? (
-                  <span>Compétences enregistrées</span>
-                ) : savingSkills ? (
-                  <span>Enregistrement...</span>
-                ) : (
-                  <span>Enregistrer ({sessionSkills.length}) dans mon profil</span>
-                )}
-              </button>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* ZONE CENTRALE DU CHAT */}
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
-        
-        {/* FIL DE DISCUSSION */}
-        <div className="flex-1 bg-white rounded-2xl border border-slate-200/80 shadow-xs p-4 sm:p-6 flex flex-col min-h-[520px]">
-          <div className="flex-1 overflow-y-auto space-y-5 pr-1">
-            {messages.map((m) => {
+      <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 sm:px-6">
+        {!started ? (
+          /* Une seule chose à regarder : le titre, une phrase, la zone de saisie */
+          <section className="pb-8 pt-10 sm:pt-16">
+            <h1 className="text-[32px] font-semibold leading-[1.15] text-ink sm:text-4xl">{userName ? `Bonjour ${userName}` : "Raconte ce que tu sais faire"}</h1>
+            <p className="mt-3 text-lg text-muted">Je suis l&apos;assistant PHAR. Dis-moi ton métier et ce que tu fais chaque jour, je t&apos;aide à le montrer aux employeurs.</p>
+            <ul className="mt-8 space-y-2">
+              {STARTER_PROMPTS.map((sp) => (
+                <li key={sp.label}>
+                  <button
+                    onClick={() => sendMessage(sp.prompt)}
+                    className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl bg-white px-4 text-left text-base text-ink ring-1 ring-line transition-colors hover:bg-slate-50"
+                  >
+                    {sp.label}
+                    <span aria-hidden className="text-muted">→</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : (
+          <div className="flex-1 space-y-6 py-8" aria-live="polite">
+            {messages.slice(1).map((m) => {
               const isIa = m.sender === "ia";
               return (
-                <div
-                  key={m.id}
-                  className={`flex gap-3 text-sm ${isIa ? "items-start" : "items-start flex-row-reverse"}`}
-                >
-                  {/* AVATAR */}
-                  <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-semibold ${
-                      isIa
-                        ? "bg-slate-900 text-white"
-                        : "bg-slate-200 text-slate-700"
-                    }`}
-                  >
-                    {isIa ? "N" : (userName ? userName[0].toUpperCase() : "T")}
-                  </div>
-
-                  {/* BULLE MESSAGE */}
-                  <div className={`max-w-[85%] sm:max-w-[78%] flex flex-col gap-2 ${isIa ? "items-start" : "items-end"}`}>
-                    <div
-                      className={`px-4 py-3 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-line shadow-2xs ${
-                        isIa
-                          ? "bg-slate-50 text-slate-800 border border-slate-200/70 rounded-tl-sm"
-                          : "bg-slate-900 text-white rounded-tr-sm font-normal"
-                      }`}
-                    >
-                      {m.text}
+                <div key={m.id} className={isIa ? "" : "flex justify-end"}>
+                  {isIa ? (
+                    <div>
+                      <p className="whitespace-pre-line text-base text-ink">{m.text}</p>
+                      {m.detectedSkills && m.detectedSkills.length > 0 && (
+                        <p className="mt-3 text-sm text-sage">Repéré : {m.detectedSkills.join(", ")}</p>
+                      )}
+                      {m.suggestions && m.suggestions.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {m.suggestions.map((sug) => (
+                            <button
+                              key={sug}
+                              onClick={() => sendMessage(sug)}
+                              className="min-h-11 rounded-xl bg-white px-3 py-2 text-left text-sm text-ink ring-1 ring-line transition-colors hover:bg-slate-50"
+                            >
+                              {sug}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
-
-                    {/* COMPÉTENCES DÉTECTÉES PAR LE MESSAGE */}
-                    {isIa && m.detectedSkills && m.detectedSkills.length > 0 && (
-                      <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                        <span className="text-[11px] font-medium text-slate-400">Compétences repérées :</span>
-                        {m.detectedSkills.map((sk) => (
-                          <span
-                            key={sk}
-                            className="inline-flex items-center px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 text-[11px] font-medium border border-sky-200/70"
-                          >
-                            + {sk}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* SUGGESTIONS DE QUESTIONS RAPIDES (SANS EMOJI) */}
-                    {isIa && m.suggestions && m.suggestions.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 pt-2">
-                        {m.suggestions.map((sug) => (
-                          <button
-                            key={sug}
-                            onClick={() => sendMessage(sug)}
-                            className="text-left text-[11px] px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-600 border border-slate-200/80 transition-all shadow-2xs"
-                          >
-                            {sug}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    <span className="text-[10px] text-slate-400 px-1">{m.timestamp}</span>
-                  </div>
+                  ) : (
+                    <p className="max-w-[85%] whitespace-pre-line rounded-2xl rounded-br-md bg-slate-100 px-4 py-3 text-base text-ink">{m.text}</p>
+                  )}
                 </div>
               );
             })}
-
-            {/* CHARGEMENT EN COURS */}
             {loading && (
-              <div className="flex gap-3 items-center text-slate-500 text-xs">
-                <div className="w-7 h-7 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-semibold">
-                  N
-                </div>
-                <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 px-4 py-2.5 rounded-2xl">
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:0.2s]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:0.4s]" />
-                  <span className="text-slate-400 text-xs ml-1 font-medium">L&apos;assistant réfléchit...</span>
-                </div>
-              </div>
+              <p className="flex items-center gap-2 text-sm text-muted">
+                <span className="flex gap-1" aria-hidden>
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400" />
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:0.15s]" />
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:0.3s]" />
+                </span>
+                L&apos;assistant écrit…
+              </p>
             )}
-
             <div ref={messagesEndRef} />
           </div>
+        )}
 
-          {/* FORMULAIRE DE SAISIE */}
-          <form onSubmit={handleFormSubmit} className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2">
+        {/* Zone de saisie fixe en bas, au-dessus de la barre de navigation */}
+        <div className="sticky bottom-[calc(64px+env(safe-area-inset-bottom))] -mx-4 mt-auto border-t border-line bg-bg px-4 pb-4 pt-3 sm:-mx-6 sm:px-6 md:bottom-0">
+          {sessionSkills.length > 0 && (
+            <div className="mb-2 flex min-h-11 items-center justify-between gap-3 text-sm">
+              <span className="text-muted">
+                {sessionSkills.length} compétence{sessionSkills.length > 1 ? "s" : ""} repérée{sessionSkills.length > 1 ? "s" : ""}
+              </span>
+              {session ? (
+                <button onClick={handleSaveSkills} disabled={savingSkills} className="min-h-11 px-1 font-semibold text-sun hover:text-sun-700 disabled:opacity-50">
+                  {savedSuccess ? "Enregistrées" : savingSkills ? "Un instant…" : "Enregistrer dans mon profil"}
+                </button>
+              ) : (
+                <Link href="/connexion?mode=inscription" className="inline-flex min-h-11 items-center px-1 font-semibold text-sun hover:text-sun-700">
+                  Créer un compte pour les garder
+                </Link>
+              )}
+            </div>
+          )}
+          <form onSubmit={handleFormSubmit} className="flex items-end gap-2">
+            <label htmlFor="msg" className="sr-only">Ton message</label>
             <input
+              id="msg"
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Pose une question ou décris une de tes expériences..."
+              placeholder="Écris ton message"
               disabled={loading}
-              className="flex-1 px-4 py-3 text-xs sm:text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-slate-900 focus:outline-none transition-all placeholder:text-slate-400"
+              autoComplete="off"
+              className="min-h-[52px] min-w-0 flex-1 rounded-xl border border-line bg-white px-4 text-base text-ink transition-colors placeholder:text-slate-400 focus:border-sun focus:outline-none"
             />
             <button
               type="submit"
               disabled={loading || !input.trim()}
-              className="px-4 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-medium transition-all shadow-xs disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center shrink-0"
+              className="inline-flex min-h-[52px] shrink-0 items-center justify-center rounded-xl bg-sun px-5 text-base font-semibold text-white transition-colors hover:bg-sun-700 disabled:opacity-40"
             >
               Envoyer
             </button>
           </form>
-        </div>
-
-        {/* PIED DE PAGE : RAPPEL D'INCLUSION */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 px-2">
-          <p>L&apos;assistant NAYA valorise tous les savoir-faire, formels ou informels.</p>
-          {!session && (
-            <Link href="/connexion?mode=inscription" className="text-slate-700 hover:text-slate-950 font-medium underline">
-              Crée ton compte pour enregistrer tes compétences
-            </Link>
-          )}
+          <p className="mt-2 text-xs text-muted">L&apos;assistant ne remplace pas un recruteur. Il ne te demandera jamais d&apos;argent ni de mot de passe.</p>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

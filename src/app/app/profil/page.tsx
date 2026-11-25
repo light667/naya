@@ -124,7 +124,7 @@ function ProfilInner() {
                       <motion.li key={s.name} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, height: 0 }} className="flex flex-wrap items-center gap-3 p-4">
                         <div className="min-w-0 flex-1">
                           <p className="font-semibold text-ink">{s.name}</p>
-                          <p className="text-[13px] text-muted">{s.category}</p>
+                          <p className="text-xs text-muted">{s.category}</p>
                         </div>
                         <div className="flex rounded-full bg-bg p-0.5 ring-1 ring-line" role="radiogroup" aria-label={`Niveau en ${s.name}`}>
                           {LEVELS.map((l) => (
@@ -133,7 +133,7 @@ function ProfilInner() {
                               role="radio"
                               aria-checked={(s.level ?? "intermédiaire") === l}
                               onClick={() => setLevel(s.name, l)}
-                              className={`rounded-full px-2.5 py-1 text-[12px] font-semibold capitalize transition-colors ${(s.level ?? "intermédiaire") === l ? "bg-plum text-white" : "text-muted hover:text-plum"}`}
+                              className={`rounded-full px-2.5 py-1 text-xs font-semibold capitalize transition-colors ${(s.level ?? "intermédiaire") === l ? "bg-plum text-white" : "text-muted hover:text-plum"}`}
                             >
                               {l}
                             </button>

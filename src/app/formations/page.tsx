@@ -1,11 +1,9 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { ClockIcon, MapPinIcon } from "@/components/PharIcons";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/lib/supabase";
 
@@ -158,131 +156,63 @@ export default function FormationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
+    <div className="flex min-h-screen flex-col">
       <Navbar />
 
-      {/* HEADER ÉPURÉ */}
-      <section className="bg-white border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 py-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="max-w-2xl mb-6">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-teal-700 block mb-1">
-              Compétences de terrain
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-950 tracking-tight">
-              Formations Pratiques &amp; Certifiantes
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Des parcours courts orientés action pour professionnaliser tes savoir-faire et booster tes revenus.
-            </p>
-          </div>
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6 sm:py-14">
+        <h1 className="text-[32px] font-semibold leading-[1.15] text-ink sm:text-4xl">Formations pratiques</h1>
+        <p className="mt-2 max-w-xl text-base text-muted">Des formations courtes, en atelier, pour mieux travailler et mieux vendre.</p>
 
-          {/* FILTRES RAPIDES */}
-          <div className="flex flex-wrap gap-1.5">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat.key}
-                onClick={() => setSelectedCategory(cat.key)}
-                className={`text-xs px-3.5 py-1.5 rounded-full font-medium transition-all ${
-                  selectedCategory === cat.key
-                    ? "bg-slate-900 text-white shadow-xs"
-                    : "bg-slate-100 hover:bg-slate-200 text-slate-600"
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
+        <div className="no-scrollbar -mx-4 mt-8 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label="Catégories">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat.key}
+              onClick={() => setSelectedCategory(cat.key)}
+              aria-pressed={selectedCategory === cat.key}
+              className={`min-h-10 shrink-0 rounded-lg px-4 text-sm transition-colors ${
+                selectedCategory === cat.key ? "bg-ink font-medium text-white" : "bg-white text-slate-700 ring-1 ring-inset ring-line hover:bg-slate-50"
+              }`}
+            >
+              {cat.key === "all" ? "Toutes" : cat.label}
+            </button>
+          ))}
         </div>
-      </section>
 
-      {/* GRILLE DES FORMATIONS */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <ul className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredCourses.map((course) => {
             const isEnrolled = enrolledIds.includes(course.id);
             const isProcessing = loadingEnroll === course.id;
-
             return (
-              <div
-                key={course.id}
-                className="bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between group"
-              >
-                {/* PHOTO & BADGES */}
-                <div className="relative h-44 overflow-hidden bg-slate-100">
-                  <Image
-                    src={course.img}
-                    alt={course.title}
-                    fill
-                    className="object-cover group-hover:scale-102 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                  
-                  <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-md text-[11px] font-semibold text-slate-900 shadow-2xs">
-                    {course.cat}
-                  </span>
-
-                  {isEnrolled && (
-                    <span className="absolute top-3 right-3 bg-emerald-600 text-white px-2.5 py-1 rounded-md text-[11px] font-semibold flex items-center gap-1 shadow-xs">
-                      ✓ Inscrite
-                    </span>
-                  )}
+              <li key={course.id} className="flex flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-line">
+                <div className="relative h-40 bg-slate-100">
+                  <Image src={course.img} alt="" fill sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" className="object-cover" />
                 </div>
-
-                {/* DÉTAILS DU COURS */}
-                <div className="p-5 flex-1 flex flex-col justify-between">
-                  <div>
-                    <h3 className="font-bold text-base text-slate-900 mb-1.5 leading-snug">
-                      {course.title}
-                    </h3>
-                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4">
-                      {course.desc}
-                    </p>
-
-                    {/* COMPÉTENCES DÉLIVRÉES */}
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {course.skillsAcquired.map((sk) => (
-                        <span
-                          key={sk}
-                          className="px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200/70 text-[10px] font-medium text-slate-600"
-                        >
-                          {sk}
-                        </span>
-                      ))}
-                    </div>
+                <div className="flex flex-1 flex-col p-5">
+                  <div className="flex items-center justify-between gap-2 text-xs text-muted">
+                    <span>{course.cat}</span>
+                    {isEnrolled && <span className="text-sage">Inscrit</span>}
                   </div>
-
-                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3 text-xs text-slate-400">
-                      <span className="flex items-center gap-1">
-                        <ClockIcon className="w-3.5 h-3.5" /> {course.duration}
-                      </span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1 text-slate-600">
-                        <MapPinIcon className="w-3.5 h-3.5 text-teal-600" /> {course.mode}
-                      </span>
-                    </div>
-
+                  <h2 className="mt-2 text-lg font-semibold leading-snug text-ink">{course.title}</h2>
+                  <p className="mt-2 line-clamp-2 text-sm text-slate-600">{course.desc}</p>
+                  <div className="mt-auto flex items-end justify-between gap-3 pt-5">
+                    <p className="text-xs text-muted">
+                      {course.duration} · {course.mode}
+                    </p>
                     <button
                       onClick={() => handleEnroll(course)}
                       disabled={isProcessing}
-                      className={`text-xs px-3.5 py-1.5 rounded-lg font-medium transition-all shadow-2xs ${
-                        isEnrolled
-                          ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                          : "bg-slate-900 hover:bg-slate-800 text-white"
+                      className={`inline-flex min-h-11 shrink-0 items-center px-1 text-sm font-semibold transition-colors disabled:opacity-50 ${
+                        isEnrolled ? "text-muted hover:text-ink" : "text-sun hover:text-sun-700"
                       }`}
                     >
-                      {isProcessing
-                        ? "En cours..."
-                        : isEnrolled
-                        ? "Abandonner"
-                        : "Rejoindre"}
+                      {isProcessing ? "Un instant…" : isEnrolled ? "Me désinscrire" : "M'inscrire"}
                     </button>
                   </div>
                 </div>
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ul>
       </main>
 
       <Footer />

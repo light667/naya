@@ -63,7 +63,7 @@ export function HistoryPanel({ open, onClose, initialKind, userId, onOpen }: { o
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="font-semibold leading-snug text-ink">{d.title || LABELS[d.kind]}</p>
-                      <p className="text-[13px] text-muted">
+                      <p className="text-xs text-muted">
                         Modifié le {new Date(d.updated_at).toLocaleDateString("fr-FR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>

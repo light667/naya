@@ -39,7 +39,7 @@ export function HeroDemo() {
     <div className="relative w-full max-w-[340px]">
       <div className="relative rounded-[26px] bg-white text-ink shadow-[0_40px_80px_-30px_rgba(10,4,40,0.8)] ring-1 ring-white/20">
         <div className="px-4 pb-4 pt-4">
-          <div className="flex items-center justify-between text-[13px] text-muted">
+          <div className="flex items-center justify-between text-xs text-muted">
             <span className="font-semibold text-plum">Découverte</span>
             <span>Question 1 sur 5</span>
           </div>
@@ -51,7 +51,7 @@ export function HeroDemo() {
           </div>
 
           <div className="mt-3 min-h-[76px]">
-            {phase >= 2 && <p className="mb-2 text-[13px] text-muted">Compétences repérées</p>}
+            {phase >= 2 && <p className="mb-2 text-xs text-muted">Compétences repérées</p>}
             <div className="flex flex-wrap gap-2">
               {phase >= 2 &&
                 SKILLS.map((s, i) => (
@@ -60,7 +60,7 @@ export function HeroDemo() {
                     initial={reduce ? false : { opacity: 0, scale: 0.4, y: 8 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     transition={{ type: "spring", stiffness: 520, damping: 22, delay: i * 0.18 }}
-                    className="rounded-full bg-plum px-2.5 py-1 text-[12px] font-medium text-white"
+                    className="rounded-full bg-plum px-2.5 py-1 text-xs font-medium text-white"
                   >
                     {s}
                   </motion.span>
@@ -78,12 +78,12 @@ export function HeroDemo() {
               {phase >= 3 && <ScoreRing value={92} size={48} />}
               <div className="min-w-0">
                 <p className="truncate font-semibold text-ink">Assistante réseaux sociaux</p>
-                <p className="truncate text-[13px] text-muted">Boutique Ama Pagnes, Lomé</p>
+                <p className="truncate text-xs text-muted">Boutique Ama Pagnes, Lomé</p>
               </div>
             </div>
             <div className="mt-3 flex items-center justify-between">
               <VerifiedBadge />
-              <span className="text-[13px] font-semibold text-plum">35 000 FCFA / mois</span>
+              <span className="text-xs font-semibold text-plum">35 000 FCFA / mois</span>
             </div>
           </motion.div>
         </div>
