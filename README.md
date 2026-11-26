@@ -1,4 +1,4 @@
-# NAYA
+# PHAR
 
 La plateforme intelligente de valorisation des compétences et d'autonomisation économique des jeunes femmes (18–30 ans).
 
@@ -9,7 +9,7 @@ La plateforme intelligente de valorisation des compétences et d'autonomisation 
 1. **Base de données** — dans Supabase > *SQL Editor*, exécuter `supabase/migrations/001_naya_init.sql`
    (tables, sécurité RLS, création auto du profil à l'inscription, 8 opportunités de démonstration).
 2. **Variables** — `.env.local` contient déjà l'URL et la clé publique Supabase.
-   Pour activer l'IA, renseigner `MISTRAL_API_KEY` (console.mistral.ai). Sans clé, NAYA utilise son moteur local (règles + modèles de texte) ; la description des médias et la transcription serveur nécessitent la clé.
+   Pour activer l'IA, renseigner `MISTRAL_API_KEY` (console.mistral.ai). Sans clé, PHAR utilise son moteur local (règles + modèles de texte) ; la description des médias et la transcription serveur nécessitent la clé.
    Exécuter aussi `supabase/migrations/002_assistant_portfolio.sql` dans le SQL Editor (réparation des accents, historique de l'assistante, médias et lien public du portfolio).
 3. `npm install` puis `npm run dev` → http://localhost:3000
 

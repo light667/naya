@@ -1,7 +1,7 @@
 // Analyse de compatibilité profil ↔ mission.
 // Le score est calculé ici, de façon déterministe, à partir de critères réels et pondérés.
 // L'IA ne produit jamais ce pourcentage : elle s'appuie dessus pour rédiger.
-import { RULES } from "./naya-local";
+import { RULES } from "./phar-local";
 import type { Compatibility, CompatCriterion, Opportunity, PortfolioItem, Profile } from "./types";
 
 export const norm = (s: string) =>

@@ -245,7 +245,7 @@ function AuthFormContent() {
         </p>
       </main>
 
-      <footer className="py-6 text-center text-xs text-muted">© {new Date().getFullYear()} PHAR / NAYA</footer>
+      <footer className="py-6 text-center text-xs text-muted">© {new Date().getFullYear()} PHAR</footer>
     </div>
   );
 }

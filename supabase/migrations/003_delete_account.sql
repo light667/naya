@@ -1,4 +1,4 @@
--- NAYA — 003 : suppression de compte par l'utilisatrice elle-même.
+-- PHAR — 003 : suppression de compte par l'utilisatrice elle-même.
 -- À exécuter dans Supabase > SQL Editor. Ré-exécutable sans risque.
 --
 -- Supprime le compte de la personne connectée et toutes ses données :

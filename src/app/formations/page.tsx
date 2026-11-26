@@ -109,7 +109,7 @@ export default function FormationsPage() {
     if (profile?.interests && Array.isArray(profile.interests)) {
       setEnrolledIds(profile.interests);
     } else {
-      const stored = localStorage.getItem("naya_enrolled_courses");
+      const stored = localStorage.getItem("phar_enrolled_courses") ?? localStorage.getItem("naya_enrolled_courses");
       if (stored) {
         try {
           setEnrolledIds(JSON.parse(stored));
@@ -138,7 +138,7 @@ export default function FormationsPage() {
       : [...enrolledIds, course.id];
 
     setEnrolledIds(updated);
-    localStorage.setItem("naya_enrolled_courses", JSON.stringify(updated));
+    localStorage.setItem("phar_enrolled_courses", JSON.stringify(updated));
 
     try {
       // Sauvegarde dans les intérêts ou compétences du profil

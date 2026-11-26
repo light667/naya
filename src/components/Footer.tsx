@@ -26,7 +26,7 @@ export function Footer() {
             ))}
           </nav>
         </div>
-        <p className="mt-10 border-t border-line pt-6 text-xs text-muted">© {new Date().getFullYear()} PHAR / NAYA</p>
+        <p className="mt-10 border-t border-line pt-6 text-xs text-muted">© {new Date().getFullYear()} PHAR</p>
       </div>
     </footer>
   );

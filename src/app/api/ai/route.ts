@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { aiAvailable, chat, chatJson, hasMistral, MistralRateLimitError, MODELS } from "@/lib/mistral";
-import { localExtractSkills, localChatResponse } from "@/lib/naya-local";
+import { localExtractSkills, localChatResponse } from "@/lib/phar-local";
 import { computeCompatibility } from "@/lib/compat";
 import { localCandidature, localRendezvous, localServices } from "@/lib/local-writer";
 import type { CoherenceCheck, Compatibility, Lang, MeetingSituation, Opportunity, PortfolioItem, Profile } from "@/lib/types";
@@ -176,7 +176,7 @@ export async function POST(req: Request) {
         suggestions,
       });
     } catch (e) {
-      console.warn("[naya-ai] chat fallback vers moteur local:", e);
+      console.warn("[phar-ai] chat fallback vers moteur local:", e);
       const local = localChatResponse(message, { userName, skills: userSkills });
       return NextResponse.json({
         source: "local",
@@ -303,7 +303,7 @@ export async function POST(req: Request) {
       const checks = await verify({ ...facts, precisions: extraAll || undefined }, out.text, analysis?.missingSkills);
       return NextResponse.json({ source: "ia", subject: out.subject ?? "", text: out.text, advice: out.advice ?? [], analysis, checks });
       } catch (e) {
-        console.error("[naya-ai] candidature → repli local", e);
+        console.error("[phar-ai] candidature → repli local", e);
         return local();
       }
     }
@@ -353,7 +353,7 @@ export async function POST(req: Request) {
       const checks = await verify({ ...facts, infos: o.extra || undefined }, out.text);
       return NextResponse.json({ source: "ia", text: out.text, suggestions: out.suggestions ?? [], checks });
       } catch (e) {
-        console.error("[naya-ai] services → repli local", e);
+        console.error("[phar-ai] services → repli local", e);
         return local();
       }
     }
@@ -417,7 +417,7 @@ export async function POST(req: Request) {
       const checks = isPrep ? null : await verify({ ...facts, contexte: o }, out.text);
       return NextResponse.json({ source: "ia", subject: out.subject ?? "", text: out.text, checks });
       } catch (e) {
-        console.error("[naya-ai] rendezvous → repli local", e);
+        console.error("[phar-ai] rendezvous → repli local", e);
         return local();
       }
     }
@@ -514,8 +514,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Requête inconnue" }, { status: 400 });
   } catch (e) {
     const busy = e instanceof MistralRateLimitError;
-    if (busy) console.warn("[naya-ai]", kind, (e as Error).message);
-    else console.error("[naya-ai]", kind, e);
+    if (busy) console.warn("[phar-ai]", kind, (e as Error).message);
+    else console.error("[phar-ai]", kind, e);
     // Replis sans IA quand c'est possible.
     if (kind === "skills") return NextResponse.json({ source: "local", ...localExtractSkills(String(body.text ?? "")) });
     if (kind === "match_reasons") return NextResponse.json({ source: "local", reasons: {}, busy });

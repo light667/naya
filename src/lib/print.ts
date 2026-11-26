@@ -17,7 +17,7 @@ footer { margin-top: 28px; font: 9pt Arial, sans-serif; color: #8a85a3; }
 </style></head><body>
 <header><h1>${esc(title)}</h1>${meta ? `<small>${esc(meta)}</small>` : ""}</header>
 ${text.split(/\n{2,}/).map((p) => `<p>${esc(p)}</p>`).join("")}
-<footer>Rédigé avec NAYA</footer>
+<footer>Rédigé avec PHAR</footer>
 <script>window.onload = () => { window.print(); };</script>
 </body></html>`);
   w.document.close();

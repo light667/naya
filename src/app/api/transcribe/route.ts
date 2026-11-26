@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     ).catch(() => raw);
     return NextResponse.json({ text: text.replace(/^"+|"+$/g, "").trim() });
   } catch (e) {
-    console.error("[naya-transcribe]", e);
+    console.error("[phar-transcribe]", e);
     return NextResponse.json({ error: "La transcription a échoué. Réessayez ou tapez votre texte." }, { status: 502 });
   }
 }

@@ -1,4 +1,4 @@
-// Moteur local de NAYA : utilisé quand l'IA distante n'est pas configurée
+// Moteur local de PHAR : utilisé quand l'IA distante n'est pas configurée
 // ou en secours réseau. Fournit des réponses riches, expertes et bienveillantes,
 // sans syntaxe Markdown brute.
 import type { Skill, Suggestion } from "./types";
@@ -69,7 +69,7 @@ export function localExtractSkills(text: string): { skills: Skill[]; suggestions
 }
 
 /**
- * Moteur conversationnel local intelligent pour l'assistant IA NAYA.
+ * Moteur conversationnel local intelligent pour l'assistant IA PHAR.
  * Fournit des réponses rédigées en texte naturel sans balisage Markdown.
  */
 export function localChatResponse(message: string, context?: { userName?: string; skills?: string[] }): {

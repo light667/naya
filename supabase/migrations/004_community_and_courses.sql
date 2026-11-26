@@ -1,11 +1,11 @@
--- NAYA — 004 : Table de la communauté & suivi des formations
+-- PHAR — 004 : Table de la communauté & suivi des formations
 -- À exécuter dans Supabase > SQL Editor si vous souhaitez activer la table réseau native.
 
 -- 1. Table des publications communautaires
 create table if not exists public.community_posts (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete set null,
-  author_name text not null default 'Talent NAYA',
+  author_name text not null default 'Membre PHAR',
   author_role text not null default 'Membre',
   category text not null default 'Confection & Mode',
   content text not null,

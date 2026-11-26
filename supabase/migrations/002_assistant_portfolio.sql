@@ -1,4 +1,4 @@
--- NAYA — 002 : réparation des accents, assistante (historique), portfolio (médias + lien public)
+-- PHAR — 002 : réparation des accents, assistante (historique), portfolio (médias + lien public)
 -- À exécuter dans Supabase > SQL Editor, après 001_naya_init.sql. Ré-exécutable sans risque.
 
 -- ============ 1. RÉPARATION DES TEXTES MAL ENCODÉS ============

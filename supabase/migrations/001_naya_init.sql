@@ -1,4 +1,4 @@
--- NAYA — schéma initial
+-- PHAR — schéma initial
 -- À exécuter dans Supabase > SQL Editor (projet kdpkxlyyxahuviohyjuu).
 
 -- ============ PROFILS ============
