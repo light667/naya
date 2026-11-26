@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useEffect, useId, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from "react";
+import { useEffect, useId, useRef, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from "react";
 
 /* ---------- Boutons ---------- */
 type Variant = "primary" | "accent" | "secondary" | "ghost" | "danger";
@@ -87,6 +87,78 @@ export function Input({ label, hint, ...rest }: InputHTMLAttributes<HTMLInputEle
       <input {...rest} className={field} />
       {hint && <span className="mt-1.5 block text-xs text-muted">{hint}</span>}
     </label>
+  );
+}
+
+/** Champ mot de passe avec bouton œil : garde le focus et la position du curseur quand on affiche ou masque. */
+export function PasswordInput({ label, hint, ...rest }: Omit<InputHTMLAttributes<HTMLInputElement>, "type"> & { label: string; hint?: ReactNode }) {
+  const [visible, setVisible] = useState(false);
+  const ref = useRef<HTMLInputElement>(null);
+  const id = useId();
+
+  function toggle() {
+    const el = ref.current;
+    const start = el?.selectionStart ?? null;
+    const end = el?.selectionEnd ?? null;
+    const hadFocus = typeof document !== "undefined" && document.activeElement === el;
+    setVisible((v) => !v);
+    requestAnimationFrame(() => {
+      if (!el || !hadFocus) return;
+      el.focus();
+      if (start != null && end != null) el.setSelectionRange(start, end);
+    });
+  }
+
+  return (
+    <div>
+      <label htmlFor={id} className="mb-2 block text-sm font-medium text-ink">
+        {label}
+      </label>
+      <div className="relative">
+        <input {...rest} id={id} ref={ref} type={visible ? "text" : "password"} className={`${field} pr-14`} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={toggle}
+          aria-label={visible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+          aria-pressed={visible}
+          aria-controls={id}
+          className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-xl text-muted transition-colors hover:text-ink"
+        >
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
+            <circle cx="12" cy="12" r="3" />
+            {visible && <path d="M4 4l16 16" />}
+          </svg>
+        </button>
+      </div>
+      {hint && <div className="mt-1.5 text-xs text-muted">{hint}</div>}
+    </div>
+  );
+}
+
+/** Force du mot de passe en mots simples. */
+export function passwordStrength(pw: string): { score: 0 | 1 | 2 | 3; label: string } {
+  if (pw.length < 6) return { score: 0, label: pw ? "Trop court : 6 caractères minimum" : "6 caractères minimum" };
+  const kinds = [/[a-z]/, /[A-Z]/, /\d/, /[^A-Za-z0-9]/].filter((r) => r.test(pw)).length;
+  if (pw.length >= 10 && kinds >= 3) return { score: 3, label: "Solide" };
+  if (pw.length >= 8 && kinds >= 2)
+    return { score: 2, label: kinds >= 3 ? "Correct. 10 caractères ou plus, c'est encore mieux" : "Correct. Ajoute des chiffres ou des signes pour le renforcer" };
+  return { score: 1, label: "Faible. Mélange lettres et chiffres, 8 caractères ou plus" };
+}
+
+export function StrengthMeter({ password }: { password: string }) {
+  const { score, label } = passwordStrength(password);
+  const color = score === 3 ? "bg-sage" : score === 2 ? "bg-ocre" : "bg-sun";
+  return (
+    <span className="block" aria-live="polite">
+      <span className="mb-1.5 grid grid-cols-3 gap-1" aria-hidden>
+        {[1, 2, 3].map((i) => (
+          <span key={i} className={`h-1.5 rounded-full ${password && score >= i ? color : "bg-slate-200"}`} />
+        ))}
+      </span>
+      {label}
+    </span>
   );
 }
 

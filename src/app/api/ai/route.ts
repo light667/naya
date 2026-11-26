@@ -1,10 +1,11 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import { aiAvailable, chat, chatJson, hasMistral, MistralRateLimitError, MODELS } from "@/lib/mistral";
+import { aiAvailable, aiConfigured, chat, chatJson, isRateLimit, MODELS } from "@/lib/llm";
 import { localExtractSkills, localChatResponse } from "@/lib/phar-local";
 import { computeCompatibility } from "@/lib/compat";
+import { CATEGORY_IDS, LEVELS, parseSkills, SKILLS_SCHEMA } from "@/lib/skills";
 import { localCandidature, localRendezvous, localServices } from "@/lib/local-writer";
-import type { CoherenceCheck, Compatibility, Lang, MeetingSituation, Opportunity, PortfolioItem, Profile } from "@/lib/types";
+import type { Skill, SkillSource, CoherenceCheck, Compatibility, Lang, MeetingSituation, Opportunity, PortfolioItem, Profile } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -65,6 +66,32 @@ const noAi = () =>
     { status: 503 },
   );
 
+
+const SKILL_RULES =
+  `Règles : n'invente rien. Chaque compétence doit être montrée par ce que la personne a vraiment dit, et "evidence" reprend ses mots (une phrase). ` +
+  `Noms courts et concrets (2 à 5 mots, ex. "Coupe de tissu wax", "Gestion de la caisse", "Accueil des clients"). ` +
+  `Catégorie parmi : ${CATEGORY_IDS.join(", ")}. Niveau parmi : ${LEVELS.join(", ")} (par défaut "intermédiaire"). ` +
+  `Si rien de concret n'apparaît, renvoie une liste vide.`;
+
+/** Demande les compétences à l'IA en JSON imposé, valide, et réessaie une fois si le format est faux. */
+async function aiSkills(text: string, source: SkillSource): Promise<Skill[]> {
+  const messages = [
+    { role: "system" as const, content: "Tu repères des compétences professionnelles dans ce que raconte une jeune personne d'Afrique de l'Ouest. Tu réponds uniquement en JSON." },
+    { role: "user" as const, content: `Ce que la personne a dit :\n"""${text}"""\n\nIdentifie 0 à 6 compétences.\n${SKILL_RULES}\nJSON : {"skills":[{"name","category","level","evidence"}]}` },
+  ];
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const raw = await chat(messages, { tier: MODELS.fast, temperature: 0.2, maxTokens: 900, schema: SKILLS_SCHEMA });
+      const parsed = parseSkills(raw, { source, status: "confirmee_assistant" });
+      if (parsed.valid) return parsed.skills;
+      console.warn("[phar-ai] format de compétences invalide, essai", attempt + 1);
+    } catch (e) {
+      if (isRateLimit(e) || attempt === 1) throw e;
+    }
+  }
+  throw new Error("Format de compétences invalide après 2 essais");
+}
+
 const langLine = (lang: Lang) => (lang === "en" ? "Rédige le texte final en ANGLAIS." : "Rédige le texte final en français.");
 
 /** Étape 9 : vérification de cohérence. Un second modèle relit le texte et signale toute affirmation absente des faits. */
@@ -84,7 +111,7 @@ async function verify(facts: unknown, text: string, missing: string[] = []): Pro
             `Réponds {"issues": ["affirmation non appuyée — explication courte", ...]} ; liste vide si tout est exact. En français.`,
         },
       ],
-      { model: MODELS.fast, temperature: 0, maxTokens: 600 },
+      { tier: MODELS.fast, temperature: 0, maxTokens: 600 },
     );
     const issues = Array.isArray(r.issues) ? r.issues.filter((x) => typeof x === "string" && x.trim()).slice(0, 6) : [];
     return { ok: issues.length === 0, issues };
@@ -187,6 +214,24 @@ export async function POST(req: Request) {
     }
   }
 
+  /* ---------- Repérage des compétences dans un message (assistant, dé) ---------- */
+  if (kind === "extract_skills") {
+    const text = String(body.text ?? "").slice(0, 4000);
+    const source: SkillSource = body.source === "de" ? "de" : "assistant";
+    if (text.trim().length < 12) return NextResponse.json({ source: "local", skills: [] });
+    if (!ai) {
+      const local = localExtractSkills(text).skills;
+      return NextResponse.json({ source: "local", skills: parseSkills(local, { source, status: "declaree" }).skills });
+    }
+    try {
+      return NextResponse.json({ source: "ia", skills: await aiSkills(text, source) });
+    } catch (e) {
+      console.warn("[phar-ai] extract_skills → repli local", (e as Error).message);
+      const local = localExtractSkills(text).skills;
+      return NextResponse.json({ source: "local", skills: parseSkills(local, { source, status: "declaree" }).skills });
+    }
+  }
+
   // Pour toutes les autres actions (candidature, vérification, services), un compte connecté est requis
   if (!ctx) {
     return NextResponse.json({ error: "Connexion requise pour cette action" }, { status: 401 });
@@ -199,20 +244,44 @@ export async function POST(req: Request) {
     /* ---------- Découverte des compétences ---------- */
     if (kind === "skills") {
       const text = String(body.text ?? "").slice(0, 6000);
-      if (!ai) return NextResponse.json({ source: "local", ...localExtractSkills(text) });
-      const out = await chatJson<{ summary: string; skills: unknown[]; suggestions: unknown[] }>([
-        { role: "system", content: SYSTEM },
-        {
-          role: "user",
-          content:
-            `Réponses d'une utilisatrice au questionnaire de découverte :\n\n${text}\n\n` +
-            `1. Identifie 4 à 10 compétences concrètes (techniques et savoir-être), y compris informelles. Catégories courtes (ex. "Couture & mode", "Communication digitale", "Savoir-être"). Niveau parmi "débutante", "intermédiaire", "confirmée".\n` +
-            `2. Propose 3 activités rémunératrices réalistes localement, chacune avec un premier pas faisable cette semaine.\n` +
-            `3. Rédige un résumé encourageant de 2 phrases.\n` +
-            `JSON : {"summary": string, "skills": [{"name","category","level"}], "suggestions": [{"title","description","firstStep"}]}`,
+      const localResult = () => {
+        const l = localExtractSkills(text);
+        return NextResponse.json({ source: "local", summary: l.summary, suggestions: l.suggestions, skills: parseSkills(l.skills, { source: "decouverte", status: "declaree" }).skills });
+      };
+      if (!ai) return localResult();
+      const schema = {
+        type: "OBJECT",
+        properties: {
+          summary: { type: "STRING" },
+          skills: SKILLS_SCHEMA.properties.skills,
+          suggestions: { type: "ARRAY", items: { type: "OBJECT", properties: { title: { type: "STRING" }, description: { type: "STRING" }, firstStep: { type: "STRING" } }, required: ["title", "description", "firstStep"] } },
         },
-      ]);
-      return NextResponse.json({ source: "ia", summary: out.summary, skills: out.skills ?? [], suggestions: out.suggestions ?? [] });
+        required: ["summary", "skills", "suggestions"],
+      };
+      const messages = [
+        { role: "system" as const, content: SYSTEM },
+        {
+          role: "user" as const,
+          content:
+            `Réponses au questionnaire de découverte :\n\n${text}\n\n` +
+            `1. Identifie 4 à 10 compétences concrètes (savoir-faire et savoir-être), y compris informelles. ${SKILL_RULES}\n` +
+            `2. Propose 3 activités qui rapportent de l'argent, réalistes à Lomé, chacune avec un premier pas faisable cette semaine.\n` +
+            `3. Écris un résumé encourageant de 2 phrases, en tutoyant.\n` +
+            `JSON : {"summary": string, "skills": [{"name","category","level","evidence"}], "suggestions": [{"title","description","firstStep"}]}`,
+        },
+      ];
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const out = await chatJson<{ summary?: string; skills?: unknown; suggestions?: unknown[] }>(messages, { temperature: 0.4, schema });
+          const parsed = parseSkills(out, { source: "decouverte", status: "confirmee_assistant" });
+          if (parsed.valid && parsed.skills.length) {
+            return NextResponse.json({ source: "ia", summary: String(out.summary ?? ""), skills: parsed.skills, suggestions: Array.isArray(out.suggestions) ? out.suggestions : [] });
+          }
+        } catch (e) {
+          if (isRateLimit(e)) break;
+        }
+      }
+      return localResult();
     }
 
     /* ---------- Explication des classements (le score reste calculé) ---------- */
@@ -232,7 +301,7 @@ export async function POST(req: Request) {
               `\nJSON : {"reasons": [{"id","reason"}]}`,
           },
         ],
-        { model: MODELS.fast, temperature: 0.4 },
+        { tier: MODELS.fast, temperature: 0.4 },
       );
       return NextResponse.json({ source: "ia", reasons: Object.fromEntries((out.reasons ?? []).map((r) => [r.id, r.reason])) });
     }
@@ -492,7 +561,7 @@ export async function POST(req: Request) {
             ],
           },
         ],
-        { model: MODELS.vision, temperature: 0.3, maxTokens: 900 },
+        { tier: MODELS.vision, temperature: 0.3, maxTokens: 900 },
       );
       return NextResponse.json({ source: "ia", ...out });
     }
@@ -506,14 +575,14 @@ export async function POST(req: Request) {
           { role: "system", content: "Tu corriges des transcriptions vocales en français. Tu ne changes pas le sens, tu n'ajoutes rien." },
           { role: "user", content: `Ajoute la ponctuation, les majuscules et des paragraphes, corrige les mots mal transcrits évidents. Réponds uniquement avec le texte corrigé.\n\n"""${text}"""` },
         ],
-        { model: MODELS.fast, temperature: 0 },
+        { tier: MODELS.fast, temperature: 0 },
       );
       return NextResponse.json({ source: "ia", text: out.replace(/^"+|"+$/g, "") });
     }
 
     return NextResponse.json({ error: "Requête inconnue" }, { status: 400 });
   } catch (e) {
-    const busy = e instanceof MistralRateLimitError;
+    const busy = isRateLimit(e);
     if (busy) console.warn("[phar-ai]", kind, (e as Error).message);
     else console.error("[phar-ai]", kind, e);
     // Replis sans IA quand c'est possible.

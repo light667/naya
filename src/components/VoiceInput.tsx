@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { transcribeAudio } from "@/lib/ai-client";
+import { supabase } from "@/lib/supabase";
 import { useToast } from "./Toast";
 
 type SR = {
@@ -22,7 +23,7 @@ async function serverAvailable() {
  * 1) Transcription Mistral Voxtral (enregistrement puis envoi, avec ponctuation) si la clé est configurée ;
  * 2) sinon, reconnaissance vocale du navigateur, en direct.
  */
-export function VoiceButton({ onText, lang = "fr", className = "", label = "Dicter" }: { onText: (t: string) => void; lang?: string; className?: string; label?: string }) {
+export function VoiceButton({ onText, lang = "fr", className = "", label = "Dicter", iconOnlyOnMobile }: { onText: (t: string) => void; lang?: string; className?: string; label?: string; iconOnlyOnMobile?: boolean }) {
   const toast = useToast();
   const [state, setState] = useState<"idle" | "rec" | "busy">("idle");
   const [seconds, setSeconds] = useState(0);
@@ -40,7 +41,9 @@ export function VoiceButton({ onText, lang = "fr", className = "", label = "Dict
   useEffect(() => () => { rec.current?.stream.getTracks().forEach((t) => t.stop()); sr.current?.stop(); }, []);
 
   async function start() {
-    if (await serverAvailable()) {
+    // La transcription serveur demande un compte : sans connexion, on utilise la reconnaissance du navigateur.
+    const signedIn = !!(await supabase.auth.getSession()).data.session;
+    if (signedIn && (await serverAvailable())) {
       if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") return browserFallback();
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -54,7 +57,7 @@ export function VoiceButton({ onText, lang = "fr", className = "", label = "Dict
           try {
             const text = await transcribeAudio(new Blob(chunks.current, { type: r.mimeType }), lang);
             if (text) onText(text);
-            else if (text === "") toast("Aucune parole détectée. Parlez plus près du micro.", "error");
+            else if (text === "") toast("Je n'ai rien entendu. Parle plus près du micro.", "error");
           } catch (e) {
             toast((e as Error).message, "error");
           }
@@ -64,7 +67,7 @@ export function VoiceButton({ onText, lang = "fr", className = "", label = "Dict
         rec.current = r;
         setState("rec");
       } catch {
-        toast("Accès au micro refusé. Autorisez le micro dans votre navigateur.", "error");
+        toast("Le micro est refusé. Autorise-le dans les réglages du navigateur.", "error");
       }
       return;
     }
@@ -74,7 +77,7 @@ export function VoiceButton({ onText, lang = "fr", className = "", label = "Dict
   function browserFallback() {
     const W = window as unknown as { SpeechRecognition?: new () => SR; webkitSpeechRecognition?: new () => SR };
     const Ctor = W.SpeechRecognition ?? W.webkitSpeechRecognition;
-    if (!Ctor) return toast("La saisie vocale n'est pas disponible sur ce navigateur. Essayez Chrome.", "error");
+    if (!Ctor) return toast("La saisie vocale ne marche pas sur ce navigateur. Essaie avec Chrome.", "error");
     const r = new Ctor();
     r.lang = lang === "en" ? "en-US" : "fr-FR";
     r.continuous = true;
@@ -108,16 +111,16 @@ export function VoiceButton({ onText, lang = "fr", className = "", label = "Dict
       onClick={state === "rec" ? stop : start}
       disabled={state === "busy"}
       aria-pressed={state === "rec"}
-      className={`inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-semibold transition-colors disabled:opacity-60 ${
-        state === "rec" ? "bg-coral text-white" : "bg-plum-50 text-plum hover:bg-plum-100"
+      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors disabled:opacity-60 ${
+        state === "rec" ? "bg-coral text-white" : "bg-white text-ink ring-1 ring-inset ring-line hover:bg-slate-50"
       } ${className}`}
     >
       {state === "rec" ? (
-        <><span className="relative flex h-2.5 w-2.5"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/80" /><span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" /></span>Arrêter · {mmss}</>
+        <><span className="relative flex h-2.5 w-2.5"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/80" /><span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" /></span><span className={iconOnlyOnMobile ? "sr-only sm:not-sr-only" : ""}>Arrêter · </span>{mmss}</>
       ) : state === "busy" ? (
         <><span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />Transcription…</>
       ) : (
-        <><svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><rect x="9" y="3" width="6" height="12" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>{label}</>
+        <><svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><rect x="9" y="3" width="6" height="12" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg><span className={iconOnlyOnMobile ? "sr-only sm:not-sr-only" : ""}>{label}</span></>
       )}
     </button>
   );

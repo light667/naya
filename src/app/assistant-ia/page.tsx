@@ -1,178 +1,212 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/components/AuthProvider";
-import { supabase } from "@/lib/supabase";
+import { useToast } from "@/components/Toast";
+import { VoiceButton } from "@/components/VoiceInput";
+import { SkillIcon } from "@/components/SkillList";
+import { newOnly } from "@/lib/skills";
+import { addSkillsToProfile, readPending, writePending } from "@/lib/skills-client";
+import type { Skill } from "@/lib/types";
 
 type Message = {
   id: string;
   sender: "ia" | "user";
   text: string;
-  detectedSkills?: string[];
-  suggestions?: string[];
-  timestamp?: string;
+  /** Réponse du moteur de secours (IA indisponible) */
+  local?: boolean;
+  /** Échec : le message de l'utilisateur à renvoyer avec « Réessayer » */
+  failedFor?: string;
 };
 
-const STARTER_PROMPTS = [
-  { label: "Révéler mes compétences", prompt: "Aide-moi à trouver mes compétences. Pose-moi des questions simples, une à la fois." },
-  { label: "Calculer mon prix pour un travail", prompt: "Aide-moi à calculer mon prix pour un travail : le coût de la matière, le temps passé et ma marge." },
-  { label: "Simuler un entretien", prompt: "Simule un entretien d'embauche avec moi, puis donne-moi une note et des conseils." },
-  { label: "Écrire un message WhatsApp pour mes clients", prompt: "Aide-moi à écrire un message WhatsApp court pour présenter mes services." },
-];
+const PROMPTS = {
+  reveal: { label: "Révéler mes compétences", prompt: "Aide-moi à trouver mes compétences. Pose-moi des questions simples, une à la fois." },
+  price: { label: "Calculer mon prix", prompt: "Aide-moi à calculer mon prix pour un travail : le coût de la matière, le temps passé et ma marge. Pose-moi les questions une par une." },
+  interview: { label: "Simuler un entretien", prompt: "Simule un entretien d'embauche avec moi, une question à la fois. À la fin, donne-moi une note sur 10 et des conseils." },
+  apply: { label: "Écrire mon message pour postuler", prompt: "Aide-moi à écrire un message court pour postuler à une offre, à envoyer sur WhatsApp." },
+};
 
-function cleanPlainResponse(text: string): string {
-  if (!text) return "";
-  return text
-    .replace(/\*\*(.*?)\*\*/g, "$1") // retire le gras markdown
-    .replace(/\*(.*?)\*/g, "$1")     // retire l'italique markdown
-    .replace(/#{1,6}\s?/g, "")       // retire les titres markdown #
-    .replace(/`{1,3}([\s\S]*?)`{1,3}/g, "$1") // retire les backticks de code
-    .replace(/^\s*•\s*/gm, "- ")     // normalise les puces
+const clean = (text: string) =>
+  text
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/(^|\s)\*(\S.*?)\*/g, "$1$2")
+    .replace(/^#{1,6}\s?/gm, "")
+    .replace(/`{1,3}([\s\S]*?)`{1,3}/g, "$1")
+    .replace(/^\s*•\s*/gm, "- ")
     .trim();
-}
+
+const TIMEOUT_MS = 45_000;
 
 export default function AssistantIaPage() {
-  const { session, profile, refreshProfile } = useAuth();
-  const userName = profile?.full_name ? profile.full_name.split(" ")[0] : "";
+  const { session, profile, setProfile } = useAuth();
+  const toast = useToast();
+  const firstName = (profile?.full_name || "").trim().split(/\s+/)[0];
+  const storeKey = `phar_chat_${session?.user.id ?? "invite"}`;
+  const profileSkills = useMemo(() => (Array.isArray(profile?.skills) ? profile!.skills : []), [profile]);
 
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "init",
-      sender: "ia",
-      text: "",
-    },
-  ]);
-
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [savingSkills, setSavingSkills] = useState(false);
-  const [savedSuccess, setSavedSuccess] = useState(false);
+  const [found, setFound] = useState<Skill[]>([]); // compétences repérées, pas encore dans le profil
+  const [saving, setSaving] = useState(false);
+  const [speakingId, setSpeakingId] = useState<string | null>(null);
+  const endRef = useRef<HTMLDivElement>(null);
+  const loaded = useRef<string | null>(null);
 
-  const [sessionSkills, setSessionSkills] = useState<string[]>(
-    profile?.skills?.map((s) => s.name) || []
-  );
-
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Historique gardé sur l'appareil, par compte : on reprend la conversation là où on l'a laissée.
+  useEffect(() => {
+    if (loaded.current === storeKey) return;
+    loaded.current = storeKey;
+    try {
+      const saved = JSON.parse(localStorage.getItem(storeKey) || "[]");
+      setMessages(Array.isArray(saved) ? saved.filter((m: Message) => !m.failedFor) : []);
+    } catch {
+      setMessages([]);
+    }
+    setFound(readPending());
+  }, [storeKey]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (loaded.current !== storeKey) return;
+    try {
+      localStorage.setItem(storeKey, JSON.stringify(messages.filter((m) => !m.failedFor).slice(-40)));
+    } catch {
+      /* stockage indisponible */
+    }
+  }, [messages, storeKey]);
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages, loading]);
 
-  useEffect(() => {
-    if (profile?.skills) {
-      setSessionSkills(profile.skills.map((s) => s.name));
-    }
-  }, [profile]);
+  // Les compétences repérées qui sont déjà dans le profil ne comptent pas comme « nouvelles ».
+  const pending = useMemo(() => newOnly(profileSkills, found), [profileSkills, found]);
 
-  async function sendMessage(textToSend: string) {
-    if (!textToSend.trim() || loading) return;
+  const detectSkills = useCallback(
+    async (text: string) => {
+      try {
+        const res = await fetch("/api/ai", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}) },
+          body: JSON.stringify({ kind: "extract_skills", text, source: "assistant" }),
+        });
+        const data = await res.json();
+        const skills: Skill[] = Array.isArray(data.skills) ? data.skills : [];
+        if (!skills.length) return;
+        setFound((prev) => {
+          const merged = [...prev, ...newOnly(prev, skills)];
+          if (!session) writePending(merged);
+          return merged;
+        });
+      } catch {
+        /* le repérage est un bonus : on n'interrompt pas la conversation */
+      }
+    },
+    [session],
+  );
 
-    const userText = textToSend.trim();
+  async function send(text: string, opts: { retry?: boolean } = {}) {
+    const userText = text.trim();
+    if (!userText || loading) return;
     setInput("");
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      sender: "user",
-      text: userText,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
+    const history = messages.filter((m) => m.text && !m.failedFor).map((m) => ({ role: m.sender === "ia" ? "assistant" : "user", content: m.text }));
+    const iaId = `${Date.now()}-ia`;
+    setMessages((prev) => [
+      ...(opts.retry ? prev.filter((m) => !m.failedFor) : [...prev, { id: `${Date.now()}-u`, sender: "user" as const, text: userText }]),
+      { id: iaId, sender: "ia", text: "" },
+    ]);
     setLoading(true);
 
-    const history = messages.filter((m) => m.text).slice(-6).map((m) => ({
-      role: m.sender === "ia" ? "assistant" : "user",
-      content: m.text,
-    }));
-
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
     try {
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
-      if (session?.access_token) {
-        headers["Authorization"] = `Bearer ${session.access_token}`;
-      }
-
-      const res = await fetch("/api/ai", {
+      const res = await fetch("/api/chat", {
         method: "POST",
-        headers,
-        body: JSON.stringify({
-          kind: "chat",
-          message: userText,
-          history,
-          userName: profile?.full_name || undefined,
-        }),
+        headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}) },
+        body: JSON.stringify({ message: userText, history, userName: firstName || undefined }),
+        signal: ctrl.signal,
       });
-
-      const data = await res.json();
-
-      if (res.ok && data.reply) {
-        const detected = Array.isArray(data.detectedSkills) ? data.detectedSkills : [];
-        if (detected.length > 0) {
-          setSessionSkills((prev) => Array.from(new Set([...prev, ...detected])));
-        }
-
-        const formattedText = cleanPlainResponse(data.reply);
-
-        const iaMsg: Message = {
-          id: (Date.now() + 1).toString(),
-          sender: "ia",
-          text: formattedText,
-          detectedSkills: detected.length > 0 ? detected : undefined,
-          suggestions: Array.isArray(data.suggestions) && data.suggestions.length ? data.suggestions : undefined,
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        };
-        setMessages((prev) => [...prev, iaMsg]);
-      } else {
-        throw new Error(data.error || "Réponse non disponible");
+      if (!res.ok || !res.body) throw new Error(String(res.status));
+      const isLocal = res.headers.get("X-PHAR-Source") === "local";
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let acc = "";
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        acc += decoder.decode(value, { stream: true });
+        const shown = clean(acc);
+        setMessages((prev) => prev.map((m) => (m.id === iaId ? { ...m, text: shown, local: isLocal } : m)));
       }
-    } catch (err) {
-      console.error("[assistant-ia] Erreur requête:", err);
-      const fallbackMsg: Message = {
-        id: (Date.now() + 1).toString(),
-        sender: "ia",
-        text: "Bien noté. Peux-tu me donner un exemple concret d'une situation où tu as mis cette compétence en pratique ?",
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      };
-      setMessages((prev) => [...prev, fallbackMsg]);
+      if (!acc.trim()) throw new Error("vide");
+      // Les phrases de démarrage ne racontent rien sur la personne : pas de repérage.
+      if (!Object.values(PROMPTS).some((p) => p.prompt === userText)) detectSkills(userText);
+    } catch (e) {
+      const aborted = (e as Error).name === "AbortError";
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === iaId
+            ? {
+                ...m,
+                text: aborted ? "La réponse prend trop de temps. Ta connexion est peut-être lente." : "L'assistant n'a pas pu répondre.",
+                failedFor: userText,
+              }
+            : m,
+        ),
+      );
     } finally {
+      clearTimeout(timer);
       setLoading(false);
     }
   }
 
-  function handleFormSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    sendMessage(input);
-  }
-
-  async function handleSaveSkills() {
-    if (!profile || sessionSkills.length === 0) return;
-    setSavingSkills(true);
-
+  async function saveFound() {
+    if (!profile || !pending.length) return;
+    setSaving(true);
     try {
-      const formattedSkills = sessionSkills.map((name) => ({
-        name,
-        category: "Pratique",
-        level: "intermédiaire" as const,
-      }));
-
-      const { error } = await supabase
-        .from("profiles")
-        .update({ skills: formattedSkills })
-        .eq("id", profile.id);
-
-      if (!error) {
-        setSavedSuccess(true);
-        if (refreshProfile) await refreshProfile();
-        setTimeout(() => setSavedSuccess(false), 3000);
-      }
+      const { profile: next, added } = await addSkillsToProfile(profile, pending);
+      setProfile(next);
+      setFound([]);
+      writePending([]);
+      toast(`${added.length} compétence${added.length > 1 ? "s" : ""} ajoutée${added.length > 1 ? "s" : ""} à ton profil`);
     } catch (e) {
-      console.error(e);
+      toast((e as Error).message, "error");
     } finally {
-      setSavingSkills(false);
+      setSaving(false);
     }
   }
 
-  const started = messages.length > 1;
+  function speak(m: Message) {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return toast("La lecture à voix haute n'est pas disponible sur ce téléphone.", "error");
+    const synth = window.speechSynthesis;
+    if (speakingId === m.id) {
+      synth.cancel();
+      return setSpeakingId(null);
+    }
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(m.text);
+    u.lang = "fr-FR";
+    u.rate = 0.95;
+    u.onend = () => setSpeakingId(null);
+    setSpeakingId(m.id);
+    synth.speak(u);
+  }
+
+  function newConversation() {
+    window.speechSynthesis?.cancel();
+    setMessages([]);
+  }
+
+  // Suggestions selon le profil
+  const suggestions = [
+    ...(profileSkills.length ? [] : [PROMPTS.reveal]),
+    PROMPTS.price,
+    PROMPTS.interview,
+    PROMPTS.apply,
+  ];
+  const started = messages.length > 0;
 
   return (
     <div className="flex min-h-[100svh] flex-col">
@@ -180,15 +214,14 @@ export default function AssistantIaPage() {
 
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 sm:px-6">
         {!started ? (
-          /* Une seule chose à regarder : le titre, une phrase, la zone de saisie */
           <section className="pb-8 pt-10 sm:pt-16">
-            <h1 className="text-[32px] font-semibold leading-[1.15] text-ink sm:text-4xl">{userName ? `Bonjour ${userName}` : "Raconte ce que tu sais faire"}</h1>
+            <h1 className="text-[32px] font-semibold leading-[1.15] text-ink sm:text-4xl">{firstName ? `Bonjour ${firstName}` : "Raconte ce que tu sais faire"}</h1>
             <p className="mt-3 text-lg text-muted">Je suis l&apos;assistant PHAR. Dis-moi ton métier et ce que tu fais chaque jour, je t&apos;aide à le montrer aux employeurs.</p>
             <ul className="mt-8 space-y-2">
-              {STARTER_PROMPTS.map((sp) => (
+              {suggestions.map((sp) => (
                 <li key={sp.label}>
                   <button
-                    onClick={() => sendMessage(sp.prompt)}
+                    onClick={() => send(sp.prompt)}
                     className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl bg-white px-4 text-left text-base text-ink ring-1 ring-line transition-colors hover:bg-slate-50"
                   >
                     {sp.label}
@@ -196,88 +229,111 @@ export default function AssistantIaPage() {
                   </button>
                 </li>
               ))}
+              {profileSkills.length > 0 && (
+                <li>
+                  <Link href="/profil" className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl bg-white px-4 text-base text-ink ring-1 ring-line hover:bg-slate-50">
+                    Voir ma carte de compétences
+                    <span aria-hidden className="text-muted">→</span>
+                  </Link>
+                </li>
+              )}
             </ul>
           </section>
         ) : (
-          <div className="flex-1 space-y-6 py-8" aria-live="polite">
-            {messages.slice(1).map((m) => {
-              const isIa = m.sender === "ia";
-              return (
-                <div key={m.id} className={isIa ? "" : "flex justify-end"}>
-                  {isIa ? (
-                    <div>
-                      <p className="whitespace-pre-line text-base text-ink">{m.text}</p>
-                      {m.detectedSkills && m.detectedSkills.length > 0 && (
-                        <p className="mt-3 text-sm text-sage">Repéré : {m.detectedSkills.join(", ")}</p>
-                      )}
-                      {m.suggestions && m.suggestions.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {m.suggestions.map((sug) => (
-                            <button
-                              key={sug}
-                              onClick={() => sendMessage(sug)}
-                              className="min-h-11 rounded-xl bg-white px-3 py-2 text-left text-sm text-ink ring-1 ring-line transition-colors hover:bg-slate-50"
-                            >
-                              {sug}
-                            </button>
-                          ))}
+          <div className="flex-1 py-6">
+            <div className="flex justify-end">
+              <button onClick={newConversation} className="inline-flex min-h-11 items-center text-sm text-muted underline underline-offset-4 hover:text-ink">
+                Nouvelle conversation
+              </button>
+            </div>
+            <div className="mt-2 space-y-6" aria-live="polite">
+              {messages.map((m) =>
+                m.sender === "user" ? (
+                  <div key={m.id} className="flex justify-end">
+                    <p className="max-w-[85%] whitespace-pre-line rounded-2xl rounded-br-md bg-slate-100 px-4 py-3 text-[17px] leading-relaxed text-ink">{m.text}</p>
+                  </div>
+                ) : m.failedFor ? (
+                  <div key={m.id} role="alert" className="rounded-xl bg-red-50 px-4 py-3 ring-1 ring-red-200">
+                    <p className="text-base text-red-800">{m.text}</p>
+                    <button onClick={() => send(m.failedFor!, { retry: true })} className="mt-2 inline-flex min-h-11 items-center rounded-lg bg-white px-4 text-sm font-semibold text-ink ring-1 ring-line hover:bg-slate-50">
+                      Réessayer
+                    </button>
+                  </div>
+                ) : (
+                  <div key={m.id}>
+                    {m.text ? (
+                      <>
+                        <p className="whitespace-pre-line text-[17px] leading-relaxed text-ink">{m.text}</p>
+                        <div className="mt-1 flex items-center gap-3">
+                          <button onClick={() => speak(m)} className="inline-flex min-h-11 items-center text-sm text-muted hover:text-ink" aria-pressed={speakingId === m.id}>
+                            {speakingId === m.id ? "Arrêter la lecture" : "Écouter"}
+                          </button>
+                          {m.local && <span className="text-xs text-muted">Réponse simplifiée : l&apos;assistant est très demandé en ce moment</span>}
                         </div>
-                      )}
-                    </div>
-                  ) : (
-                    <p className="max-w-[85%] whitespace-pre-line rounded-2xl rounded-br-md bg-slate-100 px-4 py-3 text-base text-ink">{m.text}</p>
-                  )}
-                </div>
-              );
-            })}
-            {loading && (
-              <p className="flex items-center gap-2 text-sm text-muted">
-                <span className="flex gap-1" aria-hidden>
-                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400" />
-                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:0.15s]" />
-                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:0.3s]" />
-                </span>
-                L&apos;assistant écrit…
-              </p>
-            )}
-            <div ref={messagesEndRef} />
+                      </>
+                    ) : (
+                      <p className="flex items-center gap-2 text-sm text-muted">
+                        <span className="flex gap-1" aria-hidden>
+                          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400" />
+                          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:0.15s]" />
+                          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:0.3s]" />
+                        </span>
+                        L&apos;assistant écrit…
+                      </p>
+                    )}
+                  </div>
+                ),
+              )}
+              <div ref={endRef} />
+            </div>
           </div>
         )}
 
-        {/* Zone de saisie fixe en bas, au-dessus de la barre de navigation */}
         <div className="sticky bottom-[calc(64px+env(safe-area-inset-bottom))] -mx-4 mt-auto border-t border-line bg-bg px-4 pb-4 pt-3 sm:-mx-6 sm:px-6 md:bottom-0">
-          {sessionSkills.length > 0 && (
-            <div className="mb-2 flex min-h-11 items-center justify-between gap-3 text-sm">
-              <span className="text-muted">
-                {sessionSkills.length} compétence{sessionSkills.length > 1 ? "s" : ""} repérée{sessionSkills.length > 1 ? "s" : ""}
-              </span>
+          {pending.length > 0 && (
+            <div className="mb-3 rounded-xl bg-white p-3 ring-1 ring-line">
+              <p className="text-sm text-muted">Repéré dans tes réponses</p>
+              <ul className="mt-2 flex flex-wrap gap-2">
+                {pending.map((s) => (
+                  <li key={s.name} className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1 text-sm text-ink">
+                    <SkillIcon category={s.category} className="h-4 w-4 text-muted" />
+                    {s.name}
+                  </li>
+                ))}
+              </ul>
               {session ? (
-                <button onClick={handleSaveSkills} disabled={savingSkills} className="min-h-11 px-1 font-semibold text-sun hover:text-sun-700 disabled:opacity-50">
-                  {savedSuccess ? "Enregistrées" : savingSkills ? "Un instant…" : "Enregistrer dans mon profil"}
+                <button onClick={saveFound} disabled={saving} className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-sun hover:text-sun-700 disabled:opacity-50">
+                  {saving ? "Un instant…" : `Ajouter ${pending.length > 1 ? "ces compétences" : "cette compétence"} à mon profil`}
                 </button>
               ) : (
-                <Link href="/connexion?mode=inscription" className="inline-flex min-h-11 items-center px-1 font-semibold text-sun hover:text-sun-700">
+                <Link href="/connexion?mode=inscription" className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-sun hover:text-sun-700">
                   Créer un compte pour les garder
                 </Link>
               )}
             </div>
           )}
-          <form onSubmit={handleFormSubmit} className="flex items-end gap-2">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              send(input);
+            }}
+            className="flex items-end gap-2"
+          >
             <label htmlFor="msg" className="sr-only">Ton message</label>
             <input
               id="msg"
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Écris ton message"
-              disabled={loading}
+              placeholder="Écris ou parle"
               autoComplete="off"
-              className="min-h-[52px] min-w-0 flex-1 rounded-xl border border-line bg-white px-4 text-base text-ink transition-colors placeholder:text-slate-400 focus:border-sun focus:outline-none"
+              className="min-h-[52px] min-w-0 flex-1 rounded-xl border border-line bg-white px-4 text-[17px] text-ink transition-colors placeholder:text-slate-400 focus:border-sun focus:outline-none"
             />
+            <VoiceButton onText={(t) => setInput((v) => (v.trim() ? `${v.trim()} ${t}` : t))} label="Parler" iconOnlyOnMobile className="min-h-[52px] min-w-[52px] shrink-0" />
             <button
               type="submit"
               disabled={loading || !input.trim()}
-              className="inline-flex min-h-[52px] shrink-0 items-center justify-center rounded-xl bg-sun px-5 text-base font-semibold text-white transition-colors hover:bg-sun-700 disabled:opacity-40"
+              className="inline-flex min-h-[52px] shrink-0 items-center justify-center rounded-xl bg-sun px-4 text-base font-semibold text-white transition-colors hover:bg-sun-700 disabled:opacity-40"
             >
               Envoyer
             </button>

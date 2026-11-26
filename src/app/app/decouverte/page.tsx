@@ -9,6 +9,7 @@ import { useToast } from "@/components/Toast";
 import { AiBadge, Button, Chip, Logo, Textarea } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 import { callAi } from "@/lib/ai-client";
+import { mergeSkills } from "@/lib/skills";
 import type { Profile, Skill, Suggestion } from "@/lib/types";
 
 const QUESTIONS = [
@@ -81,9 +82,8 @@ export default function DecouvertePage() {
     if (!profile || !result) return;
     setSaving(true);
     const chosen = result.skills.filter((s) => kept.has(s.name));
-    const existing = new Set(profile.skills.map((s) => s.name.toLowerCase()));
     const update: Partial<Profile> = {
-      skills: [...profile.skills, ...chosen.filter((s) => !existing.has(s.name.toLowerCase()))],
+      skills: mergeSkills(Array.isArray(profile.skills) ? profile.skills : [], chosen).skills,
       suggestions: result.suggestions,
       availability: availability || profile.availability,
       experiences: profile.experiences || [answers[0], answers[2], answers[3]].filter(Boolean).join(". "),
@@ -91,10 +91,10 @@ export default function DecouvertePage() {
     };
     const { data, error } = await supabase.from("profiles").update(update).eq("id", profile.id).select().single();
     setSaving(false);
-    if (error) return toast(`Enregistrement impossible : ${error.message}`, "error");
+    if (error) return toast("L'enregistrement n'a pas marché. Vérifie ta connexion et réessaie.", "error");
     setProfile(data as Profile);
-    toast(`${chosen.length} compétences ajoutées à votre profil`);
-    router.push("/app/opportunites");
+    toast(`${chosen.length} compétence${chosen.length > 1 ? "s" : ""} ajoutée${chosen.length > 1 ? "s" : ""} à ton profil`);
+    router.push("/profil");
   }
 
   const progress = Math.min(step, total) / total;

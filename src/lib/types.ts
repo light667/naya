@@ -1,4 +1,18 @@
-export type Skill = { name: string; category: string; level?: "débutante" | "intermédiaire" | "confirmée" };
+export type SkillLevel = "débutante" | "intermédiaire" | "confirmée";
+/** déclarée par la personne · confirmée par l'assistant (repérée dans ses réponses) · validée par un mentor */
+export type SkillStatus = "declaree" | "confirmee_assistant" | "validee_mentor";
+export type SkillSource = "assistant" | "decouverte" | "de" | "manuel";
+export type Skill = {
+  name: string;
+  category: string;
+  level?: SkillLevel;
+  /** Une phrase tirée des réponses de la personne qui justifie la compétence. */
+  evidence?: string;
+  source?: SkillSource;
+  status?: SkillStatus;
+  /** Date d'ajout, ISO. */
+  added_at?: string;
+};
 
 export type Suggestion = { title: string; description: string; firstStep: string };
 

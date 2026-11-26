@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/lib/supabase";
+import { SkillList } from "@/components/SkillList";
 
 type Opportunity = {
   id: string;
@@ -47,14 +48,14 @@ export default function DashboardPage() {
 
   const checklist = [
     { done: true, label: "Créer ton compte", gain: 25, href: "/profil" },
-    { done: hasSkills, label: "Créer ta carte de compétences", gain: 25, href: "/assistant-ia" },
+    { done: hasSkills, label: "Créer ta carte de compétences", gain: 25, href: "/app/decouverte" },
     { done: hasBasics, label: "Ajouter ta ville et une phrase sur toi", gain: 25, href: "/profil" },
     { done: hasApplied, label: "Postuler à une offre", gain: 25, href: "/opportunites" },
   ];
   const completion = checklist.reduce((a, c) => a + (c.done ? c.gain : 0), 0);
 
   const next = !hasSkills
-    ? { text: "Raconte ce que tu sais faire. L'assistant en fait ta carte de compétences.", cta: "Créer ma carte de compétences", href: "/assistant-ia" }
+    ? { text: "Raconte ce que tu sais faire. L'assistant en fait ta carte de compétences.", cta: "Créer ma carte de compétences", href: "/app/decouverte" }
     : !hasBasics
       ? { text: "Ajoute ta ville et une phrase sur toi pour que les employeurs te trouvent.", cta: "Compléter mon profil", href: "/profil" }
       : !hasApplied
@@ -100,6 +101,29 @@ export default function DashboardPage() {
       {/* Le reste, en retrait */}
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.4fr_1fr]">
         <div className="min-w-0 space-y-12">
+          <section>
+            <div className="flex items-baseline justify-between">
+              <h2 className="text-lg font-semibold text-ink">Mes compétences</h2>
+              {hasSkills && (
+                <Link href="/profil" className="inline-flex min-h-11 items-center text-sm text-muted hover:text-ink">
+                  Modifier
+                </Link>
+              )}
+            </div>
+            {hasSkills ? (
+              <div className="mt-4">
+                <SkillList skills={profile!.skills} compact />
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-muted">
+                Pas encore de compétences.{" "}
+                <Link href="/app/decouverte" className="font-medium text-ink underline underline-offset-4">
+                  Les révéler
+                </Link>
+              </p>
+            )}
+          </section>
+
           <section>
             <div className="flex items-baseline justify-between">
               <h2 className="text-lg font-semibold text-ink">Mes candidatures</h2>

@@ -7,6 +7,11 @@ import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button, Input, Sheet, Textarea } from "@/components/ui";
+import { SkillList } from "@/components/SkillList";
+import { SkillCard } from "@/components/SkillCard";
+import { useToast } from "@/components/Toast";
+import { writeSkills } from "@/lib/skills-client";
+import type { Skill } from "@/lib/types";
 
 type PortfolioItem = {
   id: string;
@@ -17,7 +22,20 @@ type PortfolioItem = {
 };
 
 export default function ProfilPage() {
-  const { session, profile, loading } = useAuth();
+  const { session, profile, loading, setProfile } = useAuth();
+  const toast = useToast();
+
+  async function saveSkills(next: Skill[]) {
+    if (!profile) return;
+    const prev = profile;
+    setProfile({ ...profile, skills: next }); // affichage immédiat
+    try {
+      setProfile(await writeSkills(profile, next));
+    } catch (e) {
+      setProfile(prev);
+      toast((e as Error).message, "error");
+    }
+  }
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
   const [newTitle, setNewTitle] = useState("");
   const [newDesc, setNewDesc] = useState("");
@@ -115,20 +133,24 @@ export default function ProfilPage() {
         <section className="mt-16">
           <h2 className="text-lg font-semibold text-ink">Mes compétences</h2>
           {skills.length > 0 ? (
-            <ul className="mt-4 flex flex-wrap gap-2">
-              {skills.map((skill: { name?: string } | string, idx: number) => (
-                <li key={idx} className="rounded-lg bg-white px-3 py-1.5 text-sm text-ink ring-1 ring-line">
-                  {typeof skill === "string" ? skill : skill.name || "Compétence"}
-                </li>
-              ))}
-            </ul>
+            <>
+              <div className="mt-4">
+                <SkillCard firstName={(fullName || "").split(/\s+/)[0] || "Moi"} trade={headline || "Métier à préciser"} city={city || "Ville à préciser"} skills={skills.slice(0, 6).map((s) => (typeof s === "string" ? s : s.name))} />
+              </div>
+              <div className="mt-6">
+                <SkillList skills={skills} editable onChange={saveSkills} />
+              </div>
+            </>
           ) : (
-            <p className="mt-3 text-sm text-muted">
-              Pas encore de compétences.{" "}
-              <Link href="/assistant-ia" className="font-medium text-ink underline underline-offset-4">
-                Les trouver avec l&apos;assistant
+            <div className="mt-3">
+              <p className="text-sm text-muted">Pas encore de compétences. Réponds à quelques questions simples, l&apos;assistant les repère pour toi.</p>
+              <Link href="/app/decouverte" className="mt-4 inline-flex min-h-12 items-center justify-center rounded-xl bg-ink px-5 text-sm font-semibold text-white hover:bg-slate-800">
+                Révéler mes compétences
               </Link>
-            </p>
+              <div className="mt-4">
+                <SkillList skills={[]} editable onChange={saveSkills} />
+              </div>
+            </div>
           )}
         </section>
 

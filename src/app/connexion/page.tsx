@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/components/AuthProvider";
-import { Button, Input, Logo, Segmented } from "@/components/ui";
+import { Button, Input, Logo, PasswordInput, Segmented, StrengthMeter } from "@/components/ui";
 
 function AuthFormContent() {
   const params = useSearchParams();
@@ -28,6 +28,20 @@ function AuthFormContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [forgot, setForgot] = useState(false);
+
+  async function handleForgot(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    const { error: err } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+      redirectTo: `${window.location.origin}/connexion/nouveau-mot-de-passe`,
+    });
+    setLoading(false);
+    if (err && /rate|too many/i.test(err.message)) return setError("Trop de demandes. Réessaie dans quelques minutes.");
+    // Message identique que le compte existe ou non : on ne révèle pas les adresses inscrites.
+    setNotice("Si un compte existe avec cet e-mail, tu vas recevoir un lien pour choisir un nouveau mot de passe. Regarde aussi dans les courriers indésirables.");
+  }
 
   // Redirection automatique sur le tableau de bord si déjà connecté
   useEffect(() => {
@@ -65,8 +79,7 @@ function AuthFormContent() {
 
         if (signUpError) {
           if (/already registered/i.test(signUpError.message)) {
-            setError("Un compte existe déjà avec cet e-mail. Connecte-toi.");
-            setMode("connexion");
+            setError("Impossible de créer ce compte. Si tu en as déjà un, connecte-toi ou choisis « Mot de passe oublié ».");
           } else if (/password/i.test(signUpError.message)) {
             setError("Le mot de passe doit contenir au moins 6 caractères.");
           } else {
@@ -169,6 +182,7 @@ function AuthFormContent() {
   const isSignup = mode === "inscription";
   function switchMode(m: "connexion" | "inscription") {
     setMode(m);
+    setForgot(false);
     setError(null);
     setNotice(null);
   }
@@ -187,6 +201,26 @@ function AuthFormContent() {
       </header>
 
       <main className="mx-auto w-full max-w-md flex-1 px-4 py-10 sm:py-14">
+        {forgot ? (
+          <>
+            <h1 className="text-[32px] font-semibold leading-[1.15] text-ink">Mot de passe oublié</h1>
+            <p className="mt-2 text-lg text-muted">Entre ton e-mail, nous t&apos;envoyons un lien pour en choisir un nouveau.</p>
+            {error && <p role="alert" className="mt-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 ring-1 ring-red-200">{error}</p>}
+            {notice && <p role="status" className="mt-6 rounded-xl bg-sage-50 px-4 py-3 text-sm text-sage-700 ring-1 ring-sage/30">{notice}</p>}
+            <form onSubmit={handleForgot} className="mt-8 space-y-4">
+              <Input label="E-mail" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Button variant="accent" type="submit" loading={loading} className="!mt-8 w-full min-h-[52px] text-base">
+                Recevoir le lien
+              </Button>
+            </form>
+            <p className="mt-6 text-center">
+              <button type="button" onClick={() => switchMode("connexion")} className="inline-flex min-h-11 items-center text-sm font-medium text-ink underline underline-offset-4">
+                Retour à la connexion
+              </button>
+            </p>
+          </>
+        ) : (
+        <>
         <h1 className="text-[32px] font-semibold leading-[1.15] text-ink">{isSignup ? "Créer mon compte" : "Connexion"}</h1>
         <p className="mt-2 text-lg text-muted">{isSignup ? "C'est gratuit. Le reste de ton profil se complète plus tard." : "Avec ton e-mail et ton mot de passe."}</p>
 
@@ -222,16 +256,24 @@ function AuthFormContent() {
             </>
           )}
           <Input label="E-mail" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <Input
+          <PasswordInput
             label="Mot de passe"
-            type="password"
             required
             minLength={6}
             autoComplete={isSignup ? "new-password" : "current-password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            hint={isSignup ? "6 caractères minimum" : undefined}
+            hint={isSignup ? <StrengthMeter password={password} /> : undefined}
           />
+          {!isSignup && (
+            <button
+              type="button"
+              onClick={() => { setForgot(true); setError(null); setNotice(null); }}
+              className="-mt-1 inline-flex min-h-11 items-center text-sm text-muted underline underline-offset-4 hover:text-ink"
+            >
+              Mot de passe oublié ?
+            </button>
+          )}
           <Button variant="accent" type="submit" loading={loading} className="!mt-8 w-full min-h-[52px] text-base">
             {loading ? "Un instant…" : isSignup ? "Créer mon compte" : "Me connecter"}
           </Button>
@@ -243,6 +285,8 @@ function AuthFormContent() {
             {isSignup ? "Me connecter" : "Créer un compte"}
           </button>
         </p>
+        </>
+        )}
       </main>
 
       <footer className="py-6 text-center text-xs text-muted">© {new Date().getFullYear()} PHAR</footer>
